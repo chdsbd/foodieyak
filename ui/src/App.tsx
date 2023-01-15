@@ -23,9 +23,12 @@ import {
   Tabs,
   Flex,
   Text,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
 } from "@chakra-ui/react";
 import styled from "@emotion/styled";
-import { ArrowUp, MoreHorizontal } from "react-feather";
+import { ArrowUp, MoreHorizontal, ThumbsDown, ThumbsUp } from "react-feather";
 
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 // import * as ICons from '@chakra-ui/icons'
@@ -119,14 +122,16 @@ function PlacesListView() {
 
       <Container>
         {locations.map((l) => (
-          <HStack>
-            <LocationImage />
-            <div>
-              <div>{l.name}</div>
-              <div>{l.location}</div>
-              <div>{l.lastCheckIn}</div>
-            </div>
-          </HStack>
+          <Link to="/place/tenoch">
+            <HStack>
+              <LocationImage />
+              <div>
+                <div>{l.name}</div>
+                <div>{l.location}</div>
+                <div>{l.lastCheckIn}</div>
+              </div>
+            </HStack>
+          </Link>
         ))}
       </Container>
     </VStack>
@@ -144,6 +149,18 @@ function FriendsListView() {
   return (
     <VStack spacing={4}>
       <NavigationBarFriends />
+      <Breadcrumb alignSelf={"start"}>
+        <BreadcrumbItem>
+          <BreadcrumbLink as={Link} to="/">
+            Home
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbItem isCurrentPage>
+          <BreadcrumbLink as={Link} to="/friends">
+            Friends
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+      </Breadcrumb>
 
       <Heading as="h2" size="md" alignSelf={"start"}>
         Invites
@@ -185,7 +202,24 @@ function FriendsAddView() {
       <HStack w="full">
         <HomeButton />
       </HStack>
+      <Breadcrumb alignSelf={"start"}>
+        <BreadcrumbItem>
+          <BreadcrumbLink as={Link} to="/">
+            Home
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbItem>
+          <BreadcrumbLink as={Link} to="/friends">
+            Friends
+          </BreadcrumbLink>
+        </BreadcrumbItem>
 
+        <BreadcrumbItem isCurrentPage>
+          <BreadcrumbLink as={Link} to="/friends/add">
+            Add
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+      </Breadcrumb>
       <VStack width="100%">
         <FormControl>
           <FormLabel>Email address</FormLabel>
@@ -206,6 +240,19 @@ function PlaceCreateView() {
       <HStack w="full">
         <HomeButton />
       </HStack>
+      <Breadcrumb alignSelf={"start"}>
+        <BreadcrumbItem>
+          <BreadcrumbLink as={Link} to="/">
+            Home
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+
+        <BreadcrumbItem isCurrentPage>
+          <BreadcrumbLink as={Link} to="/place/create">
+            Place
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+      </Breadcrumb>
 
       <FormControl>
         <FormLabel>Name</FormLabel>
@@ -220,7 +267,9 @@ function PlaceCreateView() {
         <FormLabel>Image</FormLabel>
         <Input type="file" />
       </FormControl>
-      <Button size="lg">Create Check-In</Button>
+      <Link to="/place/somePlaceId">
+        <Button size="lg">Create Place</Button>
+      </Link>
     </VStack>
   );
 }
@@ -271,6 +320,19 @@ function PlacesDetailView() {
       <HStack w="full">
         <HomeButton />
       </HStack>
+      <Breadcrumb alignSelf={"start"}>
+        <BreadcrumbItem>
+          <BreadcrumbLink as={Link} to="/">
+            Home
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+
+        <BreadcrumbItem isCurrentPage>
+          <BreadcrumbLink as={Link} to="/place/tenoch">
+            Tenoch
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+      </Breadcrumb>
       <HStack w="100%">
         <Box
           minHeight={"100px"}
@@ -285,7 +347,9 @@ function PlacesDetailView() {
           <div>Medford, MA</div>
         </div>
       </HStack>
-      <Button width="100%">Add a Check-In</Button>
+      <Link style={{ width: "100%" }} to="/place/tenoch/check-in">
+        <Button width="100%">Add a Check-In</Button>
+      </Link>
       <Tabs width="100%">
         <TabList>
           <Tab>Menu</Tab>
@@ -333,6 +397,149 @@ function PlacesDetailView() {
   );
 }
 
+function CheckInCreateView() {
+  return (
+    <VStack spacing={4}>
+      <HStack w="full">
+        <HomeButton />
+      </HStack>
+      <Breadcrumb alignSelf={"start"}>
+        <BreadcrumbItem>
+          <BreadcrumbLink as={Link} to="/">
+            Home
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+
+        <BreadcrumbItem>
+          <BreadcrumbLink as={Link} to="/place/tenoch">
+            Tenoch
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+
+        <BreadcrumbItem isCurrentPage>
+          <BreadcrumbLink as={Link} to="/place/tenoch/check-in">
+            Check-In
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+      </Breadcrumb>
+      <HStack w="100%">
+        <Box
+          minHeight={"100px"}
+          minWidth="100px"
+          background={"darkgray"}
+          marginRight={4}
+        >
+          <div />
+        </Box>
+        <div>
+          <div>Tenoch</div>
+          <div>Medford, MA</div>
+        </div>
+      </HStack>
+
+      <FormControl>
+        <FormLabel>Date</FormLabel>
+        <Input type="date" />
+      </FormControl>
+      <FormControl>
+        <FormLabel>Menu Item</FormLabel>
+        <Input type="text" />
+      </FormControl>
+      <FormControl>
+        <FormLabel>Rating</FormLabel>
+        <ButtonGroup>
+          <Button>
+            <ThumbsUp />
+          </Button>
+          <Button>
+            <ThumbsDown />
+          </Button>
+        </ButtonGroup>
+      </FormControl>
+      <Button>Add another item</Button>
+      <FormControl>
+        <FormLabel>Images</FormLabel>
+        <Input type="file" />
+      </FormControl>
+      {/* TODO */}
+      <Link to="/place/somePlace/check-in/someCheckIn">
+        <Button width="100%">Create Check-In</Button>
+      </Link>
+    </VStack>
+  );
+}
+
+function CheckInDetailView() {
+  const checkIn = {
+    date: "2022-11-12",
+    menuItems: [
+      { name: "Potato", rating: 1 },
+      { name: "Pizza", rating: -1 },
+    ],
+    images: [{ url: "example.com" }],
+  };
+  return (
+    <VStack spacing={4}>
+      <HStack w="full">
+        <HomeButton />
+      </HStack>
+      <Breadcrumb alignSelf={"start"}>
+        <BreadcrumbItem>
+          <BreadcrumbLink as={Link} to="/">
+            Home
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+
+        <BreadcrumbItem>
+          <BreadcrumbLink as={Link} to="/place/tenoch">
+            Tenoch
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+
+        <BreadcrumbItem isCurrentPage>
+          <BreadcrumbLink as={Link} to="/place/tenoch/check-in/someId">
+            {checkIn.date}
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+      </Breadcrumb>
+      <HStack w="100%">
+        <LocationImage />
+        <div>
+          <div>Tenoch</div>
+          <div>Medford, MA</div>
+        </div>
+      </HStack>
+
+      <Text alignSelf={"start"}>{checkIn.date}</Text>
+
+      <Heading as="h2" size="md" alignSelf={"start"}>
+        Menu Items
+      </Heading>
+      {checkIn.menuItems.map((m) => (
+        <HStack width="100%">
+          <div>{m.name}</div>
+          <Spacer />
+          <Button>
+            {m.rating > 0 ? (
+              <ThumbsUp fill="lightgreen" />
+            ) : (
+              <ThumbsDown fill="orange" />
+            )}
+          </Button>
+        </HStack>
+      ))}
+      <HStack width="100%" align="start">
+        {checkIn.images.map((i) => (
+          <LocationImage />
+        ))}
+      </HStack>
+      <Link to="/place/somePlace/check-in">
+        <Button width="100%">Modify Check-In</Button>
+      </Link>
+    </VStack>
+  );
+}
+
 function NoMatch() {
   return (
     <VStack spacing={4}>
@@ -349,17 +556,23 @@ function App() {
     <Container padding={2}>
       <Router>
         <Switch>
+          <Route path="/place/:place/check-in/:checkin">
+            <CheckInDetailView />
+          </Route>
+          <Route path="/place/:id/check-in">
+            <CheckInCreateView />
+          </Route>
           <Route path="/place/create">
             <PlaceCreateView />
           </Route>
           <Route path="/place/:id">
             <PlacesDetailView />
           </Route>
-          <Route path="/friends">
-            <FriendsListView />
-          </Route>
           <Route path="/friends/add">
             <FriendsAddView />
+          </Route>
+          <Route path="/friends">
+            <FriendsListView />
           </Route>
           <Route path="/" exact>
             <PlacesListView />
