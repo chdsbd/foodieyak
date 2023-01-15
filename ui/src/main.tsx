@@ -7,6 +7,7 @@ import { ChakraProvider } from "@chakra-ui/react";
 import { initializeApp } from "firebase/app";
 import { collection, addDoc } from "firebase/firestore";
 import { getFirestore } from "firebase/firestore";
+import { extendTheme, type ThemeConfig } from "@chakra-ui/react";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -27,9 +28,15 @@ const db = getFirestore(app);
 
 console.log(db.app.name);
 
+const theme = extendTheme({
+  config: {
+    initialColorMode: "dark",
+  },
+});
+
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <ChakraProvider>
+    <ChakraProvider theme={theme}>
       <App />
     </ChakraProvider>
   </React.StrictMode>

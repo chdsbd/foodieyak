@@ -1,6 +1,8 @@
 import { Container } from "@chakra-ui/react";
 
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { AuthLoginView } from "./pages/AuthLoginView.page";
+import { AuthSignupView } from "./pages/AuthSignupView.page";
 import { CheckInCreateView } from "./pages/CheckInCreateView.page";
 import { CheckInDetailView } from "./pages/CheckInDetailView.page";
 import { FriendsCreateView } from "./pages/FriendsCreateView.page";
@@ -12,6 +14,14 @@ import { PlacesDetailView } from "./pages/PlacesDetailView.page";
 import { PlacesListView } from "./pages/PlacesListView.page";
 
 const routes = [
+  {
+    path: "/signup",
+    element: <AuthSignupView />,
+  },
+  {
+    path: "/login",
+    element: <AuthLoginView />,
+  },
   {
     path: "/place/:place/check-in/:checkin",
     element: <CheckInDetailView />,
