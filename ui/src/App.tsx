@@ -24,10 +24,14 @@ import {
   Flex,
   Text,
 } from "@chakra-ui/react";
-import styled from "@emotion/styled";
-import { ArrowUp, MoreHorizontal } from "react-feather";
-import { Link, Route } from "wouter";
-// import * as ICons from '@chakra-ui/icons'
+
+import {
+  Outlet,
+  RouterProvider,
+  Link,
+  createReactRouter,
+  createRouteConfig,
+} from "@tanstack/react-router";
 
 type Location = {
   name: string;
@@ -332,27 +336,41 @@ function PlacesDetailView() {
   );
 }
 
-function App() {
-  return (
+const rootRoute = createRouteConfig({
+  component: () => (
     <Container padding={2}>
-      <Route path="/">
-        <PlacesListView />
-      </Route>
-      <Route path="/place/create">
-        <PlaceCreateView />
-      </Route>
-      <Route path="/place/:id">
-        <PlacesDetailView />
-      </Route>
-      <Route path="/friends">
-        <FriendsListView />
-      </Route>
-      <Route path="/friends/add">
-        <FriendsAddView />
-      </Route>
-      {/* <Route path="/:rest*">404, Not Found!</Route> */}
+      <Outlet />
     </Container>
-  );
+  ),
+});
+
+const routeConfig = rootRoute.addChildren([
+  rootRoute.createRoute({
+    path: "/",
+    component: PlacesListView,
+  }),
+  rootRoute.createRoute({
+    path: "/place/create",
+    component: PlaceCreateView,
+  }),
+  rootRoute.createRoute({
+    path: "/place/:id",
+    component: PlacesDetailView,
+  }),
+  rootRoute.createRoute({
+    path: "/friends",
+    component: FriendsListView,
+  }),
+  rootRoute.createRoute({
+    path: "/friends/add",
+    component: FriendsAddView,
+  }),
+]);
+
+const router = createReactRouter({ routeConfig });
+
+function App() {
+  return <RouterProvider router={router} />;
 }
 
 export default App;
