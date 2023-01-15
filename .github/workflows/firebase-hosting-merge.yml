@@ -20,3 +20,4 @@ jobs:
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_FOODIEYAK_EF36D }}'
           channelId: live
           projectId: foodieyak-ef36d
+          entryPoint: "./ui"
