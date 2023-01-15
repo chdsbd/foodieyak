@@ -26,7 +26,8 @@ import {
 } from "@chakra-ui/react";
 import styled from "@emotion/styled";
 import { ArrowUp, MoreHorizontal } from "react-feather";
-import { Link, Route } from "wouter";
+
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 // import * as ICons from '@chakra-ui/icons'
 
 type Location = {
@@ -332,25 +333,42 @@ function PlacesDetailView() {
   );
 }
 
+function NoMatch() {
+  return (
+    <VStack spacing={4}>
+      <HStack w="full">
+        <HomeButton />
+      </HStack>
+      <Container>Not Found!</Container>
+    </VStack>
+  );
+}
+
 function App() {
   return (
     <Container padding={2}>
-      <Route path="/">
-        <PlacesListView />
-      </Route>
-      <Route path="/place/create">
-        <PlaceCreateView />
-      </Route>
-      <Route path="/place/:id">
-        <PlacesDetailView />
-      </Route>
-      <Route path="/friends">
-        <FriendsListView />
-      </Route>
-      <Route path="/friends/add">
-        <FriendsAddView />
-      </Route>
-      {/* <Route path="/:rest*">404, Not Found!</Route> */}
+      <Router>
+        <Switch>
+          <Route path="/place/create">
+            <PlaceCreateView />
+          </Route>
+          <Route path="/place/:id">
+            <PlacesDetailView />
+          </Route>
+          <Route path="/friends">
+            <FriendsListView />
+          </Route>
+          <Route path="/friends/add">
+            <FriendsAddView />
+          </Route>
+          <Route path="/" exact>
+            <PlacesListView />
+          </Route>
+          <Route path="*">
+            <NoMatch />
+          </Route>
+        </Switch>
+      </Router>
     </Container>
   );
 }
