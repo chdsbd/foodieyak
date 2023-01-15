@@ -9,10 +9,19 @@ import {
   Input,
   VStack,
 } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useHistory } from "react-router-dom";
 import { HomeButton } from "../components/HomeButton";
+import { useCurrentUser } from "../hooks";
+
+import * as query from "../query";
 
 export function PlacesCreateView() {
+  const [name, setName] = useState("");
+  const [location, setLocation] = useState("");
+  const user = useCurrentUser();
+  const history = useHistory();
+
   return (
     <VStack spacing={4}>
       <HStack w="full">
@@ -34,20 +43,34 @@ export function PlacesCreateView() {
 
       <FormControl>
         <FormLabel>Name</FormLabel>
-        <Input type="text" />
+        <Input
+          type="text"
+          onChange={(e) => setName(e.target.value)}
+          value={name}
+        />
       </FormControl>
 
       <FormControl>
         <FormLabel>Location</FormLabel>
-        <Input type="text" />
+        <Input
+          type="text"
+          onChange={(e) => setLocation(e.target.value)}
+          value={location}
+        />
       </FormControl>
-      <FormControl>
-        <FormLabel>Image</FormLabel>
-        <Input type="file" />
-      </FormControl>
-      <Link to="/place/somePlaceId">
-        <Button size="lg">Create Place</Button>
-      </Link>
+      <Button
+        size="lg"
+        onClick={async () => {
+          const place = await query.placeCreate({
+            name,
+            location,
+            userId: user.id,
+          });
+          history.push(`/place/${place.id}`);
+        }}
+      >
+        Create Place
+      </Button>
     </VStack>
   );
 }

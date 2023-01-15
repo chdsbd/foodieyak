@@ -1,6 +1,11 @@
 import { Container } from "@chakra-ui/react";
 
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect,
+} from "react-router-dom";
 import { CheckInCreateView } from "./pages/CheckInCreateView.page";
 import { CheckInDetailView } from "./pages/CheckInDetailView.page";
 import { FriendsCreateView } from "./pages/FriendsCreateView.page";
@@ -11,7 +16,10 @@ import { PlacesCreateView } from "./pages/PlacesCreateView.page";
 import { PlacesDetailView } from "./pages/PlacesDetailView.page";
 import { PlacesListView } from "./pages/PlacesListView.page";
 
-const routes = [
+const routes: (
+  | { path: string; exact?: boolean; element: JSX.Element }
+  | { path: string; redirect: string }
+)[] = [
   {
     path: "/place/:place/check-in/:checkin",
     element: <CheckInDetailView />,
@@ -29,10 +37,13 @@ const routes = [
     element: <PlacesCreateView />,
   },
   {
-    path: "/place/:id",
+    path: "/place/:placeId",
     element: <PlacesDetailView />,
   },
-
+  {
+    path: "/place/",
+    redirect: "/place/create",
+  },
   {
     path: "/friends/add",
     element: <FriendsCreateView />,
@@ -58,6 +69,9 @@ function App() {
       <Router>
         <Switch>
           {routes.map((r) => {
+            if ("redirect" in r) {
+              return <Redirect from={r.path} to={r.redirect} />;
+            }
             return <Route path={r.path} children={r.element} exact={r.exact} />;
           })}
         </Switch>
