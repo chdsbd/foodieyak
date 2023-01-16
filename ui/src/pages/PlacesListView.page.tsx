@@ -1,5 +1,4 @@
 import { HStack, Button, VStack, Input } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
 import { LocationImage } from "../components/LocationImage";
 import { orderBy, first } from "lodash-es";
 import { parseISO } from "date-fns";
@@ -8,17 +7,8 @@ import * as query from "../query";
 import { formatHumanDate } from "../date";
 
 import { Link } from "react-router-dom";
+import { usePlaces } from "../hooks";
 import { Page } from "../components/Page";
-
-function usePlaces() {
-  const [places, setPlaces] = useState<query.Place[]>([]);
-  useEffect(() => {
-    query.placeList().then((x) => {
-      setPlaces(x);
-    });
-  }, []);
-  return places;
-}
 
 function lastCheckIn(place: query.Place): string | undefined {
   const latestCheckIn = first(

@@ -16,14 +16,13 @@ import {
   Tabs,
   VStack,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { LocationImage } from "../components/LocationImage";
 import { Page } from "../components/Page";
-import { useUser } from "../hooks";
-import { PlaceCheckIn, Place, placeGet } from "../query";
+import { usePlace, useUser } from "../hooks";
+import { PlaceCheckIn } from "../query";
 import { NoMatch } from "./NoMatchView.page";
-import { flatten, groupBy, orderBy, uniqBy } from "lodash-es";
+import { menuFromPlace } from "../transforms";
 
 function Rating(props: { ratings: PlaceCheckIn["ratings"] }) {
   const total = props.ratings.length;
@@ -34,63 +33,6 @@ function Rating(props: { ratings: PlaceCheckIn["ratings"] }) {
       {total} items ({positive}↑ {negative}↓)
     </Flex>
   );
-}
-
-export function usePlace(placeId: string): Place | "loading" | "not_found" {
-  const [place, setPlace] = useState<Place | "loading" | "not_found">(
-    "loading"
-  );
-  useEffect(() => {
-    placeGet({ id: placeId }).then((res) => {
-      if (res != null) {
-        setPlace(res);
-      } else {
-        setPlace("not_found");
-      }
-    });
-  }, [placeId]);
-  return place;
-}
-
-function menuFromPlace(
-  place: Place,
-  currentUserId: string
-): {
-  id: string;
-  name: string;
-  selfRating: 1 | -1 | null;
-  positiveCount: number;
-  negativeCount: number;
-}[] {
-  const menuItemRatingsWithUserId = orderBy(
-    flatten(
-      place.checkIns.map((c) =>
-        c.ratings.map((r) => ({
-          ...r,
-          userId: c.userId,
-          createdAt: c.createdAt,
-        }))
-      )
-    ),
-    (x) => x.createdAt,
-    ["desc"]
-  );
-  const latestRatingPerUser = uniqBy(
-    menuItemRatingsWithUserId,
-    (u) => u.userId + ":" + u.menuItemId
-  );
-  const ratingsByMenuItemId = groupBy(latestRatingPerUser, (z) => z.menuItemId);
-  return place.menuItems.map((x) => ({
-    id: x.id,
-    name: x.name,
-    negativeCount: (ratingsByMenuItemId[x.id] ?? []).filter((y) => y.rating < 0)
-      .length,
-    positiveCount: (ratingsByMenuItemId[x.id] ?? []).filter((y) => y.rating > 0)
-      .length,
-    selfRating:
-      (ratingsByMenuItemId[x.id] ?? []).find((y) => y.userId === currentUserId)
-        ?.rating ?? null,
-  }));
 }
 
 export function PlacesDetailView() {
@@ -152,9 +94,13 @@ export function PlacesDetailView() {
             w="full"
           >
             {menuFromPlace(place, user.data.uid).map((m) => (
-              <HStack w="full" as={Link} to={`/place/${place.id}/menu/${m.id}`}>
+              <HStack
+                w="full"
+                as={Link}
+                to={`/place/${place.id}/menu/${m.menuItemId}`}
+              >
                 <LocationImage />
-                <Text fontSize={"xl"}>{m.name}</Text>
+                <Text fontSize={"xl"}>{m.menuItemName}</Text>
                 <Spacer />
                 <ButtonGroup>
                   <Button

@@ -11,9 +11,8 @@ import {
 import { ThumbsDown, ThumbsUp } from "react-feather";
 import { Link, useParams } from "react-router-dom";
 import { LocationImage } from "../components/LocationImage";
-import { useUser } from "../hooks";
+import { usePlace } from "../hooks";
 import { NoMatch } from "./NoMatchView.page";
-import { usePlace } from "./PlacesDetailView.page";
 import { groupBy } from "lodash-es";
 import { Page } from "../components/Page";
 
@@ -21,7 +20,6 @@ export function CheckInDetailView() {
   const { placeId, checkInId }: { placeId: string; checkInId: string } =
     useParams();
   const place = usePlace(placeId);
-  const user = useUser();
 
   if (place === "loading") {
     return <>loading...</>;

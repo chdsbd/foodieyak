@@ -13,9 +13,8 @@ import { ThumbsDown, ThumbsUp } from "react-feather";
 import { Link, useParams } from "react-router-dom";
 import { LocationImage } from "../components/LocationImage";
 import { Page } from "../components/Page";
-import { useUser } from "../hooks";
+import { usePlace, useUser } from "../hooks";
 import { menuFromPlace } from "../transforms";
-import { usePlace } from "./PlacesDetailView.page";
 
 export function MenuItemDetailView() {
   const {
@@ -39,7 +38,7 @@ export function MenuItemDetailView() {
   }
 
   const menuItem = menuFromPlace(place, currentUser.data.uid).find(
-    (x) => x.id === menuItemId
+    (x) => x.menuItemId === menuItemId
   );
   if (menuItem == null) {
     return null;
@@ -70,9 +69,9 @@ export function MenuItemDetailView() {
         <BreadcrumbItem isCurrentPage>
           <BreadcrumbLink
             as={Link}
-            to={`/place/${place.id}/menu/${menuItem.id}`}
+            to={`/place/${place.id}/menu/${menuItem.menuItemId}`}
           >
-            {menuItem.name}
+            {menuItem.menuItemName}
           </BreadcrumbLink>
         </BreadcrumbItem>
       </Breadcrumb>
@@ -86,7 +85,7 @@ export function MenuItemDetailView() {
 
       <HStack width="100%">
         <Heading alignSelf={"start"} fontSize="2xl">
-          {menuItem.name}
+          {menuItem.menuItemName}
         </Heading>
         <Spacer />
         <ButtonGroup>

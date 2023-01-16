@@ -19,9 +19,8 @@ import {
 import { ThumbsDown, ThumbsUp } from "react-feather";
 import { Page } from "../components/Page";
 import { Link, useParams, useHistory } from "react-router-dom";
-import { useUser } from "../hooks";
+import { usePlace, useUser } from "../hooks";
 import { NoMatch } from "./NoMatchView.page";
-import { usePlace } from "./PlacesDetailView.page";
 import * as query from "../query";
 import { useState } from "react";
 import { groupBy } from "lodash-es";
@@ -100,11 +99,6 @@ function MenuItem(props: {
     <Card w="100%">
       <CardBody>
         <VStack w="100%">
-          {/* <FormControl>
-            <FormLabel>{props.menuItemName}</FormLabel>
-            <Input type="text" disabled value={props.menuItemName} />
-          </FormControl> */}
-
           <FormControl>
             <FormLabel>{props.menuItemName}</FormLabel>
             <ButtonGroup w="100%">
@@ -149,8 +143,6 @@ export function CheckInCreateView() {
   const user = useUser();
 
   const [date, setDate] = useState<string>(toISODateString(new Date()));
-  const [menuItemId, setMenuItemId] = useState<string | undefined>(undefined);
-  const [rating, setRating] = useState(0);
 
   const history = useHistory();
   const [menuItemRatings, setMenutItemRatings] = useState<MenuItemRating[]>([]);

@@ -1,12 +1,13 @@
 import { flatten, groupBy, orderBy, uniqBy } from "lodash-es";
 import { Place } from "./query";
 
+// TODO: Fix this broken code.
 export function menuFromPlace(
   place: Place,
   currentUserId: string
 ): {
-  id: string;
-  name: string;
+  menuItemId: string;
+  menuItemName: string;
   selfRating: 1 | -1 | null;
   positiveCount: number;
   negativeCount: number;
@@ -24,14 +25,14 @@ export function menuFromPlace(
     (x) => x.createdAt,
     ["desc"]
   );
-  const latestRatingPerUser = uniqBy(
+
+  const ratingsByMenuItemId = groupBy(
     menuItemRatingsWithUserId,
-    (u) => u.userId + ":" + u.menuItemId
+    (z) => z.menuItemId
   );
-  const ratingsByMenuItemId = groupBy(latestRatingPerUser, (z) => z.menuItemId);
   return place.menuItems.map((x) => ({
-    id: x.id,
-    name: x.name,
+    menuItemId: x.id,
+    menuItemName: x.name,
     negativeCount: (ratingsByMenuItemId[x.id] ?? []).filter((y) => y.rating < 0)
       .length,
     positiveCount: (ratingsByMenuItemId[x.id] ?? []).filter((y) => y.rating > 0)
