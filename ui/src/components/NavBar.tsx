@@ -7,9 +7,9 @@ import {
   MenuList,
   Menu,
   MenuItem,
+  Heading,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
-import { HomeButton } from "./HomeButton";
 
 function NavigationMoreMenu() {
   return (
@@ -26,6 +26,16 @@ function NavigationMoreMenu() {
         </MenuItem>
       </MenuList>
     </Menu>
+  );
+}
+
+function HomeButton() {
+  return (
+    <Link to="/">
+      <Heading as="h1" size="md">
+        FoodieYak
+      </Heading>
+    </Link>
   );
 }
 

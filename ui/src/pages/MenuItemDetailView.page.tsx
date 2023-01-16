@@ -10,21 +10,47 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { ThumbsDown, ThumbsUp } from "react-feather";
-import { Link } from "react-router-dom";
-import { HomeButton } from "../components/HomeButton";
+import { Link, useParams } from "react-router-dom";
 import { LocationImage } from "../components/LocationImage";
 import { Page } from "../components/Page";
+import { usePlace, useUser } from "../hooks";
+import { menuFromPlace } from "../transforms";
 
 export function MenuItemDetailView() {
-  const menuItem = {
-    name: "Potato",
-    positive: 4,
-    negative: 2,
-    ratings: [
-      { name: "Joe Shmoe", date: "2022-11-20", rating: 1 },
-      { name: "Tommy Enterprise", date: "2022-11-20", rating: -1 },
-    ],
-  };
+  const {
+    placeId,
+    menuItemId,
+  }: {
+    placeId: string;
+    menuItemId: string;
+  } = useParams();
+  const place = usePlace(placeId);
+  const currentUser = useUser();
+  if (currentUser.data == null) {
+    return null;
+  }
+
+  if (place === "loading") {
+    return <>Loading...</>;
+  }
+  if (place === "not_found") {
+    return <>Not Found</>;
+  }
+
+  const menuItem = menuFromPlace(place, currentUser.data.uid).find(
+    (x) => x.menuItemId === menuItemId
+  );
+  if (menuItem == null) {
+    return null;
+  }
+
+  const checkInsForMenuItem = place.checkIns
+    .map((x) => {
+      x.ratings = x.ratings.filter((r) => r.menuItemId === menuItemId);
+      return x;
+    })
+    .filter((x) => x.ratings.length > 0);
+
   return (
     <Page>
       <Breadcrumb alignSelf={"start"}>
@@ -35,52 +61,63 @@ export function MenuItemDetailView() {
         </BreadcrumbItem>
 
         <BreadcrumbItem>
-          <BreadcrumbLink as={Link} to="/place/tenoch">
+          <BreadcrumbLink as={Link} to={`/place/${place.id}`}>
             Tenoch
           </BreadcrumbLink>
         </BreadcrumbItem>
 
         <BreadcrumbItem isCurrentPage>
-          <BreadcrumbLink as={Link} to="/place/tenoch/menu/potato">
-            {menuItem.name}
+          <BreadcrumbLink
+            as={Link}
+            to={`/place/${place.id}/menu/${menuItem.menuItemId}`}
+          >
+            {menuItem.menuItemName}
           </BreadcrumbLink>
         </BreadcrumbItem>
       </Breadcrumb>
       <HStack w="100%">
         <LocationImage />
         <div>
-          <div>Tenoch</div>
-          <div>Medford, MA</div>
+          <div>{place.id}</div>
+          <div>{place.location}</div>
         </div>
       </HStack>
 
       <HStack width="100%">
         <Heading alignSelf={"start"} fontSize="2xl">
-          {menuItem.name}
+          {menuItem.menuItemName}
         </Heading>
         <Spacer />
         <ButtonGroup>
-          <Button>↑{menuItem.positive}</Button>
-          <Button>↓{menuItem.negative}</Button>
+          <Button>↑{menuItem.positiveCount}</Button>
+          <Button>↓{menuItem.negativeCount}</Button>
         </ButtonGroup>
       </HStack>
 
-      {menuItem.ratings.map((m) => (
-        <HStack width="100%">
+      {checkInsForMenuItem.map((m) => (
+        <HStack
+          width="100%"
+          as={Link}
+          to={`/place/${place.id}/check-in/${m.id}`}
+        >
           <HStack>
             <LocationImage />
             <VStack align="start">
-              <div>{m.name}</div>
-              <div>{m.date}</div>
+              <div>{m.userId}</div>
+              <div>{m.createdAt}</div>
             </VStack>
           </HStack>
           <Spacer />
           <ButtonGroup>
             <Button>
-              <ThumbsUp fill={m.rating > 0 ? "lightgreen" : "transparent"} />
+              <ThumbsUp
+                fill={m.ratings[0].rating > 0 ? "lightgreen" : "transparent"}
+              />
             </Button>
             <Button>
-              <ThumbsDown fill={m.rating < 0 ? "orange" : "transparent"} />
+              <ThumbsDown
+                fill={m.ratings[0].rating < 0 ? "orange" : "transparent"}
+              />
             </Button>
           </ButtonGroup>
         </HStack>

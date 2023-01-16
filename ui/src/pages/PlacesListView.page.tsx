@@ -1,24 +1,26 @@
-import { HStack, VStack, Input, Container, Button } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
+import { HStack, Button, VStack, Input } from "@chakra-ui/react";
 import { LocationImage } from "../components/LocationImage";
-import { NavBar } from "../components/NavBar";
+import { orderBy, first } from "lodash-es";
+import { parseISO } from "date-fns";
+
+import * as query from "../query";
+import { formatHumanDate } from "../date";
+
+import { Link } from "react-router-dom";
+import { usePlaces } from "../hooks";
 import { Page } from "../components/Page";
 
-type Location = {
-  name: string;
-  location: string;
-  lastCheckIn: string;
-};
-
-const locations: Location[] = [
-  {
-    name: "Tenoch",
-    lastCheckIn: "3 days ago",
-    location: "Medford, MA",
-  },
-];
+function lastCheckIn(place: query.Place): string | undefined {
+  const latestCheckIn = first(
+    orderBy(place.checkIns, (x) => x.createdAt, ["desc"])
+  );
+  if (latestCheckIn != null) {
+    return formatHumanDate(parseISO(latestCheckIn.createdAt));
+  }
+}
 
 export function PlacesListView() {
+  const places = usePlaces();
   return (
     <Page
       action={
@@ -30,13 +32,13 @@ export function PlacesListView() {
       <Input placeholder="Search" />
 
       <VStack w="full">
-        {locations.map((l) => (
-          <HStack as={Link} to="/place/tenoch" w="full">
+        {places.map((place) => (
+          <HStack as={Link} to={`/place/${place.id}`} w="full">
             <LocationImage />
             <div>
-              <div>{l.name}</div>
-              <div>{l.location}</div>
-              <div>{l.lastCheckIn}</div>
+              <div>{place.name}</div>
+              <div>{place.location}</div>
+              <div>{lastCheckIn(place)}</div>
             </div>
           </HStack>
         ))}

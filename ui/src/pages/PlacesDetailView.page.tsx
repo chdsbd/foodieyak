@@ -7,10 +7,7 @@ import {
   Text,
   ButtonGroup,
   Flex,
-  FormControl,
-  FormLabel,
   HStack,
-  Input,
   Spacer,
   Tab,
   TabList,
@@ -19,53 +16,38 @@ import {
   Tabs,
   VStack,
 } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
-import { HomeButton } from "../components/HomeButton";
+import { Link, useParams } from "react-router-dom";
 import { LocationImage } from "../components/LocationImage";
-import { NavBar } from "../components/NavBar";
 import { Page } from "../components/Page";
+import { usePlace, useUser } from "../hooks";
+import { PlaceCheckIn } from "../query";
+import { NoMatch } from "./NoMatchView.page";
+import { menuFromPlace } from "../transforms";
 
-const checkIns = [
-  {
-    name: "Joe Shmoe",
-    creationTs: "2022-11-20",
-    ratings: {
-      positive: 4,
-      negative: 1,
-      total: 5,
-    },
-  },
-];
-
-const menu = [
-  {
-    name: "Potatoes",
-    selectedRating: -1,
-    rating: {
-      positive: 4,
-      negative: 2,
-    },
-  },
-  {
-    name: "Chicken",
-    selectedRating: 1,
-    rating: {
-      positive: 2,
-      negative: 1,
-    },
-  },
-];
-
-function Rating(props: { ratings: typeof checkIns["0"]["ratings"] }) {
+function Rating(props: { ratings: PlaceCheckIn["ratings"] }) {
+  const total = props.ratings.length;
+  const positive = props.ratings.filter((x) => x.rating > 0).length;
+  const negative = props.ratings.filter((x) => x.rating < 0).length;
   return (
     <Flex>
-      {props.ratings.total} items ({props.ratings.positive}↑{" "}
-      {props.ratings.negative}↓)
+      {total} items ({positive}↑ {negative}↓)
     </Flex>
   );
 }
 
 export function PlacesDetailView() {
+  const { placeId }: { placeId: string } = useParams();
+  const place = usePlace(placeId);
+  const user = useUser();
+  if (user.data == null) {
+    return null;
+  }
+  if (place === "loading") {
+    return <>loading...</>;
+  }
+  if (place === "not_found") {
+    return <NoMatch />;
+  }
   return (
     <Page>
       <Breadcrumb alignSelf={"start"}>
@@ -76,8 +58,8 @@ export function PlacesDetailView() {
         </BreadcrumbItem>
 
         <BreadcrumbItem isCurrentPage>
-          <BreadcrumbLink as={Link} to="/place/tenoch">
-            Tenoch
+          <BreadcrumbLink as={Link} to={`/place/${place.id}`}>
+            {place.name}
           </BreadcrumbLink>
         </BreadcrumbItem>
       </Breadcrumb>
@@ -91,11 +73,11 @@ export function PlacesDetailView() {
           <div />
         </Box>
         <div>
-          <div>Tenoch</div>
-          <div>Medford, MA</div>
+          <div>{place.name}</div>
+          <div>{place.location}</div>
         </div>
       </HStack>
-      <Link style={{ width: "100%" }} to="/place/tenoch/check-in">
+      <Link style={{ width: "100%" }} to={`/place/${place.id}/check-in`}>
         <Button width="100%">Add a Check-In</Button>
       </Link>
       <Tabs width="100%">
@@ -111,21 +93,25 @@ export function PlacesDetailView() {
             justifyContent="space-between"
             w="full"
           >
-            {menu.map((m) => (
-              <HStack w="full" as={Link} to="/place/tenoch/menu/potato">
+            {menuFromPlace(place, user.data.uid).map((m) => (
+              <HStack
+                w="full"
+                as={Link}
+                to={`/place/${place.id}/menu/${m.menuItemId}`}
+              >
                 <LocationImage />
-                <Text fontSize={"xl"}>{m.name}</Text>
+                <Text fontSize={"xl"}>{m.menuItemName}</Text>
                 <Spacer />
                 <ButtonGroup>
                   <Button
-                    colorScheme={m.selectedRating > 0 ? "green" : undefined}
+                    colorScheme={m.selfRating ?? 0 > 0 ? "green" : undefined}
                   >
-                    ↑{m.rating.positive}
+                    ↑{m.positiveCount}
                   </Button>
                   <Button
-                    colorScheme={m.selectedRating < 0 ? "red" : undefined}
+                    colorScheme={m.selfRating ?? 0 < 0 ? "red" : undefined}
                   >
-                    ↓{m.rating.negative}
+                    ↓{m.negativeCount}
                   </Button>
                 </ButtonGroup>
               </HStack>
@@ -137,12 +123,16 @@ export function PlacesDetailView() {
             justifyContent="space-between"
             w="full"
           >
-            {checkIns.map((c) => (
-              <HStack w="full" as={Link} to="/place/tenoch/menu/potato">
+            {place.checkIns.map((c) => (
+              <HStack
+                w="full"
+                as={Link}
+                to={`/place/${place.id}/check-in/${c.id}`}
+              >
                 <LocationImage />
                 <VStack align={"start"}>
-                  <div>{c.name}</div>
-                  <div>{c.creationTs}</div>
+                  <div>{c.userId}</div>
+                  <div>{c.createdAt}</div>
                 </VStack>
                 <Spacer />
                 <Rating ratings={c.ratings} />

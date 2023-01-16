@@ -22,40 +22,39 @@ import { PlacesDetailView } from "./pages/PlacesDetailView.page";
 import { PlacesListView } from "./pages/PlacesListView.page";
 import { SettingsView } from "./pages/SettingsView.page";
 
-const routes = [
+const routes: (
+  | { path: string; authed?: true; exact?: true; element: JSX.Element }
+  | { path: string; redirect: string }
+)[] = [
   {
     path: "/signup",
-    authed: "never",
     element: <AuthSignupView />,
   },
   {
     path: "/login",
-    authed: "never",
     element: <AuthLoginView />,
   },
   {
     path: "/password-reset",
-    authed: "never",
     element: <AuthPasswordReset />,
   },
   {
     path: "/forgot-password",
-    authed: "never",
     element: <AuthForgotPassword />,
   },
   {
     authed: true,
-    path: "/place/:place/check-in/:checkin",
+    path: "/place/:placeId/check-in/:checkInId",
     element: <CheckInDetailView />,
   },
   {
     authed: true,
-    path: "/place/:place/menu/:menuitem",
+    path: "/place/:placeId/menu/:menuItemId",
     element: <MenuItemDetailView />,
   },
   {
     authed: true,
-    path: "/place/:id/check-in",
+    path: "/place/:placeId/check-in",
     element: <CheckInCreateView />,
   },
   {
@@ -65,10 +64,14 @@ const routes = [
   },
   {
     authed: true,
-    path: "/place/:id",
+    path: "/place/:placeId",
     element: <PlacesDetailView />,
   },
-
+  {
+    authed: true,
+    path: "/place/",
+    redirect: "/place/create",
+  },
   {
     authed: true,
     path: "/friends/add",
@@ -107,6 +110,9 @@ function App() {
       <Router>
         <Switch>
           {routes.map((r) => {
+            if ("redirect" in r) {
+              return <Redirect from={r.path} to={r.redirect} />;
+            }
             if (r.authed == true && authStatus === "unauthed") {
               return <Redirect key={r.path} to="/login" />;
             }

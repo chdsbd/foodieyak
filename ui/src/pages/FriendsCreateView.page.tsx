@@ -11,8 +11,6 @@ import {
   Button,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
-import { HomeButton } from "../components/HomeButton";
-import { NavBar } from "../components/NavBar";
 import { Page } from "../components/Page";
 
 export function FriendsCreateView() {

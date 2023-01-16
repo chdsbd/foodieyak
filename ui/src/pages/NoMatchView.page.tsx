@@ -1,5 +1,4 @@
-import { VStack, HStack, Container } from "@chakra-ui/react";
-import { HomeButton } from "../components/HomeButton";
+import { Container } from "@chakra-ui/react";
 import { NavBar } from "../components/NavBar";
 import { Page } from "../components/Page";
 
