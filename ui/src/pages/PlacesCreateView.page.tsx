@@ -5,28 +5,24 @@ import {
   Button,
   FormControl,
   FormLabel,
-  HStack,
   Input,
   VStack,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
-import { HomeButton } from "../components/HomeButton";
-import { useCurrentUser } from "../hooks";
+import { Page } from "../components/Page";
+import { useUser } from "../hooks";
 
 import * as query from "../query";
 
 export function PlacesCreateView() {
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
-  const user = useCurrentUser();
+  const user = useUser();
   const history = useHistory();
 
   return (
-    <VStack spacing={4}>
-      <HStack w="full">
-        <HomeButton />
-      </HStack>
+    <Page>
       <Breadcrumb alignSelf={"start"}>
         <BreadcrumbItem>
           <BreadcrumbLink as={Link} to="/">
@@ -78,6 +74,6 @@ export function PlacesCreateView() {
           Create Place
         </Button>
       </VStack>
-    </VStack>
+    </Page>
   );
 }

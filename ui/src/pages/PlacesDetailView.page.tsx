@@ -7,10 +7,7 @@ import {
   Text,
   ButtonGroup,
   Flex,
-  FormControl,
-  FormLabel,
   HStack,
-  Input,
   Spacer,
   Tab,
   TabList,
@@ -21,12 +18,12 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { HomeButton } from "../components/HomeButton";
 import { LocationImage } from "../components/LocationImage";
-import { useCurrentUser } from "../hooks";
+import { Page } from "../components/Page";
+import { useUser } from "../hooks";
 import { PlaceCheckIn, Place, placeGet } from "../query";
 import { NoMatch } from "./NoMatchView.page";
-import { flatten, groupBy, first, orderBy, uniqBy } from "lodash-es";
+import { flatten, groupBy, orderBy, uniqBy } from "lodash-es";
 
 function Rating(props: { ratings: PlaceCheckIn["ratings"] }) {
   const total = props.ratings.length;
@@ -86,10 +83,12 @@ function menuFromPlace(
   return place.menuItems.map((x) => ({
     id: x.id,
     name: x.name,
-    negativeCount: ratingsByMenuItemId[x.id].filter((y) => y.rating < 0).length,
-    positiveCount: ratingsByMenuItemId[x.id].filter((y) => y.rating > 0).length,
+    negativeCount: (ratingsByMenuItemId[x.id] ?? []).filter((y) => y.rating < 0)
+      .length,
+    positiveCount: (ratingsByMenuItemId[x.id] ?? []).filter((y) => y.rating > 0)
+      .length,
     selfRating:
-      ratingsByMenuItemId[x.id].find((y) => y.userId === currentUserId)
+      (ratingsByMenuItemId[x.id] ?? []).find((y) => y.userId === currentUserId)
         ?.rating ?? null,
   }));
 }
@@ -97,7 +96,10 @@ function menuFromPlace(
 export function PlacesDetailView() {
   const { placeId }: { placeId: string } = useParams();
   const place = usePlace(placeId);
-  const user = useCurrentUser();
+  const user = useUser();
+  if (user.data == null) {
+    return null;
+  }
   if (place === "loading") {
     return <>loading...</>;
   }
@@ -105,10 +107,7 @@ export function PlacesDetailView() {
     return <NoMatch />;
   }
   return (
-    <VStack spacing={4}>
-      <HStack w="full">
-        <HomeButton />
-      </HStack>
+    <Page>
       <Breadcrumb alignSelf={"start"}>
         <BreadcrumbItem>
           <BreadcrumbLink as={Link} to="/">
@@ -146,46 +145,56 @@ export function PlacesDetailView() {
         </TabList>
 
         <TabPanels>
-          <TabPanel>
-            {menuFromPlace(place, user.id).map((m) => (
-              <Link to={`/place/${place.id}/menu/${m.id}`}>
-                <HStack>
-                  <LocationImage />
-                  <Text fontSize={"xl"}>{m.name}</Text>
-                  <Spacer />
-                  <ButtonGroup>
-                    <Button
-                      colorScheme={m.selfRating ?? 0 > 0 ? "green" : undefined}
-                    >
-                      ↑{m.positiveCount}
-                    </Button>
-                    <Button
-                      colorScheme={m.selfRating ?? 0 < 0 ? "red" : undefined}
-                    >
-                      ↓{m.negativeCount}
-                    </Button>
-                  </ButtonGroup>
-                </HStack>
-              </Link>
+          <TabPanel
+            paddingX="unset"
+            as={VStack}
+            justifyContent="space-between"
+            w="full"
+          >
+            {menuFromPlace(place, user.data.uid).map((m) => (
+              <HStack w="full" as={Link} to={`/place/${place.id}/menu/${m.id}`}>
+                <LocationImage />
+                <Text fontSize={"xl"}>{m.name}</Text>
+                <Spacer />
+                <ButtonGroup>
+                  <Button
+                    colorScheme={m.selfRating ?? 0 > 0 ? "green" : undefined}
+                  >
+                    ↑{m.positiveCount}
+                  </Button>
+                  <Button
+                    colorScheme={m.selfRating ?? 0 < 0 ? "red" : undefined}
+                  >
+                    ↓{m.negativeCount}
+                  </Button>
+                </ButtonGroup>
+              </HStack>
             ))}
           </TabPanel>
-          <TabPanel>
+          <TabPanel
+            paddingX="unset"
+            as={VStack}
+            justifyContent="space-between"
+            w="full"
+          >
             {place.checkIns.map((c) => (
-              <Link to={`/place/${place.id}/check-in/${c.id}`}>
-                <HStack>
-                  <LocationImage />
-                  <VStack align={"start"}>
-                    <div>{c.userId}</div>
-                    <div>{c.createdAt}</div>
-                  </VStack>
-                  <Spacer />
-                  <Rating ratings={c.ratings} />
-                </HStack>
-              </Link>
+              <HStack
+                w="full"
+                as={Link}
+                to={`/place/${place.id}/check-in/${c.id}`}
+              >
+                <LocationImage />
+                <VStack align={"start"}>
+                  <div>{c.userId}</div>
+                  <div>{c.createdAt}</div>
+                </VStack>
+                <Spacer />
+                <Rating ratings={c.ratings} />
+              </HStack>
             ))}
           </TabPanel>
         </TabPanels>
       </Tabs>
-    </VStack>
+    </Page>
   );
 }

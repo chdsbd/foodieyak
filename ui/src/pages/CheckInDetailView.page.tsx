@@ -7,22 +7,21 @@ import {
   Heading,
   HStack,
   Spacer,
-  VStack,
 } from "@chakra-ui/react";
 import { ThumbsDown, ThumbsUp } from "react-feather";
 import { Link, useParams } from "react-router-dom";
-import { HomeButton } from "../components/HomeButton";
 import { LocationImage } from "../components/LocationImage";
-import { useCurrentUser } from "../hooks";
+import { useUser } from "../hooks";
 import { NoMatch } from "./NoMatchView.page";
 import { usePlace } from "./PlacesDetailView.page";
 import { groupBy } from "lodash-es";
+import { Page } from "../components/Page";
 
 export function CheckInDetailView() {
   const { placeId, checkInId }: { placeId: string; checkInId: string } =
     useParams();
   const place = usePlace(placeId);
-  const user = useCurrentUser();
+  const user = useUser();
 
   if (place === "loading") {
     return <>loading...</>;
@@ -38,10 +37,7 @@ export function CheckInDetailView() {
   const menuItemMap = groupBy(place.menuItems, (x) => x.id);
 
   return (
-    <VStack spacing={4}>
-      <HStack w="full">
-        <HomeButton />
-      </HStack>
+    <Page>
       <Breadcrumb alignSelf={"start"}>
         <BreadcrumbItem>
           <BreadcrumbLink as={Link} to="/">
@@ -93,6 +89,6 @@ export function CheckInDetailView() {
       <Link to={`/place/${place.id}/check-in/${checkIn.id}/edit`}>
         <Button width="100%">Modify Check-In</Button>
       </Link>
-    </VStack>
+    </Page>
   );
 }

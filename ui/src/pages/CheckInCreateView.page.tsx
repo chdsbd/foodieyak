@@ -1,5 +1,4 @@
 import {
-  Text,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
@@ -14,22 +13,19 @@ import {
   Input,
   Box,
   Select,
-  StackDivider,
   Card,
   CardBody,
-  InputGroup,
-  InputRightElement,
 } from "@chakra-ui/react";
 import { ThumbsDown, ThumbsUp } from "react-feather";
+import { Page } from "../components/Page";
 import { Link, useParams, useHistory } from "react-router-dom";
-import { HomeButton } from "../components/HomeButton";
-import { useCurrentUser } from "../hooks";
+import { useUser } from "../hooks";
 import { NoMatch } from "./NoMatchView.page";
 import { usePlace } from "./PlacesDetailView.page";
 import * as query from "../query";
 import { useState } from "react";
 import { groupBy } from "lodash-es";
-import { formatISO, parseISO, format } from "date-fns";
+import { parseISO, format } from "date-fns";
 import produce from "immer";
 
 function toISODateString(date: Date | string | number): string {
@@ -42,8 +38,11 @@ function MenuItemCreator(props: {
   place: query.Place;
   onSelect: (_: string) => void;
 }) {
-  const user = useCurrentUser();
+  const user = useUser();
   const [selectValue, setSelectValue] = useState<string>("");
+  if (user.data == null) {
+    return null;
+  }
 
   return (
     <Card w="100%">
@@ -61,7 +60,7 @@ function MenuItemCreator(props: {
                       .menuItemCreate({
                         placeId: props.place.id,
                         name: res,
-                        userId: user.id,
+                        userId: user.data.uid,
                       })
                       .then((menuItem) => {
                         props.onSelect(menuItem.id);
@@ -147,7 +146,7 @@ type MenuItemRating = {
 export function CheckInCreateView() {
   const { placeId }: { placeId: string } = useParams();
   const place = usePlace(placeId);
-  const user = useCurrentUser();
+  const user = useUser();
 
   const [date, setDate] = useState<string>(toISODateString(new Date()));
   const [menuItemId, setMenuItemId] = useState<string | undefined>(undefined);
@@ -166,10 +165,7 @@ export function CheckInCreateView() {
   const menuItemMap = groupBy(place.menuItems, (x) => x.id);
 
   return (
-    <VStack spacing={4}>
-      <HStack w="full">
-        <HomeButton />
-      </HStack>
+    <Page>
       <Breadcrumb alignSelf={"start"}>
         <BreadcrumbItem>
           <BreadcrumbLink as={Link} to="/">
@@ -264,9 +260,12 @@ export function CheckInCreateView() {
       <Button
         width="100%"
         onClick={() => {
+          if (user.data == null) {
+            return;
+          }
           query
             .checkInCreate({
-              userId: user.id,
+              userId: user.data.uid,
               date: date,
               placeId: place.id,
               reviews: menuItemRatings,
@@ -278,6 +277,6 @@ export function CheckInCreateView() {
       >
         Create Check-In
       </Button>
-    </VStack>
+    </Page>
   );
 }

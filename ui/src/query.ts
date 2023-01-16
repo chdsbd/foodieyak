@@ -106,7 +106,7 @@ export async function menuItemCreate(params: {
   }
 
   const menuItem: PlaceMenuItem = {
-    id: uniqueId("checkin_"),
+    id: uniqueId("menuitem_"),
     name: params.name,
     createdBy: params.userId,
   };

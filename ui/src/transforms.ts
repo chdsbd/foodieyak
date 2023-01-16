@@ -32,10 +32,12 @@ export function menuFromPlace(
   return place.menuItems.map((x) => ({
     id: x.id,
     name: x.name,
-    negativeCount: ratingsByMenuItemId[x.id].filter((y) => y.rating < 0).length,
-    positiveCount: ratingsByMenuItemId[x.id].filter((y) => y.rating > 0).length,
+    negativeCount: (ratingsByMenuItemId[x.id] ?? []).filter((y) => y.rating < 0)
+      .length,
+    positiveCount: (ratingsByMenuItemId[x.id] ?? []).filter((y) => y.rating > 0)
+      .length,
     selfRating:
-      ratingsByMenuItemId[x.id].find((y) => y.userId === currentUserId)
+      (ratingsByMenuItemId[x.id] ?? []).find((y) => y.userId === currentUserId)
         ?.rating ?? null,
   }));
 }

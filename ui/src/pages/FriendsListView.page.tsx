@@ -11,8 +11,7 @@ import {
   Input,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
-import { HomeButton } from "../components/HomeButton";
-import { NavigationMoreMenu } from "../components/NavigationMoreMenu";
+import { Page } from "../components/Page";
 
 const invites = [
   { email: "person@example.com", createdTs: "2022-10-20" },
@@ -21,24 +20,9 @@ const invites = [
 
 const friends = [{ email: "sloth@example.com" }];
 
-function NavigationBarFriends() {
-  return (
-    <HStack w="full">
-      <HomeButton />
-      <Spacer />
-
-      <NavigationMoreMenu />
-      <Link to="/friends/add">
-        <Button>Add Friend</Button>
-      </Link>
-    </HStack>
-  );
-}
-
 export function FriendsListView() {
   return (
-    <VStack spacing={4}>
-      <NavigationBarFriends />
+    <Page>
       <Breadcrumb alignSelf={"start"}>
         <BreadcrumbItem>
           <BreadcrumbLink as={Link} to="/">
@@ -70,9 +54,15 @@ export function FriendsListView() {
         </HStack>
       ))}
 
-      <Heading as="h2" size="md" alignSelf={"start"}>
-        Friends
-      </Heading>
+      <HStack w="100%" alignItems={"center"}>
+        <Heading as="h2" size="md">
+          Friends
+        </Heading>
+        <Spacer />
+        <Link to="/friends/add">
+          <Button>Add Friend</Button>
+        </Link>
+      </HStack>
       <Input placeholder="Search" />
 
       {friends.map((f) => (
@@ -82,6 +72,6 @@ export function FriendsListView() {
           <Button size={"sm"}>remove</Button>
         </HStack>
       ))}
-    </VStack>
+    </Page>
   );
 }

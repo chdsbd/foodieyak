@@ -9,13 +9,11 @@ import {
   Spacer,
   VStack,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
 import { ThumbsDown, ThumbsUp } from "react-feather";
 import { Link, useParams } from "react-router-dom";
-import { HomeButton } from "../components/HomeButton";
 import { LocationImage } from "../components/LocationImage";
-import { useCurrentUser } from "../hooks";
-import * as query from "../query";
+import { Page } from "../components/Page";
+import { useUser } from "../hooks";
 import { menuFromPlace } from "../transforms";
 import { usePlace } from "./PlacesDetailView.page";
 
@@ -28,7 +26,10 @@ export function MenuItemDetailView() {
     menuItemId: string;
   } = useParams();
   const place = usePlace(placeId);
-  const currentUser = useCurrentUser();
+  const currentUser = useUser();
+  if (currentUser.data == null) {
+    return null;
+  }
 
   if (place === "loading") {
     return <>Loading...</>;
@@ -37,7 +38,7 @@ export function MenuItemDetailView() {
     return <>Not Found</>;
   }
 
-  const menuItem = menuFromPlace(place, currentUser.id).find(
+  const menuItem = menuFromPlace(place, currentUser.data.uid).find(
     (x) => x.id === menuItemId
   );
   if (menuItem == null) {
@@ -52,10 +53,7 @@ export function MenuItemDetailView() {
     .filter((x) => x.ratings.length > 0);
 
   return (
-    <VStack spacing={4}>
-      <HStack w="full">
-        <HomeButton />
-      </HStack>
+    <Page>
       <Breadcrumb alignSelf={"start"}>
         <BreadcrumbItem>
           <BreadcrumbLink as={Link} to="/">
@@ -98,7 +96,11 @@ export function MenuItemDetailView() {
       </HStack>
 
       {checkInsForMenuItem.map((m) => (
-        <HStack width="100%">
+        <HStack
+          width="100%"
+          as={Link}
+          to={`/place/${place.id}/check-in/${m.id}`}
+        >
           <HStack>
             <LocationImage />
             <VStack align="start">
@@ -121,6 +123,6 @@ export function MenuItemDetailView() {
           </ButtonGroup>
         </HStack>
       ))}
-    </VStack>
+    </Page>
   );
 }
