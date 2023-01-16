@@ -98,6 +98,10 @@ const routes = [
 
 function App() {
   const authStatus = useIsAuthed();
+  if (authStatus === "loading") {
+    // don't have auth data so we dont' know what to show
+    return null;
+  }
   return (
     <Container padding={2}>
       <Router>
