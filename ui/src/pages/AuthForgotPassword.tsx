@@ -16,6 +16,7 @@ import { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";
+import { AuthForm } from "../components/AuthForm";
 
 function AuthHeading() {
   return (
@@ -56,21 +57,15 @@ export function AuthForgotPassword() {
           description: `${errorCode}: ${errorMessage}`,
           isClosable: true,
         });
+        setIsLoading(false);
       });
-    setIsLoading(false);
   };
   return (
-    <VStack
-      spacing={4}
-      marginX="auto"
-      maxWidth={400}
-      as="form"
-      onSubmit={(e) => {
-        e.preventDefault();
+    <AuthForm
+      onSubmit={() => {
         handlePasswordReset();
       }}
     >
-      <AuthHeading />
       <Heading as="h1" alignSelf="start" fontSize="xl">
         Forgot Password
       </Heading>
@@ -91,6 +86,6 @@ export function AuthForgotPassword() {
           Send Forgot Password Email
         </Button>
       </HStack>
-    </VStack>
+    </AuthForm>
   );
 }

@@ -13,6 +13,7 @@ import { ThumbsDown, ThumbsUp } from "react-feather";
 import { Link } from "react-router-dom";
 import { HomeButton } from "../components/HomeButton";
 import { LocationImage } from "../components/LocationImage";
+import { Page } from "../components/Page";
 
 export function MenuItemDetailView() {
   const menuItem = {
@@ -25,10 +26,7 @@ export function MenuItemDetailView() {
     ],
   };
   return (
-    <VStack spacing={4}>
-      <HStack w="full">
-        <HomeButton />
-      </HStack>
+    <Page>
       <Breadcrumb alignSelf={"start"}>
         <BreadcrumbItem>
           <BreadcrumbLink as={Link} to="/">
@@ -87,6 +85,6 @@ export function MenuItemDetailView() {
           </ButtonGroup>
         </HStack>
       ))}
-    </VStack>
+    </Page>
   );
 }

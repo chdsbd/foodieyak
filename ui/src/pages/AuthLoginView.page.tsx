@@ -16,16 +16,7 @@ import {
 import { Link, useHistory } from "react-router-dom";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
-
-export function AuthHeading() {
-  return (
-    <HStack alignItems="center" marginTop="4" marginBottom="-4">
-      <Heading as="h1" size="lg" fontWeight={500}>
-        FoodieYak
-      </Heading>
-    </HStack>
-  );
-}
+import { AuthForm } from "../components/AuthForm";
 
 export function AuthLoginView() {
   const [email, setEmail] = useState("");
@@ -58,17 +49,11 @@ export function AuthLoginView() {
       });
   };
   return (
-    <VStack
-      spacing={4}
-      marginX="auto"
-      maxWidth={400}
-      as="form"
-      onSubmit={(e) => {
-        e.preventDefault();
+    <AuthForm
+      onSubmit={() => {
         handleLogin();
       }}
     >
-      <AuthHeading />
       <Tabs index={0} size="lg" width="100%">
         <TabList>
           <Tab fontWeight={"bold"}>Login</Tab>
@@ -103,6 +88,6 @@ export function AuthLoginView() {
           Login
         </Button>
       </HStack>
-    </VStack>
+    </AuthForm>
   );
 }

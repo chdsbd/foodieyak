@@ -16,14 +16,12 @@ import {
 } from "@chakra-ui/react";
 import { ThumbsDown, ThumbsUp } from "react-feather";
 import { Link } from "react-router-dom";
-import { HomeButton } from "../components/HomeButton";
+import { NavBar } from "../components/NavBar";
+import { Page } from "../components/Page";
 
 export function CheckInCreateView() {
   return (
-    <VStack spacing={4}>
-      <HStack w="full">
-        <HomeButton />
-      </HStack>
+    <Page>
       <Breadcrumb alignSelf={"start"}>
         <BreadcrumbItem>
           <BreadcrumbLink as={Link} to="/">
@@ -86,6 +84,6 @@ export function CheckInCreateView() {
       <Link to="/place/somePlace/check-in/someCheckIn">
         <Button width="100%">Create Check-In</Button>
       </Link>
-    </VStack>
+    </Page>
   );
 }

@@ -9,11 +9,15 @@ import {
 import { getAuth, signOut } from "firebase/auth";
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
+import { NavBar } from "../components/NavBar";
+import { Page } from "../components/Page";
+import { useUser } from "../hooks";
 
 export function SettingsView() {
   const toast = useToast();
   const history = useHistory();
   const [isLoading, setIsLoading] = useState(false);
+  const userResult = useUser();
   const handleLogout = () => {
     const auth = getAuth();
     setIsLoading(true);
@@ -32,20 +36,19 @@ export function SettingsView() {
         setIsLoading(false);
       });
   };
-  const email = "foo@example.com";
   return (
-    <VStack spacing={4} alignItems="start" marginX="auto" maxWidth={600}>
+    <Page>
       <Heading as="h1" size="lg">
         Settings
       </Heading>
 
       <FormControl>
         <FormLabel>Email</FormLabel>
-        <div>{email}</div>
+        <div>{userResult.data?.email ?? "-"}</div>
       </FormControl>
       <Button onClick={handleLogout} isLoading={isLoading}>
         Logout
       </Button>
-    </VStack>
+    </Page>
   );
 }

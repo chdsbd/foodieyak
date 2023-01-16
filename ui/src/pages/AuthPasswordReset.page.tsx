@@ -13,6 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { AuthForm } from "../components/AuthForm";
 
 function AuthHeading() {
   return (
@@ -33,8 +34,11 @@ export function AuthPasswordReset() {
     // TODO: login user
   };
   return (
-    <VStack spacing={4} marginX="auto" maxWidth={400}>
-      <AuthHeading />
+    <AuthForm
+      onSubmit={() => {
+        handlePasswordReset();
+      }}
+    >
       <Heading as="h1" alignSelf="start" fontSize="xl">
         Update Password
       </Heading>
@@ -59,8 +63,8 @@ export function AuthPasswordReset() {
           Login →
         </Button>
         <Spacer />
-        <Button onClick={handlePasswordReset}>Update Password</Button>
+        <Button type="submit">Update Password</Button>
       </HStack>
-    </VStack>
+    </AuthForm>
   );
 }

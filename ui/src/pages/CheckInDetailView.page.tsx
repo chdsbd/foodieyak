@@ -13,6 +13,8 @@ import { ThumbsDown, ThumbsUp } from "react-feather";
 import { Link } from "react-router-dom";
 import { HomeButton } from "../components/HomeButton";
 import { LocationImage } from "../components/LocationImage";
+import { NavBar } from "../components/NavBar";
+import { Page } from "../components/Page";
 
 export function CheckInDetailView() {
   const checkIn = {
@@ -24,10 +26,7 @@ export function CheckInDetailView() {
     images: [{ url: "example.com" }],
   };
   return (
-    <VStack spacing={4}>
-      <HStack w="full">
-        <HomeButton />
-      </HStack>
+    <Page>
       <Breadcrumb alignSelf={"start"}>
         <BreadcrumbItem>
           <BreadcrumbLink as={Link} to="/">
@@ -81,6 +80,6 @@ export function CheckInDetailView() {
       <Link to="/place/somePlace/check-in">
         <Button width="100%">Modify Check-In</Button>
       </Link>
-    </VStack>
+    </Page>
   );
 }

@@ -22,6 +22,8 @@ import {
 import { Link } from "react-router-dom";
 import { HomeButton } from "../components/HomeButton";
 import { LocationImage } from "../components/LocationImage";
+import { NavBar } from "../components/NavBar";
+import { Page } from "../components/Page";
 
 const checkIns = [
   {
@@ -65,10 +67,7 @@ function Rating(props: { ratings: typeof checkIns["0"]["ratings"] }) {
 
 export function PlacesDetailView() {
   return (
-    <VStack spacing={4}>
-      <HStack w="full">
-        <HomeButton />
-      </HStack>
+    <Page>
       <Breadcrumb alignSelf={"start"}>
         <BreadcrumbItem>
           <BreadcrumbLink as={Link} to="/">
@@ -106,46 +105,52 @@ export function PlacesDetailView() {
         </TabList>
 
         <TabPanels>
-          <TabPanel>
+          <TabPanel
+            paddingX="unset"
+            as={VStack}
+            justifyContent="space-between"
+            w="full"
+          >
             {menu.map((m) => (
-              <Link to="/place/tenoch/menu/potato">
-                <HStack>
-                  <LocationImage />
-                  <Text fontSize={"xl"}>{m.name}</Text>
-                  <Spacer />
-                  <ButtonGroup>
-                    <Button
-                      colorScheme={m.selectedRating > 0 ? "green" : undefined}
-                    >
-                      ↑{m.rating.positive}
-                    </Button>
-                    <Button
-                      colorScheme={m.selectedRating < 0 ? "red" : undefined}
-                    >
-                      ↓{m.rating.negative}
-                    </Button>
-                  </ButtonGroup>
-                </HStack>
-              </Link>
+              <HStack w="full" as={Link} to="/place/tenoch/menu/potato">
+                <LocationImage />
+                <Text fontSize={"xl"}>{m.name}</Text>
+                <Spacer />
+                <ButtonGroup>
+                  <Button
+                    colorScheme={m.selectedRating > 0 ? "green" : undefined}
+                  >
+                    ↑{m.rating.positive}
+                  </Button>
+                  <Button
+                    colorScheme={m.selectedRating < 0 ? "red" : undefined}
+                  >
+                    ↓{m.rating.negative}
+                  </Button>
+                </ButtonGroup>
+              </HStack>
             ))}
           </TabPanel>
-          <TabPanel>
+          <TabPanel
+            paddingX="unset"
+            as={VStack}
+            justifyContent="space-between"
+            w="full"
+          >
             {checkIns.map((c) => (
-              <Link to="/place/tenoch/menu/potato">
-                <HStack>
-                  <LocationImage />
-                  <VStack align={"start"}>
-                    <div>{c.name}</div>
-                    <div>{c.creationTs}</div>
-                  </VStack>
-                  <Spacer />
-                  <Rating ratings={c.ratings} />
-                </HStack>
-              </Link>
+              <HStack w="full" as={Link} to="/place/tenoch/menu/potato">
+                <LocationImage />
+                <VStack align={"start"}>
+                  <div>{c.name}</div>
+                  <div>{c.creationTs}</div>
+                </VStack>
+                <Spacer />
+                <Rating ratings={c.ratings} />
+              </HStack>
             ))}
           </TabPanel>
         </TabPanels>
       </Tabs>
-    </VStack>
+    </Page>
   );
 }

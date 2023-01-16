@@ -11,10 +11,10 @@ import {
   Tabs,
 } from "@chakra-ui/react";
 import { Link, useHistory } from "react-router-dom";
-import { AuthHeading } from "./AuthLoginView.page";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
 import { useToast } from "@chakra-ui/react";
+import { AuthForm } from "../components/AuthForm";
 
 export function AuthSignupView() {
   const toast = useToast();
@@ -64,17 +64,11 @@ export function AuthSignupView() {
       });
   };
   return (
-    <VStack
-      spacing={4}
-      marginX="auto"
-      maxWidth={400}
-      as="form"
-      onSubmit={(e) => {
-        e.preventDefault();
+    <AuthForm
+      onSubmit={() => {
         handleSignup();
       }}
     >
-      <AuthHeading />
       <Tabs index={1} size="lg" width="100%">
         <TabList>
           <Tab as={Link} to="/login" fontWeight={500}>
@@ -117,6 +111,6 @@ export function AuthSignupView() {
           Signup
         </Button>
       </HStack>
-    </VStack>
+    </AuthForm>
   );
 }

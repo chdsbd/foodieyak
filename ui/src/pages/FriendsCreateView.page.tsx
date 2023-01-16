@@ -12,13 +12,12 @@ import {
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { HomeButton } from "../components/HomeButton";
+import { NavBar } from "../components/NavBar";
+import { Page } from "../components/Page";
 
 export function FriendsCreateView() {
   return (
-    <VStack spacing={4}>
-      <HStack w="full">
-        <HomeButton />
-      </HStack>
+    <Page>
       <Breadcrumb alignSelf={"start"}>
         <BreadcrumbItem>
           <BreadcrumbLink as={Link} to="/">
@@ -47,6 +46,6 @@ export function FriendsCreateView() {
           <Button>Invite Friend</Button>
         </HStack>
       </VStack>
-    </VStack>
+    </Page>
   );
 }

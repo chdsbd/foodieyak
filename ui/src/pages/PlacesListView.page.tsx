@@ -1,29 +1,8 @@
-import {
-  HStack,
-  Spacer,
-  Button,
-  VStack,
-  Input,
-  Container,
-} from "@chakra-ui/react";
+import { HStack, VStack, Input, Container, Button } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
-import { HomeButton } from "../components/HomeButton";
 import { LocationImage } from "../components/LocationImage";
-import { NavigationMoreMenu } from "../components/NavigationMoreMenu";
-
-function NavigationBarPlaces() {
-  return (
-    <HStack w="full">
-      <HomeButton />
-      <Spacer />
-
-      <NavigationMoreMenu />
-      <Link to="/place/create">
-        <Button>Add Place</Button>
-      </Link>
-    </HStack>
-  );
-}
+import { NavBar } from "../components/NavBar";
+import { Page } from "../components/Page";
 
 type Location = {
   name: string;
@@ -41,12 +20,16 @@ const locations: Location[] = [
 
 export function PlacesListView() {
   return (
-    <VStack spacing={4}>
-      <NavigationBarPlaces />
-
+    <Page
+      action={
+        <Link to="/place/create">
+          <Button>Add Place</Button>
+        </Link>
+      }
+    >
       <Input placeholder="Search" />
 
-      <Container>
+      <VStack>
         {locations.map((l) => (
           <Link to="/place/tenoch">
             <HStack>
@@ -59,7 +42,7 @@ export function PlacesListView() {
             </HStack>
           </Link>
         ))}
-      </Container>
-    </VStack>
+      </VStack>
+    </Page>
   );
 }

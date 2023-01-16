@@ -1,13 +1,13 @@
 import { VStack, HStack, Container } from "@chakra-ui/react";
 import { HomeButton } from "../components/HomeButton";
+import { NavBar } from "../components/NavBar";
+import { Page } from "../components/Page";
 
 export function NoMatch() {
   return (
-    <VStack spacing={4}>
-      <HStack w="full">
-        <HomeButton />
-      </HStack>
+    <Page>
+      <NavBar />
       <Container>Not Found!</Container>
-    </VStack>
+    </Page>
   );
 }
