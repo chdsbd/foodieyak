@@ -69,3 +69,22 @@ export function usePlaces() {
   }, []);
   return places;
 }
+
+export function useInvites(userId: string) {
+  const [state, setState] = useState<query.UserInvite[]>([]);
+  React.useEffect(() => {
+    query.invitesList({ userId }).then((x) => {
+      setState(x);
+    });
+  }, [userId]);
+  return state;
+}
+export function useFriends(userId: string) {
+  const [state, setState] = useState<query.User[]>([]);
+  React.useEffect(() => {
+    query.friendsList({ userId }).then((x) => {
+      setState(x);
+    });
+  }, [userId]);
+  return state;
+}

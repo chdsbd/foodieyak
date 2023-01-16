@@ -6,21 +6,19 @@ import {
   Heading,
   HStack,
   Spacer,
-  ButtonGroup,
   Button,
   Input,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
+import { EmptyStateText } from "../components/EmptyStateText";
 import { Page } from "../components/Page";
-
-const invites = [
-  { email: "person@example.com", createdTs: "2022-10-20" },
-  { email: "bear@example.com", createdTs: "2022-10-20" },
-];
-
-const friends = [{ email: "sloth@example.com" }];
+import { formatHumanDateTime } from "../date";
+import { useFriends, useInvites, useUser } from "../hooks";
 
 export function FriendsListView() {
+  const user = useUser();
+  const friends = useFriends(user.data?.uid ?? "");
+  const invites = useInvites(user.data?.uid ?? "");
   return (
     <Page>
       <Breadcrumb alignSelf={"start"}>
@@ -40,17 +38,17 @@ export function FriendsListView() {
         Invites
       </Heading>
 
+      {invites.length === 0 && <EmptyStateText>No Invites</EmptyStateText>}
       {invites.map((i) => (
         <HStack width={"100%"}>
           <VStack spacing={0} align={"start"}>
-            <div>{i.email}</div>
-            <div>{i.createdTs}</div>
+            <div>{i.inviteeEmailAddress}</div>
+            <div>{formatHumanDateTime(new Date(i.createdAt))}</div>
           </VStack>
           <Spacer />
-          <ButtonGroup spacing="6" size={"sm"}>
-            <Button colorScheme="blue">Ignore</Button>
-            <Button>Accept</Button>
-          </ButtonGroup>
+          <Button size="sm" colorScheme={"red"} variant="outline">
+            Cancel
+          </Button>
         </HStack>
       ))}
 
@@ -60,11 +58,12 @@ export function FriendsListView() {
         </Heading>
         <Spacer />
         <Link to="/friends/add">
-          <Button>Add Friend</Button>
+          <Button>Invite Friend</Button>
         </Link>
       </HStack>
-      <Input placeholder="Search" />
+      {friends.length > 0 && <Input placeholder="Search" />}
 
+      {friends.length === 0 && <EmptyStateText>No Friends</EmptyStateText>}
       {friends.map((f) => (
         <HStack width="100%">
           <div>{f.email}</div>

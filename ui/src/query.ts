@@ -1,4 +1,6 @@
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { uniqueId } from "lodash-es";
+
 export type User = {
   id: string;
   email: string;
@@ -34,8 +36,17 @@ export type PlaceCheckIn = {
   ratings: CheckInRating[];
 };
 
-const db: { places: Place[] } = {
+export type UserInvite = {
+  id: string;
+  invitedByUserId: User["id"];
+  inviteeEmailAddress: string;
+  createdAt: string;
+};
+
+const db: { places: Place[]; users: User[]; user_invites: UserInvite[] } = {
   places: [],
+  users: [],
+  user_invites: [],
 };
 
 export async function placeCreate(params: {
@@ -112,4 +123,32 @@ export async function menuItemCreate(params: {
   };
   place.menuItems = [...place.menuItems, menuItem];
   return menuItem;
+}
+
+export async function friendsList(params: { userId: string }): Promise<User[]> {
+  console.log(db);
+  const user = db.users.find((x) => x.id === params.userId);
+
+  return user?.friends ?? [];
+}
+
+export async function invitesCreate(params: {
+  userId: string;
+  inviteeEmailAddress: string;
+}): Promise<UserInvite> {
+  const userInvite = {
+    createdAt: new Date().toISOString(),
+    id: uniqueId("user_invite_"),
+    invitedByUserId: params.userId,
+    inviteeEmailAddress: params.inviteeEmailAddress,
+  };
+
+  db.user_invites.push(userInvite);
+  return userInvite;
+}
+
+export async function invitesList(params: {
+  userId: string;
+}): Promise<UserInvite[]> {
+  return db.user_invites.filter((x) => x.invitedByUserId === params.userId);
 }

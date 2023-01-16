@@ -9,6 +9,7 @@ import { formatHumanDate } from "../date";
 import { Link } from "react-router-dom";
 import { usePlaces } from "../hooks";
 import { Page } from "../components/Page";
+import { EmptyStateText } from "../components/EmptyStateText";
 
 function lastCheckIn(place: query.Place): string | undefined {
   const latestCheckIn = first(
@@ -29,7 +30,8 @@ export function PlacesListView() {
         </Link>
       }
     >
-      <Input placeholder="Search" />
+      {places.length === 0 && <EmptyStateText>No Places</EmptyStateText>}
+      {places.length > 0 && <Input placeholder="Search" />}
 
       <VStack w="full">
         {places.map((place) => (
