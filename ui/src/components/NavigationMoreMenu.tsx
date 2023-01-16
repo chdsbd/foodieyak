@@ -12,7 +12,9 @@ export function NavigationMoreMenu() {
         <MenuItem>
           <Link to="/friends">Friends</Link>
         </MenuItem>
-        <MenuItem>Settings</MenuItem>
+        <MenuItem>
+          <Link to="/settings">Settings</Link>
+        </MenuItem>
       </MenuList>
     </Menu>
   );

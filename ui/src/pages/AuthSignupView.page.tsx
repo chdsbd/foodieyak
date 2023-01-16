@@ -10,15 +10,70 @@ import {
   TabList,
   Tabs,
 } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { AuthHeading } from "./AuthLoginView.page";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { useState } from "react";
+import { useToast } from "@chakra-ui/react";
 
 export function AuthSignupView() {
+  const toast = useToast();
+  const history = useHistory();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordAgain, setPasswordAgain] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleSignup = () => {
-    // TODO: create user
+    const auth = getAuth();
+    if (password !== passwordAgain) {
+      toast({
+        title: "Problem creating account",
+        description: `Passwords do not match`,
+        status: "error",
+        isClosable: true,
+      });
+      return;
+    }
+    setIsLoading(true);
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed in
+        const user = userCredential.user;
+        // TODO: store somewhere probably?
+        // ...
+        toast({
+          title: "Account created",
+          status: "success",
+          isClosable: true,
+        });
+        history.push({
+          pathname: "/",
+        });
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        toast({
+          title: "Problem creating account",
+          description: `${errorCode}: ${errorMessage}`,
+          status: "error",
+          isClosable: true,
+        });
+        setIsLoading(false);
+      });
   };
   return (
-    <VStack spacing={4} marginX="auto" maxWidth={400}>
+    <VStack
+      spacing={4}
+      marginX="auto"
+      maxWidth={400}
+      as="form"
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleSignup();
+      }}
+    >
       <AuthHeading />
       <Tabs index={1} size="lg" width="100%">
         <TabList>
@@ -31,19 +86,36 @@ export function AuthSignupView() {
 
       <FormControl>
         <FormLabel>Email</FormLabel>
-        <Input type="email" />
+        <Input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
       </FormControl>
       <FormControl>
         <FormLabel>Password</FormLabel>
-        <Input type="password" />
+        <Input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
       </FormControl>
       <FormControl>
         <FormLabel>Password (again)</FormLabel>
-        <Input type="password" />
+        <Input
+          type="password"
+          value={passwordAgain}
+          onChange={(e) => setPasswordAgain(e.target.value)}
+        />
       </FormControl>
       <HStack width="100%">
+        <Button variant="link" as={Link} to="/forgot-password">
+          Forgot Password →
+        </Button>
         <Spacer />
-        <Button onClick={handleSignup}>Signup</Button>
+        <Button isLoading={isLoading} onClick={handleSignup}>
+          Signup
+        </Button>
       </HStack>
     </VStack>
   );
