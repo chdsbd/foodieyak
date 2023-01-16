@@ -19,7 +19,7 @@ import {
 import { Link, useParams } from "react-router-dom";
 import { LocationImage } from "../components/LocationImage";
 import { Page } from "../components/Page";
-import { usePlace, useUser } from "../hooks";
+import { useFriends, usePlace, useUser } from "../hooks";
 import { PlaceCheckIn } from "../query";
 import { NoMatch } from "./NoMatchView.page";
 import { menuFromPlace } from "../transforms";
@@ -40,6 +40,7 @@ export function PlacesDetailView() {
   const { placeId }: { placeId: string } = useParams();
   const place = usePlace(placeId);
   const user = useUser();
+  const friends = useFriends(user.data?.uid ?? "");
   if (user.data == null) {
     return null;
   }
@@ -138,7 +139,12 @@ export function PlacesDetailView() {
               >
                 <LocationImage />
                 <VStack align={"start"}>
-                  <div>{c.userId}</div>
+                  <div>
+                    {c.userId === user.data.uid
+                      ? user.data.displayName || user.data.email
+                      : friends.find((x) => x.id === c.userId)?.email ??
+                        "Unknown User"}
+                  </div>
                   <div>{c.createdAt}</div>
                 </VStack>
                 <Spacer />

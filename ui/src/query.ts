@@ -1,4 +1,3 @@
-import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { uniqueId } from "lodash-es";
 
 export type User = {
