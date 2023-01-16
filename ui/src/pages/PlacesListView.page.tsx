@@ -29,18 +29,16 @@ export function PlacesListView() {
     >
       <Input placeholder="Search" />
 
-      <VStack>
+      <VStack w="full">
         {locations.map((l) => (
-          <Link to="/place/tenoch">
-            <HStack>
-              <LocationImage />
-              <div>
-                <div>{l.name}</div>
-                <div>{l.location}</div>
-                <div>{l.lastCheckIn}</div>
-              </div>
-            </HStack>
-          </Link>
+          <HStack as={Link} to="/place/tenoch" w="full">
+            <LocationImage />
+            <div>
+              <div>{l.name}</div>
+              <div>{l.location}</div>
+              <div>{l.lastCheckIn}</div>
+            </div>
+          </HStack>
         ))}
       </VStack>
     </Page>

@@ -11,9 +11,6 @@ import {
   Input,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
-import { HomeButton } from "../components/HomeButton";
-import { NavBar } from "../components/NavBar";
-import { NavigationMoreMenu } from "../components/NavigationMoreMenu";
 import { Page } from "../components/Page";
 
 const invites = [
