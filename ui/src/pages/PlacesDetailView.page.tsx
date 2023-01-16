@@ -31,7 +31,7 @@ function Rating(props: { ratings: PlaceCheckIn["ratings"] }) {
   const negative = props.ratings.filter((x) => x.rating < 0).length;
   return (
     <Flex>
-      {total} items ({positive}↑ {negative}↓)
+      {total} reviews ({positive}↑ {negative}↓)
     </Flex>
   );
 }
