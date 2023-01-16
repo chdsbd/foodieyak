@@ -20,11 +20,9 @@ import { useState } from "react";
 export function AuthHeading() {
   return (
     <HStack alignItems="center" marginTop="4" marginBottom="-4">
-      <Link to="/">
-        <Heading as="h1" size="lg" fontWeight={500}>
-          FoodieYak
-        </Heading>
-      </Link>
+      <Heading as="h1" size="lg" fontWeight={500}>
+        FoodieYak
+      </Heading>
     </HStack>
   );
 }
