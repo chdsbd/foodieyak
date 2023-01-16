@@ -31,7 +31,7 @@ export function PlacesListView() {
       }
     >
       {places.length === 0 && <EmptyStateText>No Places</EmptyStateText>}
-      {places.length > 0 && <Input placeholder="Search" />}
+      {places.length > 0 && <Input placeholder="Search" type="search" />}
 
       <VStack w="full">
         {places.map((place) => (
