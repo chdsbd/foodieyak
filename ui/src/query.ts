@@ -11,35 +11,27 @@ export type Place = {
   name: string;
   location: string;
   createdBy: User["id"];
-  menu: MenuEntry[];
-  checkIns: CheckIn[];
+  menuItems: PlaceMenuItem[];
+  checkIns: PlaceCheckIn[];
 };
 
-export type CheckIn = {
+export type PlaceMenuItem = {
   id: string;
-  userId: User["id"];
-  createdAt: string;
-  ratings: {
-    id: string;
-    menuItem: {
-      id: string;
-      name: string;
-    };
-    rating: 1 | -1;
-  }[];
+  name: string;
+  createdBy: string;
 };
 
-export type Rating = {
+export type CheckInRating = {
   id: string;
-  userId: User["id"];
-  createdAt: string;
+  menuItemId: string;
   rating: 1 | -1;
 };
 
-export type MenuEntry = {
+export type PlaceCheckIn = {
   id: string;
-  name: string;
-  ratings: Rating[];
+  userId: User["id"];
+  createdAt: string;
+  ratings: CheckInRating[];
 };
 
 const db: { places: Place[] } = {
@@ -56,7 +48,7 @@ export async function placeCreate(params: {
     name: params.name,
     location: params.location,
     createdBy: params.userId,
-    menu: [],
+    menuItems: [],
     checkIns: [],
   };
   db.places.push(place);
@@ -67,4 +59,53 @@ export async function placeGet(params: {
   id: string;
 }): Promise<Place | undefined> {
   return db.places.find((x) => x.id === params.id);
+}
+
+export async function checkInCreate(params: {
+  placeId: string;
+  date: string;
+  reviews: {
+    menuItemId: string;
+    rating: 1 | -1;
+  }[];
+  userId: string;
+}): Promise<PlaceCheckIn> {
+  const place = db.places.find((x) => x.id === params.placeId);
+  if (place == null) {
+    throw Error("Could not find place with provided placeId");
+  }
+  const ratings: CheckInRating[] = params.reviews.map((x) => {
+    return {
+      id: uniqueId("rating_"),
+      menuItemId: x.menuItemId,
+      rating: x.rating,
+    };
+  });
+  const checkIn: PlaceCheckIn = {
+    id: uniqueId("checkin_"),
+    createdAt: params.date,
+    ratings: ratings,
+    userId: params.userId,
+  };
+  place.checkIns = [...place.checkIns, checkIn];
+  return checkIn;
+}
+
+export async function menuItemCreate(params: {
+  placeId: string;
+  name: string;
+  userId: string;
+}): Promise<PlaceMenuItem> {
+  const place = db.places.find((x) => x.id === params.placeId);
+  if (place == null) {
+    throw Error("Could not find place with provided placeId");
+  }
+
+  const menuItem: PlaceMenuItem = {
+    id: uniqueId("checkin_"),
+    name: params.name,
+    createdBy: params.userId,
+  };
+  place.menuItems = [...place.menuItems, menuItem];
+  return menuItem;
 }

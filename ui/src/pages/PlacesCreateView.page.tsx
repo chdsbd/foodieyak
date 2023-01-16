@@ -41,36 +41,43 @@ export function PlacesCreateView() {
         </BreadcrumbItem>
       </Breadcrumb>
 
-      <FormControl>
-        <FormLabel>Name</FormLabel>
-        <Input
-          type="text"
-          onChange={(e) => setName(e.target.value)}
-          value={name}
-        />
-      </FormControl>
-
-      <FormControl>
-        <FormLabel>Location</FormLabel>
-        <Input
-          type="text"
-          onChange={(e) => setLocation(e.target.value)}
-          value={location}
-        />
-      </FormControl>
-      <Button
-        size="lg"
-        onClick={async () => {
-          const place = await query.placeCreate({
-            name,
-            location,
-            userId: user.id,
-          });
-          history.push(`/place/${place.id}`);
+      <VStack
+        as="form"
+        width="100%"
+        onSubmit={(e) => {
+          e.preventDefault();
+          query
+            .placeCreate({
+              name,
+              location,
+              userId: user.id,
+            })
+            .then((place) => {
+              history.push(`/place/${place.id}`);
+            });
         }}
       >
-        Create Place
-      </Button>
+        <FormControl>
+          <FormLabel>Name</FormLabel>
+          <Input
+            type="text"
+            onChange={(e) => setName(e.target.value)}
+            value={name}
+          />
+        </FormControl>
+
+        <FormControl>
+          <FormLabel>Location</FormLabel>
+          <Input
+            type="text"
+            onChange={(e) => setLocation(e.target.value)}
+            value={location}
+          />
+        </FormControl>
+        <Button size="lg" type="submit">
+          Create Place
+        </Button>
+      </VStack>
     </VStack>
   );
 }

@@ -21,15 +21,15 @@ const routes: (
   | { path: string; redirect: string }
 )[] = [
   {
-    path: "/place/:place/check-in/:checkin",
+    path: "/place/:placeId/check-in/:checkInId",
     element: <CheckInDetailView />,
   },
   {
-    path: "/place/:place/menu/:menuitem",
+    path: "/place/:placeId/menu/:menuItemId",
     element: <MenuItemDetailView />,
   },
   {
-    path: "/place/:id/check-in",
+    path: "/place/:placeId/check-in",
     element: <CheckInCreateView />,
   },
   {

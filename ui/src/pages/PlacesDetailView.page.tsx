@@ -24,22 +24,11 @@ import { Link, useParams } from "react-router-dom";
 import { HomeButton } from "../components/HomeButton";
 import { LocationImage } from "../components/LocationImage";
 import { useCurrentUser } from "../hooks";
-import { CheckIn, Place, placeGet } from "../query";
+import { PlaceCheckIn, Place, placeGet } from "../query";
 import { NoMatch } from "./NoMatchView.page";
+import { flatten, groupBy, first, orderBy, uniqBy } from "lodash-es";
 
-const checkIns = [
-  {
-    name: "Joe Shmoe",
-    creationTs: "2022-11-20",
-    ratings: {
-      positive: 4,
-      negative: 1,
-      total: 5,
-    },
-  },
-];
-
-function Rating(props: { ratings: CheckIn["ratings"] }) {
+function Rating(props: { ratings: PlaceCheckIn["ratings"] }) {
   const total = props.ratings.length;
   const positive = props.ratings.filter((x) => x.rating > 0).length;
   const negative = props.ratings.filter((x) => x.rating < 0).length;
@@ -50,7 +39,7 @@ function Rating(props: { ratings: CheckIn["ratings"] }) {
   );
 }
 
-function usePlace(placeId: string): Place | "loading" | "not_found" {
+export function usePlace(placeId: string): Place | "loading" | "not_found" {
   const [place, setPlace] = useState<Place | "loading" | "not_found">(
     "loading"
   );
@@ -64,6 +53,45 @@ function usePlace(placeId: string): Place | "loading" | "not_found" {
     });
   }, [placeId]);
   return place;
+}
+
+function menuFromPlace(
+  place: Place,
+  currentUserId: string
+): {
+  id: string;
+  name: string;
+  selfRating: 1 | -1 | null;
+  positiveCount: number;
+  negativeCount: number;
+}[] {
+  const menuItemRatingsWithUserId = orderBy(
+    flatten(
+      place.checkIns.map((c) =>
+        c.ratings.map((r) => ({
+          ...r,
+          userId: c.userId,
+          createdAt: c.createdAt,
+        }))
+      )
+    ),
+    (x) => x.createdAt,
+    ["desc"]
+  );
+  const latestRatingPerUser = uniqBy(
+    menuItemRatingsWithUserId,
+    (u) => u.userId + ":" + u.menuItemId
+  );
+  const ratingsByMenuItemId = groupBy(latestRatingPerUser, (z) => z.menuItemId);
+  return place.menuItems.map((x) => ({
+    id: x.id,
+    name: x.name,
+    negativeCount: ratingsByMenuItemId[x.id].filter((y) => y.rating < 0).length,
+    positiveCount: ratingsByMenuItemId[x.id].filter((y) => y.rating > 0).length,
+    selfRating:
+      ratingsByMenuItemId[x.id].find((y) => y.userId === currentUserId)
+        ?.rating ?? null,
+  }));
 }
 
 export function PlacesDetailView() {
@@ -119,7 +147,7 @@ export function PlacesDetailView() {
 
         <TabPanels>
           <TabPanel>
-            {place.menu.map((m) => (
+            {menuFromPlace(place, user.id).map((m) => (
               <Link to={`/place/${place.id}/menu/${m.id}`}>
                 <HStack>
                   <LocationImage />
@@ -127,36 +155,14 @@ export function PlacesDetailView() {
                   <Spacer />
                   <ButtonGroup>
                     <Button
-                      colorScheme={
-                        m.ratings.find((x) => x.userId === user.id)?.rating ??
-                        0 > 0
-                          ? "green"
-                          : undefined
-                      }
+                      colorScheme={m.selfRating ?? 0 > 0 ? "green" : undefined}
                     >
-                      ↑
-                      {m.ratings.reduce((prev, cur) => {
-                        if (cur.rating > 0) {
-                          return prev + 1;
-                        }
-                        return prev;
-                      }, 0)}
+                      ↑{m.positiveCount}
                     </Button>
                     <Button
-                      colorScheme={
-                        m.ratings.find((x) => x.userId === user.id)?.rating ??
-                        0 < 0
-                          ? "red"
-                          : undefined
-                      }
+                      colorScheme={m.selfRating ?? 0 < 0 ? "red" : undefined}
                     >
-                      ↓
-                      {m.ratings.reduce((prev, cur) => {
-                        if (cur.rating < 0) {
-                          return prev + 1;
-                        }
-                        return prev;
-                      }, 0)}
+                      ↓{m.negativeCount}
                     </Button>
                   </ButtonGroup>
                 </HStack>
