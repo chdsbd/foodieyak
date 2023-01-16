@@ -6,11 +6,16 @@ import {
   Input,
   Container,
 } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { HomeButton } from "../components/HomeButton";
 import { LocationImage } from "../components/LocationImage";
 import { NavigationMoreMenu } from "../components/NavigationMoreMenu";
+import { orderBy, first } from "lodash-es";
+import { parseISO } from "date-fns";
 
+import * as query from "../query";
+import { formatHumanDate } from "../date";
 function NavigationBarPlaces() {
   return (
     <HStack w="full">
@@ -25,21 +30,27 @@ function NavigationBarPlaces() {
   );
 }
 
-type Location = {
-  name: string;
-  location: string;
-  lastCheckIn: string;
-};
+function usePlaces() {
+  const [places, setPlaces] = useState<query.Place[]>([]);
+  useEffect(() => {
+    query.placeList().then((x) => {
+      setPlaces(x);
+    });
+  }, []);
+  return places;
+}
 
-const locations: Location[] = [
-  {
-    name: "Tenoch",
-    lastCheckIn: "3 days ago",
-    location: "Medford, MA",
-  },
-];
+function lastCheckIn(place: query.Place): string | undefined {
+  const latestCheckIn = first(
+    orderBy(place.checkIns, (x) => x.createdAt, ["desc"])
+  );
+  if (latestCheckIn != null) {
+    return formatHumanDate(parseISO(latestCheckIn.createdAt));
+  }
+}
 
 export function PlacesListView() {
+  const places = usePlaces();
   return (
     <VStack spacing={4}>
       <NavigationBarPlaces />
@@ -47,14 +58,14 @@ export function PlacesListView() {
       <Input placeholder="Search" />
 
       <Container>
-        {locations.map((l) => (
-          <Link to="/place/tenoch">
+        {places.map((place) => (
+          <Link to={`/place/${place.id}`}>
             <HStack>
               <LocationImage />
               <div>
-                <div>{l.name}</div>
-                <div>{l.location}</div>
-                <div>{l.lastCheckIn}</div>
+                <div>{place.name}</div>
+                <div>{place.location}</div>
+                <div>{lastCheckIn(place)}</div>
               </div>
             </HStack>
           </Link>

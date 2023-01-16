@@ -171,7 +171,7 @@ export function PlacesDetailView() {
           </TabPanel>
           <TabPanel>
             {place.checkIns.map((c) => (
-              <Link to={`/place/${place.id}/menu/potato`}>
+              <Link to={`/place/${place.id}/check-in/${c.id}`}>
                 <HStack>
                   <LocationImage />
                   <VStack align={"start"}>

@@ -114,14 +114,14 @@ function MenuItem(props: {
                   props.setRating(1);
                 }}
               >
-                <ThumbsUp />
+                <ThumbsUp fill={props.rating > 0 ? "lightgreen" : "none"} />
               </Button>
               <Button
                 onClick={() => {
                   props.setRating(-1);
                 }}
               >
-                <ThumbsDown />
+                <ThumbsDown fill={props.rating < 0 ? "orange" : "none"} />
               </Button>
               <Spacer />
               <Button
@@ -235,7 +235,6 @@ export function CheckInCreateView() {
           );
         }}
       />
-      <pre>{JSON.stringify(menuItemRatings)}</pre>
       {menuItemRatings.map((mir) => {
         return (
           <MenuItem

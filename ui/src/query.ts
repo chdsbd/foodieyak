@@ -61,6 +61,10 @@ export async function placeGet(params: {
   return db.places.find((x) => x.id === params.id);
 }
 
+export async function placeList(): Promise<Place[]> {
+  return db.places;
+}
+
 export async function checkInCreate(params: {
   placeId: string;
   date: string;

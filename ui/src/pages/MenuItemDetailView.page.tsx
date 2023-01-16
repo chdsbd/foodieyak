@@ -9,21 +9,48 @@ import {
   Spacer,
   VStack,
 } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 import { ThumbsDown, ThumbsUp } from "react-feather";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { HomeButton } from "../components/HomeButton";
 import { LocationImage } from "../components/LocationImage";
+import { useCurrentUser } from "../hooks";
+import * as query from "../query";
+import { menuFromPlace } from "../transforms";
+import { usePlace } from "./PlacesDetailView.page";
 
 export function MenuItemDetailView() {
-  const menuItem = {
-    name: "Potato",
-    positive: 4,
-    negative: 2,
-    ratings: [
-      { name: "Joe Shmoe", date: "2022-11-20", rating: 1 },
-      { name: "Tommy Enterprise", date: "2022-11-20", rating: -1 },
-    ],
-  };
+  const {
+    placeId,
+    menuItemId,
+  }: {
+    placeId: string;
+    menuItemId: string;
+  } = useParams();
+  const place = usePlace(placeId);
+  const currentUser = useCurrentUser();
+
+  if (place === "loading") {
+    return <>Loading...</>;
+  }
+  if (place === "not_found") {
+    return <>Not Found</>;
+  }
+
+  const menuItem = menuFromPlace(place, currentUser.id).find(
+    (x) => x.id === menuItemId
+  );
+  if (menuItem == null) {
+    return null;
+  }
+
+  const checkInsForMenuItem = place.checkIns
+    .map((x) => {
+      x.ratings = x.ratings.filter((r) => r.menuItemId === menuItemId);
+      return x;
+    })
+    .filter((x) => x.ratings.length > 0);
+
   return (
     <VStack spacing={4}>
       <HStack w="full">
@@ -37,13 +64,16 @@ export function MenuItemDetailView() {
         </BreadcrumbItem>
 
         <BreadcrumbItem>
-          <BreadcrumbLink as={Link} to="/place/tenoch">
+          <BreadcrumbLink as={Link} to={`/place/${place.id}`}>
             Tenoch
           </BreadcrumbLink>
         </BreadcrumbItem>
 
         <BreadcrumbItem isCurrentPage>
-          <BreadcrumbLink as={Link} to="/place/tenoch/menu/potato">
+          <BreadcrumbLink
+            as={Link}
+            to={`/place/${place.id}/menu/${menuItem.id}`}
+          >
             {menuItem.name}
           </BreadcrumbLink>
         </BreadcrumbItem>
@@ -51,8 +81,8 @@ export function MenuItemDetailView() {
       <HStack w="100%">
         <LocationImage />
         <div>
-          <div>Tenoch</div>
-          <div>Medford, MA</div>
+          <div>{place.id}</div>
+          <div>{place.location}</div>
         </div>
       </HStack>
 
@@ -62,27 +92,31 @@ export function MenuItemDetailView() {
         </Heading>
         <Spacer />
         <ButtonGroup>
-          <Button>↑{menuItem.positive}</Button>
-          <Button>↓{menuItem.negative}</Button>
+          <Button>↑{menuItem.positiveCount}</Button>
+          <Button>↓{menuItem.negativeCount}</Button>
         </ButtonGroup>
       </HStack>
 
-      {menuItem.ratings.map((m) => (
+      {checkInsForMenuItem.map((m) => (
         <HStack width="100%">
           <HStack>
             <LocationImage />
             <VStack align="start">
-              <div>{m.name}</div>
-              <div>{m.date}</div>
+              <div>{m.userId}</div>
+              <div>{m.createdAt}</div>
             </VStack>
           </HStack>
           <Spacer />
           <ButtonGroup>
             <Button>
-              <ThumbsUp fill={m.rating > 0 ? "lightgreen" : "transparent"} />
+              <ThumbsUp
+                fill={m.ratings[0].rating > 0 ? "lightgreen" : "transparent"}
+              />
             </Button>
             <Button>
-              <ThumbsDown fill={m.rating < 0 ? "orange" : "transparent"} />
+              <ThumbsDown
+                fill={m.ratings[0].rating < 0 ? "orange" : "transparent"}
+              />
             </Button>
           </ButtonGroup>
         </HStack>
