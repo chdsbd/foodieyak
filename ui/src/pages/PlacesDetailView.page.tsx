@@ -104,12 +104,12 @@ export function PlacesDetailView() {
                 <Spacer />
                 <ButtonGroup>
                   <Button
-                    colorScheme={m.selfRating ?? 0 > 0 ? "green" : undefined}
+                    colorScheme={(m.selfRating ?? 0) > 0 ? "green" : undefined}
                   >
                     ↑{m.positiveCount}
                   </Button>
                   <Button
-                    colorScheme={m.selfRating ?? 0 < 0 ? "red" : undefined}
+                    colorScheme={(m.selfRating ?? 0) < 0 ? "red" : undefined}
                   >
                     ↓{m.negativeCount}
                   </Button>
