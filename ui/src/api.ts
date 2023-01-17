@@ -1,4 +1,11 @@
-import { addDoc, collection } from "firebase/firestore";
+import {
+  addDoc,
+  getDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
 import { db } from "./db";
 
 export type User = {
@@ -57,4 +64,42 @@ export async function placeCreate(params: {
   };
   const docRef = await addDoc(collection(db, "places"), place);
   return docRef.id;
+}
+
+export type UserFoodieYak = {
+  id: string;
+  displayName: string;
+  email: string;
+  emailLookupField: string;
+  createdAt: string;
+};
+
+export async function friendLookup({
+  email,
+}: {
+  email: string;
+}): Promise<UserFoodieYak[]> {
+  console.log(email);
+  const matchingDocs = await getDocs(
+    query(
+      collection(db, `users`),
+      where("emailLookupField", "==", email.toLowerCase())
+    )
+  );
+  const results: UserFoodieYak[] = [];
+  matchingDocs.forEach((doc) => [results.push({ ...doc.data(), id: doc.id })]);
+  return results;
+}
+export type FriendRelationship = {
+  createdAt: string;
+};
+
+export async function friendInvitationCreate({
+  userId,
+  email,
+}: {
+  userId: string;
+  email: string;
+}) {
+  // await addDoc(collection(db, `users/${userId}/friends`))
 }

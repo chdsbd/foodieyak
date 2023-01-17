@@ -9,17 +9,26 @@ import {
   Input,
   FormHelperText,
   Button,
+  Heading,
+  Card,
+  CardBody,
+  Spacer,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { Page } from "../components/Page";
 import { useUser } from "../hooks";
 import * as query from "../fakeDb";
+import * as api from "../api";
+import { EmptyStateText } from "../components/EmptyStateText";
 
 export function FriendsCreateView() {
   const user = useUser();
   const history = useHistory();
   const [email, setEmail] = useState("");
+  const [lookupResults, setLookupResults] = useState<
+    api.UserFoodieYak[] | "initial"
+  >("initial");
   if (user.data == null) {
     return;
   }
@@ -48,14 +57,9 @@ export function FriendsCreateView() {
         as="form"
         onSubmit={(e) => {
           e.preventDefault();
-          query
-            .invitesCreate({
-              inviteeEmailAddress: email,
-              userId: user.data.uid,
-            })
-            .then(() => {
-              history.push("/friends");
-            });
+          api.friendLookup({ email }).then((res) => {
+            setLookupResults(res);
+          });
         }}
       >
         <FormControl>
@@ -67,11 +71,33 @@ export function FriendsCreateView() {
               setEmail(e.target.value);
             }}
           />
-          <FormHelperText>An email invitation will be sent.</FormHelperText>
+          <FormHelperText>Search for a user by email.</FormHelperText>
         </FormControl>
         <HStack width="100%" justify={"end"}>
-          <Button type="submit">Invite Friend</Button>
+          <Button type="submit">Lookup Friend</Button>
         </HStack>
+        {lookupResults !== "initial" && (
+          <>
+            <Heading size="md" alignSelf={"start"}>
+              Lookup Results
+            </Heading>
+            {lookupResults.map((r) => (
+              <Card w="100%">
+                <HStack as={CardBody}>
+                  <VStack alignItems={"start"}>
+                    <p>{r.displayName}</p>
+                    <p>{r.email}</p>
+                  </VStack>
+                  <Spacer />
+                  <Button>Invite</Button>
+                </HStack>
+              </Card>
+            ))}
+            {lookupResults.length === 0 && (
+              <EmptyStateText>No Results</EmptyStateText>
+            )}
+          </>
+        )}
       </VStack>
     </Page>
   );
