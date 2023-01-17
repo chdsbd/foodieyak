@@ -14,6 +14,8 @@ import { Page } from "../components/Page";
 import { useUser } from "../hooks";
 
 import * as query from "../query";
+import { db } from "../db";
+import { addDoc, collection } from "firebase/firestore";
 
 export function PlacesCreateView() {
   const [name, setName] = useState("");
@@ -42,15 +44,19 @@ export function PlacesCreateView() {
         width="100%"
         onSubmit={(e) => {
           e.preventDefault();
-          query
-            .placeCreate({
-              name,
-              location,
-              userId: user.id,
-            })
-            .then((place) => {
-              history.push(`/place/${place.id}`);
-            });
+          if (user.data == null) {
+            return;
+          }
+          const newPlace: Omit<query.Place, "id"> = {
+            name,
+            location,
+            createdByUserId: user.data.uid,
+            checkIns: [],
+            menuItems: [],
+          };
+          addDoc(collection(db, "places"), newPlace).then((docRef) => {
+            history.push(`/place/${docRef.id}`);
+          });
         }}
       >
         <FormControl>

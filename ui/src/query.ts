@@ -11,7 +11,7 @@ export type Place = {
   id: string;
   name: string;
   location: string;
-  createdBy: User["id"];
+  createdByUserId: User["id"];
   menuItems: PlaceMenuItem[];
   checkIns: PlaceCheckIn[];
 };
@@ -57,7 +57,7 @@ export async function placeCreate(params: {
     id: uniqueId("place_"),
     name: params.name,
     location: params.location,
-    createdBy: params.userId,
+    createdByUserId: params.userId,
     menuItems: [],
     checkIns: [],
   };
