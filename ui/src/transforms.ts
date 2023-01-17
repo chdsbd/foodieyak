@@ -1,5 +1,5 @@
 import { flatten, groupBy, orderBy, uniqBy } from "lodash-es";
-import { Place } from "./query";
+import { Place } from "./fakeDb";
 
 // TODO: Fix this broken code.
 export function menuFromPlace(

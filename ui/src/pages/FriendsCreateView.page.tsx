@@ -14,7 +14,7 @@ import { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { Page } from "../components/Page";
 import { useUser } from "../hooks";
-import * as query from "../query";
+import * as query from "../fakeDb";
 
 export function FriendsCreateView() {
   const user = useUser();

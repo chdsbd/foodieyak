@@ -13,13 +13,12 @@ import { Link, useHistory } from "react-router-dom";
 import { Page } from "../components/Page";
 import { useUser } from "../hooks";
 
-import * as query from "../query";
-import { db } from "../db";
-import { addDoc, collection } from "firebase/firestore";
+import * as api from "../api";
 
 export function PlacesCreateView() {
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
+  const [saving, setSaving] = useState(false);
   const user = useUser();
   const history = useHistory();
 
@@ -47,16 +46,13 @@ export function PlacesCreateView() {
           if (user.data == null) {
             return;
           }
-          const newPlace: Omit<query.Place, "id"> = {
-            name,
-            location,
-            createdByUserId: user.data.uid,
-            checkIns: [],
-            menuItems: [],
-          };
-          addDoc(collection(db, "places"), newPlace).then((docRef) => {
-            history.push(`/place/${docRef.id}`);
-          });
+          setSaving(true);
+          api
+            .placeCreate({ name, location, userId: user.data.uid })
+            .then((docId) => {
+              history.push(`/place/${docId}`);
+              setSaving(false);
+            });
         }}
       >
         <FormControl>
@@ -76,7 +72,12 @@ export function PlacesCreateView() {
             value={location}
           />
         </FormControl>
-        <Button size="lg" type="submit">
+        <Button
+          size="lg"
+          type="submit"
+          isLoading={saving}
+          loadingText="Creating place..."
+        >
           Create Place
         </Button>
       </VStack>

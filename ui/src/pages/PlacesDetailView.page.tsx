@@ -20,7 +20,7 @@ import { Link, useParams } from "react-router-dom";
 import { LocationImage } from "../components/LocationImage";
 import { Page } from "../components/Page";
 import { useFriends, usePlace, useUser } from "../hooks";
-import { PlaceCheckIn } from "../query";
+import { PlaceCheckIn } from "../fakeDb";
 import { NoMatch } from "./NoMatchView.page";
 import { menuFromPlace } from "../transforms";
 import { EmptyStateText } from "../components/EmptyStateText";

@@ -3,15 +3,15 @@ import { LocationImage } from "../components/LocationImage";
 import { orderBy, first } from "lodash-es";
 import { parseISO } from "date-fns";
 
-import * as query from "../query";
 import { formatHumanDate } from "../date";
 
 import { Link } from "react-router-dom";
 import { usePlaces, useUser } from "../hooks";
 import { Page } from "../components/Page";
 import { EmptyStateText } from "../components/EmptyStateText";
+import { Place } from "../api";
 
-function lastCheckIn(place: query.Place): string | undefined {
+function lastCheckIn(place: Place): string | undefined {
   const latestCheckIn = first(
     orderBy(place.checkIns, (x) => x.createdAt, ["desc"])
   );

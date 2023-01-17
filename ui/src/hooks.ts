@@ -1,6 +1,6 @@
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 import React, { useState } from "react";
-import * as localQuery from "./query";
+import * as localQuery from "./fakeDb";
 import { db } from "./db";
 import { collection, query, where, onSnapshot, doc } from "firebase/firestore";
 

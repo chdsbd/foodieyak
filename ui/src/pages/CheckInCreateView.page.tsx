@@ -21,7 +21,7 @@ import { Page } from "../components/Page";
 import { Link, useParams, useHistory } from "react-router-dom";
 import { usePlace, useUser } from "../hooks";
 import { NoMatch } from "./NoMatchView.page";
-import * as query from "../query";
+import * as query from "../fakeDb";
 import { useState } from "react";
 import { groupBy } from "lodash-es";
 import { parseISO, format } from "date-fns";
