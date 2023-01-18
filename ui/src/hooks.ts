@@ -96,12 +96,24 @@ export function useInvites(userId: string) {
   }, [userId]);
   return state;
 }
-export function useFriends(userId: string) {
+export function useFriends(userId: string | null) {
   const [state, setState] = useState<localQuery.User[]>([]);
   React.useEffect(() => {
-    localQuery.friendsList({ userId }).then((x) => {
-      setState(x);
+    if (userId == null) {
+      return;
+    }
+    const q = query(collection(db, `users/${userId}/friends`));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const friends = [];
+      querySnapshot.forEach((doc) => {
+        friends.push({ id: doc.id, ...doc.data() });
+      });
+      console.log(friends);
+      setState(friends);
     });
+    return () => {
+      unsubscribe();
+    };
   }, [userId]);
   return state;
 }

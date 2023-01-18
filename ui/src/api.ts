@@ -113,16 +113,3 @@ export async function friendInviteCreate({
     acceptedAt: null,
   });
 }
-export type FriendRelationship = {
-  createdAt: string;
-};
-
-export async function friendInvitationCreate({
-  userId,
-  email,
-}: {
-  userId: string;
-  email: string;
-}) {
-  // await addDoc(collection(db, `users/${userId}/friends`))
-}
