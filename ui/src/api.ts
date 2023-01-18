@@ -5,6 +5,8 @@ import {
   query,
   where,
   getDocs,
+  doc,
+  setDoc,
 } from "firebase/firestore";
 import { db } from "./db";
 
@@ -89,6 +91,27 @@ export async function friendLookup({
   const results: UserFoodieYak[] = [];
   matchingDocs.forEach((doc) => [results.push({ ...doc.data(), id: doc.id })]);
   return results;
+}
+
+export async function friendInviteCreate({
+  userId,
+  targetUserId,
+}: {
+  userId: string;
+  targetUserId: string;
+}): Promise<void> {
+  // /users/{user}/friends/{target}
+  // /users/{target}/friends/{user}
+  await setDoc(doc(db, `users/${userId}/friends`, targetUserId), {
+    invitedAt: new Date(),
+    accepted: false,
+    acceptedAt: null,
+  });
+  await setDoc(doc(db, `users/${targetUserId}/friends`, userId), {
+    invitedAt: new Date(),
+    accepted: false,
+    acceptedAt: null,
+  });
 }
 export type FriendRelationship = {
   createdAt: string;

@@ -89,7 +89,24 @@ export function FriendsCreateView() {
                     <p>{r.email}</p>
                   </VStack>
                   <Spacer />
-                  <Button>Invite</Button>
+                  <Button
+                    onClick={() => {
+                      if (user.data == null) {
+                        return;
+                      }
+                      api
+                        .friendInviteCreate({
+                          userId: user.data.uid,
+                          targetUserId: r.id,
+                        })
+                        .then(() => {
+                          history.push("/friends");
+                        })
+                        .catch((e) => console.error(e));
+                    }}
+                  >
+                    Invite
+                  </Button>
                 </HStack>
               </Card>
             ))}
