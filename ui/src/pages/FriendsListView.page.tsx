@@ -70,11 +70,31 @@ export function FriendsListView() {
           </VStack>
           <Spacer />
           {i.createdById == user.data.uid ? (
-            <Button size="sm" colorScheme={"red"} variant="outline">
+            <Button
+              size="sm"
+              colorScheme={"red"}
+              variant="outline"
+              onClick={() => {
+                api.friendInviteCancel({
+                  userId: user.data.uid,
+                  targetUserId: i.id,
+                });
+              }}
+            >
               Cancel
             </Button>
           ) : (
-            <Button size="sm" colorScheme={"red"} variant="outline">
+            <Button
+              size="sm"
+              colorScheme={"red"}
+              variant="outline"
+              onClick={() => {
+                api.friendInviteAccept({
+                  userId: user.data.uid,
+                  targetUserId: i.id,
+                });
+              }}
+            >
               Accept
             </Button>
           )}

@@ -7,6 +7,8 @@ import {
   getDocs,
   doc,
   setDoc,
+  deleteDoc,
+  updateDoc,
 } from "firebase/firestore";
 import { db } from "./db";
 
@@ -112,6 +114,38 @@ export async function friendInviteCreate({
     createdById: userId,
     accepted: false,
     acceptedAt: null,
+  });
+}
+
+export async function friendInviteCancel({
+  userId,
+  targetUserId,
+}: {
+  userId: string;
+  targetUserId: string;
+}): Promise<void> {
+  // /users/{user}/friends/{target}
+  // /users/{target}/friends/{user}
+  await deleteDoc(doc(db, `users`, userId, `friends`, targetUserId));
+  await deleteDoc(doc(db, `users`, targetUserId, `friends`, userId));
+}
+
+export async function friendInviteAccept({
+  userId,
+  targetUserId,
+}: {
+  userId: string;
+  targetUserId: string;
+}): Promise<void> {
+  // /users/{user}/friends/{target}
+  // /users/{target}/friends/{user}
+  await updateDoc(doc(db, `users`, userId, `friends`, targetUserId), {
+    accepted: true,
+    acceptedAt: new Date(),
+  });
+  await updateDoc(doc(db, `users`, targetUserId, `friends`, userId), {
+    accepted: true,
+    acceptedAt: new Date(),
   });
 }
 
