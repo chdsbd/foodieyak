@@ -39,6 +39,8 @@ function Rating(props: { ratings: PlaceCheckIn["ratings"] }) {
 export function PlacesDetailView() {
   const { placeId }: { placeId: string } = useParams();
   const place = usePlace(placeId);
+  const menuitems = [];
+  const checkins = [];
   const user = useUser();
   const friends = useFriends(user.data?.uid ?? "");
   if (user.data == null) {
@@ -95,10 +97,10 @@ export function PlacesDetailView() {
             justifyContent="space-between"
             w="full"
           >
-            {menuFromPlace(place, user.data.uid).length === 0 && (
+            {menuitems.length === 0 && (
               <EmptyStateText>No Menu Items</EmptyStateText>
             )}
-            {menuFromPlace(place, user.data.uid).map((m) => (
+            {menuitems.map((m) => (
               <HStack
                 w="full"
                 as={Link}
@@ -128,10 +130,10 @@ export function PlacesDetailView() {
             justifyContent="space-between"
             w="full"
           >
-            {place.checkIns.length === 0 && (
+            {checkins.length === 0 && (
               <EmptyStateText>No Check-Ins</EmptyStateText>
             )}
-            {place.checkIns.map((c) => (
+            {checkins.map((c) => (
               <HStack
                 w="full"
                 as={Link}

@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import * as localQuery from "./fakeDb";
 import { db } from "./db";
 import { collection, query, where, onSnapshot, doc } from "firebase/firestore";
+import * as api from "./api";
 
 export function useIsAuthed(): "authed" | "unauthed" | "loading" {
   const auth = getAuth();
@@ -44,9 +45,7 @@ export function useUser(): QueryResult {
   return state;
 }
 
-export function usePlace(
-  placeId: string
-): localQuery.Place | "loading" | "not_found" {
+export function usePlace(placeId: string): api.Place | "loading" | "not_found" {
   const [place, setPlace] = useState<
     localQuery.Place | "loading" | "not_found"
   >("loading");
@@ -70,15 +69,15 @@ export function usePlaces(userId: string | undefined) {
     }
     const q = query(
       collection(db, "places"),
-      where("createdByUserId", "==", userId)
+      where("viewerIds", "array-contains", userId)
     );
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const cities = [];
+      const places = [];
       querySnapshot.forEach((doc) => {
-        cities.push({ id: doc.id, ...doc.data() });
+        places.push({ id: doc.id, ...doc.data() });
       });
-      console.log("Current cities in CA: ", cities);
-      setPlaces(cities);
+      console.log("places: ", places);
+      setPlaces(places);
     });
     return () => {
       unsubscribe();
@@ -99,10 +98,11 @@ export function useInvites(userId: string) {
 export function useFriends(userId: string | null) {
   const [state, setState] = useState<localQuery.User[]>([]);
   React.useEffect(() => {
-    if (userId == null) {
+    if (!userId) {
       return;
     }
-    const q = query(collection(db, `users/${userId}/friends`));
+    console.log({ userId });
+    const q = query(collection(db, `users`, userId, "friends"));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const friends = [];
       querySnapshot.forEach((doc) => {
