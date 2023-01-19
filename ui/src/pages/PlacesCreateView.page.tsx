@@ -6,6 +6,7 @@ import {
   FormControl,
   FormLabel,
   Input,
+  useToast,
   VStack,
 } from "@chakra-ui/react";
 import { useState } from "react";
@@ -21,6 +22,7 @@ export function PlacesCreateView() {
   const [saving, setSaving] = useState(false);
   const user = useUser();
   const history = useHistory();
+  const toast = useToast();
 
   return (
     <Page>
@@ -51,6 +53,17 @@ export function PlacesCreateView() {
             .placeCreate({ name, location, userId: user.data.uid })
             .then((docId) => {
               history.push(`/place/${docId}`);
+              setSaving(false);
+            })
+            .catch((error) => {
+              const errorCode = error.code;
+              const errorMessage = error.message;
+              toast({
+                title: "Problem creating account",
+                description: `${errorCode}: ${errorMessage}`,
+                status: "error",
+                isClosable: true,
+              });
               setSaving(false);
             });
         }}

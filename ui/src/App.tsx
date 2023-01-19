@@ -6,6 +6,7 @@ import {
   Route,
   Redirect,
 } from "react-router-dom";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { useIsAuthed } from "./hooks";
 import { AuthForgotPassword } from "./pages/AuthForgotPassword";
 import { AuthLoginView } from "./pages/AuthLoginView.page";
@@ -106,28 +107,30 @@ function App() {
     return null;
   }
   return (
-    <Container padding={2}>
-      <Router>
-        <Switch>
-          {routes.map((r) => {
-            if ("redirect" in r) {
-              return <Redirect from={r.path} to={r.redirect} />;
-            }
-            if (r.authed == true && authStatus === "unauthed") {
-              return <Redirect key={r.path} to="/login" />;
-            }
-            return (
-              <Route
-                key={r.path}
-                path={r.path}
-                children={r.element}
-                exact={r.exact}
-              />
-            );
-          })}
-        </Switch>
-      </Router>
-    </Container>
+    <ErrorBoundary>
+      <Container padding={2}>
+        <Router>
+          <Switch>
+            {routes.map((r) => {
+              if ("redirect" in r) {
+                return <Redirect from={r.path} to={r.redirect} />;
+              }
+              if (r.authed == true && authStatus === "unauthed") {
+                return <Redirect key={r.path} to="/login" />;
+              }
+              return (
+                <Route
+                  key={r.path}
+                  path={r.path}
+                  children={r.element}
+                  exact={r.exact}
+                />
+              );
+            })}
+          </Switch>
+        </Router>
+      </Container>
+    </ErrorBoundary>
   );
 }
 
