@@ -50,6 +50,7 @@ export function usePlace(placeId: string): api.Place | "loading" | "not_found" {
     localQuery.Place | "loading" | "not_found"
   >("loading");
   React.useEffect(() => {
+    console.log("usePlace");
     const unsub = onSnapshot(doc(db, "places", placeId), (doc) => {
       console.log("Current data: ", doc.data());
       setPlace(doc.data());
@@ -67,6 +68,7 @@ export function usePlaces(userId: string | undefined) {
     if (userId == null) {
       return;
     }
+    console.log("usePlaces");
     const q = query(
       collection(db, "places"),
       where("viewerIds", "array-contains", userId)
@@ -86,29 +88,33 @@ export function usePlaces(userId: string | undefined) {
   return places;
 }
 
-export function useInvites(userId: string) {
-  const [state, setState] = useState<localQuery.UserInvite[]>([]);
-  React.useEffect(() => {
-    localQuery.invitesList({ userId }).then((x) => {
-      setState(x);
-    });
-  }, [userId]);
-  return state;
-}
 export function useFriends(userId: string | null) {
-  const [state, setState] = useState<localQuery.User[]>([]);
+  const [state, setState] = useState<
+    {
+      accepted: boolean;
+
+      acceptedAt: Date | null;
+
+      createdById: string;
+
+      id: string;
+
+      invitedAt: Date;
+    }[]
+  >([]);
   React.useEffect(() => {
     if (!userId) {
       return;
     }
     console.log({ userId });
     const q = query(collection(db, `users`, userId, "friends"));
+    console.log("useFriends");
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const friends = [];
       querySnapshot.forEach((doc) => {
         friends.push({ id: doc.id, ...doc.data() });
       });
-      console.log(friends);
+      console.log("friends", friends);
       setState(friends);
     });
     return () => {

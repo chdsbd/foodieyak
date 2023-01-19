@@ -30,7 +30,7 @@ export function FriendsCreateView() {
     api.UserFoodieYak[] | "initial"
   >("initial");
   if (user.data == null) {
-    return;
+    return null;
   }
   return (
     <Page>
@@ -57,7 +57,7 @@ export function FriendsCreateView() {
         as="form"
         onSubmit={(e) => {
           e.preventDefault();
-          api.friendLookup({ email }).then((res) => {
+          api.friendLookup({ email, userId: user.data.uid }).then((res) => {
             setLookupResults(res);
           });
         }}

@@ -76,14 +76,15 @@ export type UserFoodieYak = {
 
 export async function friendLookup({
   email,
+  userId,
 }: {
   email: string;
+  userId: string;
 }): Promise<UserFoodieYak[]> {
-  console.log(email);
   const matchingDocs = await getDocs(
     query(
       collection(db, `users`),
-      where("emailLookupField", "==", email.toLowerCase())
+      where("emailLowerCase", "==", email.toLowerCase())
     )
   );
   const results: UserFoodieYak[] = [];
@@ -100,14 +101,27 @@ export async function friendInviteCreate({
 }): Promise<void> {
   // /users/{user}/friends/{target}
   // /users/{target}/friends/{user}
-  await setDoc(doc(db, `users/${userId}/friends`, targetUserId), {
+  await setDoc(doc(db, `users`, userId, `friends`, targetUserId), {
     invitedAt: new Date(),
+    createdById: userId,
     accepted: false,
     acceptedAt: null,
   });
-  await setDoc(doc(db, `users/${targetUserId}/friends`, userId), {
+  await setDoc(doc(db, `users`, targetUserId, `friends`, userId), {
     invitedAt: new Date(),
+    createdById: userId,
     accepted: false,
     acceptedAt: null,
   });
+}
+
+export async function userById({
+  userId,
+}: {
+  userId: string;
+}): Promise<{ id: string; email: string }> {
+  // /users/{user}/friends/{target}
+  // /users/{target}/friends/{user}
+  const res = await getDoc(doc(db, "users", userId));
+  return { id: res.id, ...res.data() };
 }
