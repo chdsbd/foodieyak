@@ -113,7 +113,7 @@ function App() {
           <Switch>
             {routes.map((r) => {
               if ("redirect" in r) {
-                return <Redirect from={r.path} to={r.redirect} />;
+                return <Redirect key={r.path} from={r.path} to={r.redirect} />;
               }
               if (r.authed == true && authStatus === "unauthed") {
                 return <Redirect key={r.path} to="/login" />;

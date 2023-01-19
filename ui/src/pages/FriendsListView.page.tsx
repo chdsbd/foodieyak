@@ -55,51 +55,54 @@ export function FriendsListView() {
         </BreadcrumbItem>
       </Breadcrumb>
 
-      <Heading as="h2" size="md" alignSelf={"start"}>
-        Invites
-      </Heading>
+      {invites.length > 0 && (
+        <>
+          <Heading as="h2" size="md" alignSelf={"start"}>
+            Invites
+          </Heading>
 
-      {invites.length === 0 && <EmptyStateText>No Invites</EmptyStateText>}
-      {invites.map((i) => (
-        <HStack width={"100%"}>
-          <VStack spacing={0} align={"start"}>
-            <div>
-              <UserIdToName userId={i.id} />
-            </div>
-            {/* <div>{formatHumanDateTime(new Date(i.createdAt))}</div> */}
-          </VStack>
-          <Spacer />
-          {i.createdById == user.data.uid ? (
-            <Button
-              size="sm"
-              colorScheme={"red"}
-              variant="outline"
-              onClick={() => {
-                api.friendInviteCancel({
-                  userId: user.data.uid,
-                  targetUserId: i.id,
-                });
-              }}
-            >
-              Cancel
-            </Button>
-          ) : (
-            <Button
-              size="sm"
-              colorScheme={"red"}
-              variant="outline"
-              onClick={() => {
-                api.friendInviteAccept({
-                  userId: user.data.uid,
-                  targetUserId: i.id,
-                });
-              }}
-            >
-              Accept
-            </Button>
-          )}
-        </HStack>
-      ))}
+          {invites.map((i) => (
+            <HStack width={"100%"}>
+              <VStack spacing={0} align={"start"}>
+                <div>
+                  <UserIdToName userId={i.id} />
+                </div>
+                {/* <div>{formatHumanDateTime(new Date(i.createdAt))}</div> */}
+              </VStack>
+              <Spacer />
+              {i.createdById == user.data.uid ? (
+                <Button
+                  size="sm"
+                  colorScheme={"red"}
+                  variant="outline"
+                  onClick={() => {
+                    api.friendInviteCancel({
+                      userId: user.data.uid,
+                      targetUserId: i.id,
+                    });
+                  }}
+                >
+                  Cancel
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  colorScheme={"red"}
+                  variant="outline"
+                  onClick={() => {
+                    api.friendInviteAccept({
+                      userId: user.data.uid,
+                      targetUserId: i.id,
+                    });
+                  }}
+                >
+                  Accept
+                </Button>
+              )}
+            </HStack>
+          ))}
+        </>
+      )}
 
       <HStack w="100%" alignItems={"center"}>
         <Heading as="h2" size="md">
