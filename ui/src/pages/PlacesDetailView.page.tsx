@@ -47,7 +47,11 @@ export function PlacesDetailView() {
     return null;
   }
   if (place === "loading") {
-    return <>loading...</>;
+    return (
+      <Page>
+        <div>loading...</div>
+      </Page>
+    );
   }
   if (place === "not_found") {
     return <NoMatch />;

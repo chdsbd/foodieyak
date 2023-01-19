@@ -31,7 +31,11 @@ export function MenuItemDetailView() {
   }
 
   if (place === "loading") {
-    return <>Loading...</>;
+    return (
+      <Page>
+        <div>loading...</div>
+      </Page>
+    );
   }
   if (place === "not_found") {
     return <>Not Found</>;

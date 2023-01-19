@@ -148,7 +148,11 @@ export function CheckInCreateView() {
   const [menuItemRatings, setMenutItemRatings] = useState<MenuItemRating[]>([]);
 
   if (place === "loading") {
-    return <>loading...</>;
+    return (
+      <Page>
+        <div>loading...</div>
+      </Page>
+    );
   }
   if (place === "not_found") {
     return <NoMatch />;

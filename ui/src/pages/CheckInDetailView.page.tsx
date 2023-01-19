@@ -22,7 +22,11 @@ export function CheckInDetailView() {
   const place = usePlace(placeId);
 
   if (place === "loading") {
-    return <>loading...</>;
+    return (
+      <Page>
+        <div>loading...</div>
+      </Page>
+    );
   }
   if (place === "not_found") {
     return <NoMatch />;
