@@ -13,6 +13,8 @@
     "@chakra-ui/react": "^2.4.8",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
+    "@sentry/browser": "^7.31.1",
+    "@sentry/tracing": "^7.31.1",
     "@types/lodash-es": "^4.17.6",
     "@types/react-router-dom": "v5",
     "date-fns": "^2.29.3",
