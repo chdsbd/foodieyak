@@ -83,6 +83,9 @@ export async function placeUpdate(params: {
   };
   await updateDoc(doc(db, "places", params.placeId), place);
 }
+export async function placeDelete(params: { placeId: string }): Promise<void> {
+  await deleteDoc(doc(db, "places", params.placeId));
+}
 
 export type UserFoodieYak = {
   id: string;

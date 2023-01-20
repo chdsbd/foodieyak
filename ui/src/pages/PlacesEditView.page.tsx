@@ -29,6 +29,7 @@ export function PlacesEditView() {
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const place = usePlace(placeId);
   useEffect(() => {
@@ -123,12 +124,30 @@ export function PlacesEditView() {
               colorScheme={"red"}
               variant="outline"
               disabled={(place.checkInCount ?? 0) > 0}
-              // isLoading={saving}
-              // loadingText="Saving place..."
+              isLoading={deleting}
+              loadingText="Deleting..."
               onClick={() => {
                 if (!confirm("Delete place?")) {
                   return;
                 }
+                setDeleting(true);
+                api
+                  .placeDelete({ placeId })
+                  .then(() => {
+                    history.push(`/`);
+                    setDeleting(false);
+                  })
+                  .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    toast({
+                      title: "Problem deleting place",
+                      description: `${errorCode}: ${errorMessage}`,
+                      status: "error",
+                      isClosable: true,
+                    });
+                    setDeleting(false);
+                  });
               }}
             >
               Delete Place
