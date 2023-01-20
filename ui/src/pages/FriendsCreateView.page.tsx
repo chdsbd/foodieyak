@@ -13,6 +13,7 @@ import {
   Card,
   CardBody,
   Spacer,
+  useToast,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
@@ -23,6 +24,7 @@ import * as api from "../api";
 import { EmptyStateText } from "../components/EmptyStateText";
 
 export function FriendsCreateView() {
+  const toast = useToast();
   const user = useUser();
   const history = useHistory();
   const [email, setEmail] = useState("");
@@ -100,9 +102,23 @@ export function FriendsCreateView() {
                           targetUserId: r.id,
                         })
                         .then(() => {
+                          toast({
+                            title: "Invite sent",
+                            status: "success",
+                            isClosable: true,
+                          });
                           history.push("/friends");
                         })
-                        .catch((e) => console.error(e));
+                        .catch((error) => {
+                          const errorCode = error.code;
+                          const errorMessage = error.message;
+                          toast({
+                            title: "Problem creating account",
+                            description: `${errorCode}: ${errorMessage}`,
+                            status: "error",
+                            isClosable: true,
+                          });
+                        });
                     }}
                   >
                     Invite

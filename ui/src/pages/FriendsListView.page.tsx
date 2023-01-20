@@ -8,6 +8,7 @@ import {
   Spacer,
   Button,
   Input,
+  useToast,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
@@ -33,6 +34,7 @@ function UserIdToName({ userId }: { userId: string }) {
 }
 
 export function FriendsListView() {
+  const toast = useToast();
   const user = useUser();
   const friends = useFriends(user.data?.uid ?? "");
   const invites = friends.filter((f) => !f.accepted);
@@ -70,30 +72,68 @@ export function FriendsListView() {
                 {/* <div>{formatHumanDateTime(new Date(i.createdAt))}</div> */}
               </VStack>
               <Spacer />
-              {i.createdById == user.data.uid ? (
-                <Button
-                  size="sm"
-                  colorScheme={"red"}
-                  variant="outline"
-                  onClick={() => {
-                    api.friendInviteCancel({
+
+              <Button
+                size="sm"
+                // colorScheme={"red"}
+                variant="outline"
+                onClick={() => {
+                  if (!confirm("Remove invite?")) {
+                    return;
+                  }
+                  api
+                    .friendInviteCancel({
                       userId: user.data.uid,
                       targetUserId: i.id,
+                    })
+                    .then((res) => {
+                      toast({
+                        title: "Invite canceled",
+                        status: "success",
+                        isClosable: true,
+                      });
+                    })
+                    .catch((error) => {
+                      const errorCode = error.code;
+                      const errorMessage = error.message;
+                      toast({
+                        title: "Problem canceling invite",
+                        description: `${errorCode}: ${errorMessage}`,
+                        status: "error",
+                        isClosable: true,
+                      });
                     });
-                  }}
-                >
-                  Cancel
-                </Button>
-              ) : (
+                }}
+              >
+                Cancel
+              </Button>
+              {i.createdById != user.data.uid && (
                 <Button
                   size="sm"
-                  colorScheme={"red"}
-                  variant="outline"
+                  // colorScheme={"green"}
                   onClick={() => {
-                    api.friendInviteAccept({
-                      userId: user.data.uid,
-                      targetUserId: i.id,
-                    });
+                    api
+                      .friendInviteAccept({
+                        userId: user.data.uid,
+                        targetUserId: i.id,
+                      })
+                      .then((res) => {
+                        toast({
+                          title: "Invite accepted",
+                          status: "success",
+                          isClosable: true,
+                        });
+                      })
+                      .catch((error) => {
+                        const errorCode = error.code;
+                        const errorMessage = error.message;
+                        toast({
+                          title: "Problem accepting invite",
+                          description: `${errorCode}: ${errorMessage}`,
+                          status: "error",
+                          isClosable: true,
+                        });
+                      });
                   }}
                 >
                   Accept
@@ -124,7 +164,38 @@ export function FriendsListView() {
             <UserIdToName userId={f.id} />
           </div>
           <Spacer />
-          <Button size={"sm"}>remove</Button>
+          <Button
+            size={"sm"}
+            onClick={() => {
+              if (!confirm("Remove friend?")) {
+                return;
+              }
+              api
+                .friendInviteCancel({
+                  userId: user.data.uid,
+                  targetUserId: f.id,
+                })
+                .then((res) => {
+                  toast({
+                    title: "Friend removed",
+                    status: "success",
+                    isClosable: true,
+                  });
+                })
+                .catch((error) => {
+                  const errorCode = error.code;
+                  const errorMessage = error.message;
+                  toast({
+                    title: "Problem removing friend",
+                    description: `${errorCode}: ${errorMessage}`,
+                    status: "error",
+                    isClosable: true,
+                  });
+                });
+            }}
+          >
+            remove
+          </Button>
         </HStack>
       ))}
     </Page>

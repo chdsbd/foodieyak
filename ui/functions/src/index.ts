@@ -18,6 +18,58 @@ export const userOnCreate = functions.auth.user().onCreate((user, context) => {
   // TODO
 });
 
+async function addFriendToUserPlaces({
+  friendId,
+  userId,
+}: {
+  friendId: string;
+  userId: string;
+}) {
+  const places = await admin
+    .firestore()
+    .collection(`/places`)
+    .where("createdById", "==", userId)
+    .get();
+  const queries: Promise<unknown>[] = [];
+  places.forEach((place) => {
+    queries.push(
+      admin
+        .firestore()
+        .doc(place.ref.path)
+        .update({
+          viwerIds: admin.firestore.FieldValue.arrayUnion(friendId),
+        })
+    );
+  });
+  await Promise.all(queries);
+}
+
+export const friendOnChange = functions.firestore
+  .document("/users/{userId}/friends/{friendId}")
+  .onWrite(async (change, context) => {
+    if (!change.before.exists && change.after.exists) {
+      // friend created
+    }
+    if (!change.after.exists) {
+      // friend deleted
+      // TODO: Copy all related check-ins
+    }
+    if (change.before.exists && change.after.exists) {
+      // friend updated
+      if (!change.before.data()?.accepted && change.after.data()?.accepted) {
+        // invite accepted. Update checkIns with access.
+        await addFriendToUserPlaces({
+          userId: context.params.userId,
+          friendId: context.params.friendId,
+        });
+        await addFriendToUserPlaces({
+          userId: context.params.friendId,
+          friendId: context.params.userId,
+        });
+      }
+    }
+  });
+
 async function updateUser(user: identity.AuthUserRecord) {
   await admin
     .firestore()
