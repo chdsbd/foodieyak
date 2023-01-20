@@ -72,6 +72,17 @@ export async function placeCreate(params: {
   const docRef = await addDoc(collection(db, "places"), place);
   return docRef.id;
 }
+export async function placeUpdate(params: {
+  placeId: string;
+  name: string;
+  location: string;
+}): Promise<void> {
+  const place: Pick<Place, "name" | "location"> = {
+    name: params.name,
+    location: params.location,
+  };
+  await updateDoc(doc(db, "places", params.placeId), place);
+}
 
 export type UserFoodieYak = {
   id: string;

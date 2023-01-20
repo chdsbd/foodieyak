@@ -77,7 +77,7 @@ export function PlacesDetailView() {
           </BreadcrumbLink>
         </BreadcrumbItem>
       </Breadcrumb>
-      <HStack w="100%">
+      <HStack w="100%" alignItems={"stretch"}>
         <Box
           minHeight={"100px"}
           minWidth="100px"
@@ -86,10 +86,20 @@ export function PlacesDetailView() {
         >
           <div />
         </Box>
-        <div>
-          <div>{place.name}</div>
-          <div>{place.location}</div>
-        </div>
+        <VStack justifyContent={"center"}>
+          <div>
+            <div>{place.name}</div>
+            <div>{place.location}</div>
+          </div>
+        </VStack>
+        <Spacer />
+        <VStack alignItems={"start"}>
+          <Link to={`/place/${placeId}/edit`}>
+            <Button size="sm" variant={"outline"}>
+              Edit
+            </Button>
+          </Link>
+        </VStack>
       </HStack>
       <Link style={{ width: "100%" }} to={`/place/${place.id}/check-in`}>
         <Button width="100%">Add a Check-In</Button>

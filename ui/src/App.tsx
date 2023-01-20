@@ -20,6 +20,7 @@ import { MenuItemDetailView } from "./pages/MenuItemDetailView.page";
 import { NoMatch } from "./pages/NoMatchView.page";
 import { PlacesCreateView } from "./pages/PlacesCreateView.page";
 import { PlacesDetailView } from "./pages/PlacesDetailView.page";
+import { PlacesEditView } from "./pages/PlacesEditView.page";
 import { PlacesListView } from "./pages/PlacesListView.page";
 import { SettingsView } from "./pages/SettingsView.page";
 
@@ -62,6 +63,11 @@ const routes: (
     authed: true,
     path: "/place/create",
     element: <PlacesCreateView />,
+  },
+  {
+    authed: true,
+    path: "/place/:placeId/edit",
+    element: <PlacesEditView />,
   },
   {
     authed: true,
