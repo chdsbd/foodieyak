@@ -15,6 +15,7 @@ import { usePlace } from "../hooks";
 import { NoMatch } from "./NoMatchView.page";
 import { groupBy } from "lodash-es";
 import { Page } from "../components/Page";
+import { DelayedLoader } from "../components/DelayedLoader";
 
 export function CheckInDetailView() {
   const { placeId, checkInId }: { placeId: string; checkInId: string } =
@@ -24,7 +25,7 @@ export function CheckInDetailView() {
   if (place === "loading") {
     return (
       <Page>
-        <div>loading...</div>
+        <DelayedLoader />
       </Page>
     );
   }

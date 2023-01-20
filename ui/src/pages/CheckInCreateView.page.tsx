@@ -28,6 +28,7 @@ import { groupBy } from "lodash-es";
 import { parseISO, format } from "date-fns";
 import produce from "immer";
 import { Place } from "../api";
+import { DelayedLoader } from "../components/DelayedLoader";
 
 function toISODateString(date: Date | string | number): string {
   // Note(sbdchd): parseISO("2019-11-09") !== new Date("2019-11-09")
@@ -42,7 +43,11 @@ function MenuItemCreator(props: {
   const user = useUser();
   const [selectValue, setSelectValue] = useState<string>("");
   if (user.data == null) {
-    return null;
+    return (
+      <Page>
+        <DelayedLoader />
+      </Page>
+    );
   }
 
   return (
@@ -152,7 +157,7 @@ export function CheckInCreateView() {
   if (place === "loading") {
     return (
       <Page>
-        <div>loading...</div>
+        <DelayedLoader />
       </Page>
     );
   }

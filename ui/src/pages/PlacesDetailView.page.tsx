@@ -30,6 +30,8 @@ import { PlaceCheckIn } from "../fakeDb";
 import { NoMatch } from "./NoMatchView.page";
 import { menuFromPlace } from "../transforms";
 import { EmptyStateText } from "../components/EmptyStateText";
+import { useEffect, useRef, useState } from "react";
+import { DelayedLoader } from "../components/DelayedLoader";
 
 function Rating(props: { ratings: PlaceCheckIn["ratings"] }) {
   const total = props.ratings.length;
@@ -49,13 +51,15 @@ export function PlacesDetailView() {
   const checkins = useCheckins(placeId);
   const user = useUser();
   const friends = useFriends(user.data?.uid ?? "");
-  if (user.data == null) {
-    return null;
-  }
-  if (place === "loading" || menuitems == "loading" || checkins == "loading") {
+  if (
+    user.data == null ||
+    place === "loading" ||
+    menuitems == "loading" ||
+    checkins == "loading"
+  ) {
     return (
       <Page>
-        <div>loading...</div>
+        <DelayedLoader />
       </Page>
     );
   }

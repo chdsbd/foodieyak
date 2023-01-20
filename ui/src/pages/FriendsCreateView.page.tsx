@@ -22,6 +22,7 @@ import { useUser } from "../hooks";
 import * as query from "../fakeDb";
 import * as api from "../api";
 import { EmptyStateText } from "../components/EmptyStateText";
+import { DelayedLoader } from "../components/DelayedLoader";
 
 export function FriendsCreateView() {
   const toast = useToast();
@@ -32,7 +33,11 @@ export function FriendsCreateView() {
     api.UserFoodieYak[] | "initial"
   >("initial");
   if (user.data == null) {
-    return null;
+    return (
+      <Page>
+        <DelayedLoader />
+      </Page>
+    );
   }
   return (
     <Page>

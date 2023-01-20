@@ -17,6 +17,7 @@ import { Page } from "../components/Page";
 import { formatHumanDateTime } from "../date";
 import { useFriends, useUser } from "../hooks";
 import * as api from "../api";
+import { DelayedLoader } from "../components/DelayedLoader";
 
 function UserIdToName({ userId }: { userId: string }) {
   const [name, setName] = useState<{ name: string } | "loading">("loading");
@@ -38,7 +39,11 @@ export function FriendsListView() {
   const invites = friends.filter((f) => !f.accepted);
   const acceptedFriends = friends.filter((f) => f.accepted);
   if (user.data == null) {
-    return null;
+    return (
+      <Page>
+        <DelayedLoader />
+      </Page>
+    );
   }
   return (
     <Page>

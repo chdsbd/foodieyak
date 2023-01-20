@@ -11,10 +11,12 @@ import {
 } from "@chakra-ui/react";
 import { ThumbsDown, ThumbsUp } from "react-feather";
 import { Link, useParams } from "react-router-dom";
+import { DelayedLoader } from "../components/DelayedLoader";
 import { LocationImage } from "../components/LocationImage";
 import { Page } from "../components/Page";
 import { usePlace, useUser } from "../hooks";
 import { menuFromPlace } from "../transforms";
+import { NoMatch } from "./NoMatchView.page";
 
 export function MenuItemDetailView() {
   const {
@@ -26,26 +28,23 @@ export function MenuItemDetailView() {
   } = useParams();
   const place = usePlace(placeId);
   const currentUser = useUser();
-  if (currentUser.data == null) {
-    return null;
-  }
 
-  if (place === "loading") {
+  if (currentUser.data == null || place === "loading") {
     return (
       <Page>
-        <div>loading...</div>
+        <DelayedLoader />
       </Page>
     );
   }
   if (place === "not_found") {
-    return <>Not Found</>;
+    return <NoMatch />;
   }
 
   const menuItem = menuFromPlace(place, currentUser.data.uid).find(
     (x) => x.menuItemId === menuItemId
   );
   if (menuItem == null) {
-    return null;
+    return <NoMatch />;
   }
 
   const checkInsForMenuItem = place.checkIns
