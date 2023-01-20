@@ -68,7 +68,11 @@ export function useMenuItems(
     const unsub = onSnapshot(
       query(collection(db, "places", placeId, "menuitems")),
       (doc) => {
-        setState({ id: doc.id, ...doc.data() });
+        const docs = [];
+        doc.forEach((doc) => {
+          docs.push({ id: doc.id, ...doc.data() });
+        });
+        setState(docs);
       }
     );
     return unsub;
@@ -85,7 +89,11 @@ export function useCheckins(
     const unsub = onSnapshot(
       query(collection(db, "places", placeId, "checkins")),
       (doc) => {
-        setState({ id: doc.id, ...doc.data() });
+        const docs = [];
+        doc.forEach((doc) => {
+          docs.push({ id: doc.id, ...doc.data() });
+        });
+        setState(docs);
       }
     );
     return unsub;
