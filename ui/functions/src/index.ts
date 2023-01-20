@@ -70,6 +70,36 @@ export const friendOnChange = functions.firestore
       }
     }
   });
+export const placeOnChange = functions.firestore
+  .document("/place/{placeId}")
+  .onWrite(async (change, context) => {
+    if (!change.before.exists && change.after.exists) {
+      // created
+      change.after.data;
+      context.auth?.uid;
+      const friendIds: string[] = [];
+      const friends = await admin
+        .firestore()
+        .collection(`users/${context.auth?.uid}/friends`)
+        .where("accepted", "==", true)
+        .get();
+      friends.forEach((friend) => {
+        friendIds.push(friend.id);
+      });
+      await admin
+        .firestore()
+        .doc(change.after.ref.path)
+        .update({
+          viewerIds: admin.firestore.FieldValue.arrayUnion(...friendIds),
+        });
+    }
+    if (!change.after.exists) {
+      // deleted
+    }
+    if (change.before.exists && change.after.exists) {
+      //  updated
+    }
+  });
 
 async function updateUser(user: identity.AuthUserRecord) {
   await admin
