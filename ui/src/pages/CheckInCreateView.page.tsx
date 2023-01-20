@@ -15,6 +15,7 @@ import {
   Select,
   Card,
   CardBody,
+  useToast,
 } from "@chakra-ui/react";
 import { ThumbsDown, ThumbsUp } from "react-feather";
 import { Page } from "../components/Page";
@@ -26,6 +27,7 @@ import { useState } from "react";
 import { groupBy } from "lodash-es";
 import { parseISO, format } from "date-fns";
 import produce from "immer";
+import { Place } from "../api";
 
 function toISODateString(date: Date | string | number): string {
   // Note(sbdchd): parseISO("2019-11-09") !== new Date("2019-11-09")
@@ -34,7 +36,7 @@ function toISODateString(date: Date | string | number): string {
 }
 
 function MenuItemCreator(props: {
-  place: query.Place;
+  place: Place;
   onSelect: (_: string) => void;
 }) {
   const user = useUser();
@@ -145,6 +147,7 @@ export function CheckInCreateView() {
 
   const history = useHistory();
   const [menuItemRatings, setMenutItemRatings] = useState<MenuItemRating[]>([]);
+  const toast = useToast();
 
   if (place === "loading") {
     return (
@@ -266,6 +269,13 @@ export function CheckInCreateView() {
             })
             .then((checkIn) => {
               history.push(`/place/${place.id}/check-in/${checkIn.id}`);
+            })
+            .catch((e) => {
+              toast({
+                title: "Problem creating checkin",
+                description: `${e.code}: ${e.message}`,
+                status: "error",
+              });
             });
         }}
       >
