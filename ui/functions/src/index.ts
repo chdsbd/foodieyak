@@ -18,6 +18,7 @@ export const userOnCreate = functions.auth.user().onCreate((user, context) => {
   // TODO
 });
 
+/** For each place created by User, add Friend as a viewer. */
 async function addFriendToUserPlaces({
   friendId,
   userId,
