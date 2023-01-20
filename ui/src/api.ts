@@ -25,6 +25,8 @@ export type Place = {
   location: string;
   createdById: User["id"];
   viewerIds: User["id"][];
+  menuItemCount: number | undefined;
+  checkInCount: number | undefined;
 };
 
 export type PlaceMenuItem = {
@@ -64,6 +66,8 @@ export async function placeCreate(params: {
     location: params.location,
     createdById: params.userId,
     viewerIds: [params.userId, ...params.friendIds],
+    checkInCount: 0,
+    menuItemCount: 0,
   };
   const docRef = await addDoc(collection(db, "places"), place);
   return docRef.id;
