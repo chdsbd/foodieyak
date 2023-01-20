@@ -75,17 +75,22 @@ export const placeOnChange = functions.firestore
   .onWrite(async (change, context) => {
     if (!change.before.exists && change.after.exists) {
       // created
-      change.after.data;
-      context.auth?.uid;
+      const userId = change.after.data()?.createdById;
+      functions.logger.info({
+        change,
+        context,
+        userId,
+      });
       const friendIds: string[] = [];
       const friends = await admin
         .firestore()
-        .collection(`users/${context.auth?.uid}/friends`)
+        .collection(`users/${userId}/friends`)
         .where("accepted", "==", true)
         .get();
       friends.forEach((friend) => {
         friendIds.push(friend.id);
       });
+      functions.logger.info({ friendIds });
       await admin
         .firestore()
         .doc(change.after.ref.path)

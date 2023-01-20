@@ -12,7 +12,7 @@ import {
 import { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { Page } from "../components/Page";
-import { useUser } from "../hooks";
+import { useFriends, useUser } from "../hooks";
 
 import * as api from "../api";
 
@@ -21,6 +21,7 @@ export function PlacesCreateView() {
   const [location, setLocation] = useState("");
   const [saving, setSaving] = useState(false);
   const user = useUser();
+  const friends = useFriends(user.data?.uid ?? null);
   const history = useHistory();
   const toast = useToast();
 
@@ -50,7 +51,12 @@ export function PlacesCreateView() {
           }
           setSaving(true);
           api
-            .placeCreate({ name, location, userId: user.data.uid })
+            .placeCreate({
+              name,
+              location,
+              userId: user.data.uid,
+              friendIds: friends.map((f) => f.id),
+            })
             .then((docId) => {
               history.push(`/place/${docId}`);
               setSaving(false);

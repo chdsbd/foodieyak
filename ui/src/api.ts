@@ -57,12 +57,13 @@ export async function placeCreate(params: {
   name: string;
   location: string;
   userId: string;
+  friendIds: string[];
 }): Promise<Place["id"]> {
   const place: Omit<Place, "id"> = {
     name: params.name,
     location: params.location,
     createdById: params.userId,
-    viewerIds: [params.userId],
+    viewerIds: [params.userId, ...params.friendIds],
   };
   const docRef = await addDoc(collection(db, "places"), place);
   return docRef.id;
