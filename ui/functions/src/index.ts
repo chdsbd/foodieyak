@@ -38,7 +38,7 @@ async function addFriendToUserPlaces({
         .firestore()
         .doc(place.ref.path)
         .update({
-          viwerIds: admin.firestore.FieldValue.arrayUnion(friendId),
+          viewerIds: admin.firestore.FieldValue.arrayUnion(friendId),
         })
     );
   });
