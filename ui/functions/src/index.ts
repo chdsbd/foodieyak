@@ -106,6 +106,66 @@ export const placeOnChange = functions.firestore
     }
   });
 
+/** Update our Place-document counts for menuitems and checkins. */
+async function updateSubcollectionCounts({ placeId }: { placeId: string }) {
+  const menuItemCount = (
+    await admin
+      .firestore()
+      .collection(`/places/${placeId}/menuitems`)
+      .count()
+      .get()
+  ).data().count;
+  const checkInCount = (
+    await admin
+      .firestore()
+      .collection(`/places/${placeId}/checkins`)
+      .count()
+      .get()
+  ).data().count;
+
+  await admin.firestore().doc(`places/${placeId}`).update({
+    checkInCount,
+    menuItemCount,
+  });
+}
+
+export const checkinOnChange = functions.firestore
+  .document("/places/{placeId}/checkins/{checkin}")
+  .onWrite(async (change, context) => {
+    const { placeId } = context.params;
+    if (!change.before.exists && change.after.exists) {
+      await updateSubcollectionCounts({
+        placeId,
+      });
+    }
+    if (!change.after.exists) {
+      await updateSubcollectionCounts({
+        placeId,
+      });
+    }
+    if (change.before.exists && change.after.exists) {
+      //  updated
+    }
+  });
+export const menuitemOnChange = functions.firestore
+  .document("/places/{placeId}/menuitems/{menuItemId}")
+  .onWrite(async (change, context) => {
+    const { placeId } = context.params;
+    if (!change.before.exists && change.after.exists) {
+      await updateSubcollectionCounts({
+        placeId,
+      });
+    }
+    if (!change.after.exists) {
+      await updateSubcollectionCounts({
+        placeId,
+      });
+    }
+    if (change.before.exists && change.after.exists) {
+      //  updated
+    }
+  });
+
 async function updateUser(user: identity.AuthUserRecord) {
   await admin
     .firestore()
