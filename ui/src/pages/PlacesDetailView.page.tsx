@@ -19,7 +19,13 @@ import {
 import { Link, useParams } from "react-router-dom";
 import { LocationImage } from "../components/LocationImage";
 import { Page } from "../components/Page";
-import { useFriends, usePlace, useUser } from "../hooks";
+import {
+  useCheckins,
+  useFriends,
+  useMenuItems,
+  usePlace,
+  useUser,
+} from "../hooks";
 import { PlaceCheckIn } from "../fakeDb";
 import { NoMatch } from "./NoMatchView.page";
 import { menuFromPlace } from "../transforms";
@@ -39,14 +45,14 @@ function Rating(props: { ratings: PlaceCheckIn["ratings"] }) {
 export function PlacesDetailView() {
   const { placeId }: { placeId: string } = useParams();
   const place = usePlace(placeId);
-  const menuitems = [];
-  const checkins = [];
+  const menuitems = useMenuItems(placeId);
+  const checkins = useCheckins(placeId);
   const user = useUser();
   const friends = useFriends(user.data?.uid ?? "");
   if (user.data == null) {
     return null;
   }
-  if (place === "loading") {
+  if (place === "loading" || menuitems == "loading" || checkins == "loading") {
     return (
       <Page>
         <div>loading...</div>

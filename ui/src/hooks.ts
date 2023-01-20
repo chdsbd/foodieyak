@@ -58,6 +58,41 @@ export function usePlace(placeId: string): api.Place | "loading" | "not_found" {
   return place;
 }
 
+export function useMenuItems(
+  placeId: string
+): api.PlaceMenuItem[] | "loading" | "not_found" {
+  const [state, setState] = useState<
+    api.PlaceMenuItem | "loading" | "not_found"
+  >("loading");
+  React.useEffect(() => {
+    const unsub = onSnapshot(
+      query(collection(db, "places", placeId, "menuitems")),
+      (doc) => {
+        setState({ id: doc.id, ...doc.data() });
+      }
+    );
+    return unsub;
+  }, [placeId]);
+  return state;
+}
+export function useCheckins(
+  placeId: string
+): api.PlaceCheckIn[] | "loading" | "not_found" {
+  const [state, setState] = useState<
+    api.PlaceMenuItem | "loading" | "not_found"
+  >("loading");
+  React.useEffect(() => {
+    const unsub = onSnapshot(
+      query(collection(db, "places", placeId, "checkins")),
+      (doc) => {
+        setState({ id: doc.id, ...doc.data() });
+      }
+    );
+    return unsub;
+  }, [placeId]);
+  return state;
+}
+
 export function usePlaces(userId: string | undefined) {
   const [places, setPlaces] = useState<localQuery.Place[] | "loading">(
     "loading"
