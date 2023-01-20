@@ -50,10 +50,8 @@ export function usePlace(placeId: string): api.Place | "loading" | "not_found" {
     localQuery.Place | "loading" | "not_found"
   >("loading");
   React.useEffect(() => {
-    console.log("usePlace");
     const unsub = onSnapshot(doc(db, "places", placeId), (doc) => {
-      console.log("Current data: ", doc.data());
-      setPlace(doc.data());
+      setPlace({ id: doc.id, ...doc.data() });
     });
     return unsub;
   }, [placeId]);
@@ -68,7 +66,6 @@ export function usePlaces(userId: string | undefined) {
     if (userId == null) {
       return;
     }
-    console.log("usePlaces");
     const q = query(
       collection(db, "places"),
       where("viewerIds", "array-contains", userId)
@@ -78,7 +75,6 @@ export function usePlaces(userId: string | undefined) {
       querySnapshot.forEach((doc) => {
         places.push({ id: doc.id, ...doc.data() });
       });
-      console.log("places: ", places);
       setPlaces(places);
     });
     return () => {
@@ -106,15 +102,12 @@ export function useFriends(userId: string | null) {
     if (!userId) {
       return;
     }
-    console.log({ userId });
     const q = query(collection(db, `users`, userId, "friends"));
-    console.log("useFriends");
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const friends = [];
       querySnapshot.forEach((doc) => {
         friends.push({ id: doc.id, ...doc.data() });
       });
-      console.log("friends", friends);
       setState(friends);
     });
     return () => {

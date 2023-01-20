@@ -21,12 +21,10 @@ import * as api from "../api";
 function UserIdToName({ userId }: { userId: string }) {
   const [name, setName] = useState<{ name: string } | "loading">("loading");
   useEffect(() => {
-    console.log("here");
     api.userById({ userId }).then((res) => {
       setName({ name: res.email });
     });
   }, [userId]);
-  console.log(name);
   if (name == "loading") {
     return null;
   }

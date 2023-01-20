@@ -65,7 +65,6 @@ function MenuItemCreator(props: {
                         props.onSelect(menuItem.id);
                       });
                   }
-                  console.log(res);
                 } else {
                   props.onSelect(e.target.value);
                 }
@@ -214,7 +213,6 @@ export function CheckInCreateView() {
       <MenuItemCreator
         place={place}
         onSelect={(menuItemId) => {
-          console.log(menuItemId);
           setMenutItemRatings(
             produce((s) => {
               if (s.find((x) => x.menuItemId === menuItemId) != null) {

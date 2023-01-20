@@ -125,7 +125,6 @@ export async function menuItemCreate(params: {
 }
 
 export async function friendsList(params: { userId: string }): Promise<User[]> {
-  console.log(db);
   const user = db.users.find((x) => x.id === params.userId);
 
   return user?.friends ?? [];
