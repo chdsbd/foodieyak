@@ -71,7 +71,7 @@ export const friendOnChange = functions.firestore
     }
   });
 export const placeOnChange = functions.firestore
-  .document("/place/{placeId}")
+  .document("/places/{placeId}")
   .onWrite(async (change, context) => {
     if (!change.before.exists && change.after.exists) {
       // created
