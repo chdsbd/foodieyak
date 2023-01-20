@@ -1,9 +1,30 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if
-          request.time < timestamp.date(2023, 2, 14);
+    match /places/{place} {
+      function isValidPlace() {
+        return request.resource.data.keys().hasOnly(
+        ['createdById', 'viewerIds', 'name', 'location', ]) 
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 1
+        && request.resource.data.location is string
+        && request.resource.data.createdById is string
+        && request.resource.data.createdById == request.auth.uid
+        && request.resource.data.viewerIds is list
+      }
+      allow read: if request.auth != null && request.auth.uid in resource.data.viewerIds
+      allow create: if request.auth != null && isValidPlace()
+      allow update: if request.auth != null && (request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(['name', 'location']))
+      allow delete: if false
+    }
+     match /users/{user} {
+      allow read: if request.auth != null
+      allow create, update, delete: if false
+    }
+    
+    match /users/{user}/friends/{friend} {
+      allow read, create, update, delete: if request.auth != null && (user == request.auth.uid || friend == request.auth.uid)
     }
   }
 }
