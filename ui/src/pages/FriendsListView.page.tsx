@@ -1,49 +1,56 @@
 import {
-  VStack,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
+  Button,
   Heading,
   HStack,
   Spacer,
-  Button,
   useToast,
-} from "@chakra-ui/react";
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { EmptyStateText } from "../components/EmptyStateText";
-import { Page } from "../components/Page";
-import { useFriends, useUser } from "../hooks";
-import * as api from "../api";
-import { DelayedLoader } from "../components/DelayedLoader";
-import { formatHumanDateTime } from "../date";
+  VStack,
+} from "@chakra-ui/react"
+import { FirebaseError } from "firebase/app"
+import { useEffect, useState } from "react"
+import { Link } from "react-router-dom"
+
+import * as api from "../api"
+import { DelayedLoader } from "../components/DelayedLoader"
+import { EmptyStateText } from "../components/EmptyStateText"
+import { Page } from "../components/Page"
+import { formatHumanDateTime } from "../date"
+import { useFriends, useUser } from "../hooks"
 
 function UserIdToName({ userId }: { userId: string }) {
-  const [name, setName] = useState<{ name: string } | "loading">("loading");
+  const [name, setName] = useState<{ name: string } | "loading">("loading")
   useEffect(() => {
-    api.userById({ userId }).then((res) => {
-      setName({ name: res.email });
-    });
-  }, [userId]);
-  if (name == "loading") {
-    return null;
+    api
+      .userById({ userId })
+      .then((res) => {
+        setName({ name: res.email })
+      })
+      .catch(() => {
+        // TODO:
+      })
+  }, [userId])
+  if (name === "loading") {
+    return null
   }
-  return <>{name.name}</>;
+  return <>{name.name}</>
 }
 
 export function FriendsListView() {
-  const toast = useToast();
-  const user = useUser();
-  const friends = useFriends(user.data?.uid ?? "");
+  const toast = useToast()
+  const user = useUser()
+  const friends = useFriends(user.data?.uid ?? "")
   if (user.data == null || friends === "loading") {
     return (
       <Page>
         <DelayedLoader />
       </Page>
-    );
+    )
   }
-  const invites = friends.filter((f) => !f.accepted);
-  const acceptedFriends = friends.filter((f) => f.accepted);
+  const invites = friends.filter((f) => !f.accepted)
+  const acceptedFriends = friends.filter((f) => f.accepted)
   return (
     <Page>
       <Breadcrumb alignSelf={"start"}>
@@ -66,7 +73,7 @@ export function FriendsListView() {
           </Heading>
 
           {invites.map((i) => (
-            <HStack width={"100%"}>
+            <HStack key={i.id} width={"100%"}>
               <VStack spacing={0} align={"start"}>
                 <div>
                   <UserIdToName userId={i.id} />
@@ -80,35 +87,35 @@ export function FriendsListView() {
                 variant="outline"
                 onClick={() => {
                   if (!confirm("Remove invite?")) {
-                    return;
+                    return
                   }
                   api
                     .friendInviteCancel({
                       userId: user.data.uid,
                       targetUserId: i.id,
                     })
-                    .then((res) => {
+                    .then(() => {
                       toast({
                         title: "Invite canceled",
                         status: "success",
                         isClosable: true,
-                      });
+                      })
                     })
-                    .catch((error) => {
-                      const errorCode = error.code;
-                      const errorMessage = error.message;
+                    .catch((error: FirebaseError) => {
+                      const errorCode = error.code
+                      const errorMessage = error.message
                       toast({
                         title: "Problem canceling invite",
                         description: `${errorCode}: ${errorMessage}`,
                         status: "error",
                         isClosable: true,
-                      });
-                    });
+                      })
+                    })
                 }}
               >
                 Cancel
               </Button>
-              {i.createdById != user.data.uid && (
+              {i.createdById !== user.data.uid && (
                 <Button
                   size="sm"
                   onClick={() => {
@@ -117,23 +124,21 @@ export function FriendsListView() {
                         userId: user.data.uid,
                         targetUserId: i.id,
                       })
-                      .then((res) => {
+                      .then(() => {
                         toast({
                           title: "Invite accepted",
                           status: "success",
                           isClosable: true,
-                        });
+                        })
                       })
-                      .catch((error) => {
-                        const errorCode = error.code;
-                        const errorMessage = error.message;
+                      .catch((error: FirebaseError) => {
                         toast({
                           title: "Problem accepting invite",
-                          description: `${errorCode}: ${errorMessage}`,
+                          description: `${error.code}: ${error.message}`,
                           status: "error",
                           isClosable: true,
-                        });
-                      });
+                        })
+                      })
                   }}
                 >
                   Accept
@@ -157,7 +162,7 @@ export function FriendsListView() {
         <EmptyStateText>No Friends</EmptyStateText>
       )}
       {acceptedFriends.map((f) => (
-        <HStack width="100%">
+        <HStack key={f.id} width="100%">
           <div>
             <UserIdToName userId={f.id} />
           </div>
@@ -166,30 +171,28 @@ export function FriendsListView() {
             size={"sm"}
             onClick={() => {
               if (!confirm("Remove friend?")) {
-                return;
+                return
               }
               api
                 .friendInviteCancel({
                   userId: user.data.uid,
                   targetUserId: f.id,
                 })
-                .then((res) => {
+                .then(() => {
                   toast({
                     title: "Friend removed",
                     status: "success",
                     isClosable: true,
-                  });
+                  })
                 })
-                .catch((error) => {
-                  const errorCode = error.code;
-                  const errorMessage = error.message;
+                .catch((error: FirebaseError) => {
                   toast({
                     title: "Problem removing friend",
-                    description: `${errorCode}: ${errorMessage}`,
+                    description: `${error.code}: ${error.message}`,
                     status: "error",
                     isClosable: true,
-                  });
-                });
+                  })
+                })
             }}
           >
             remove
@@ -197,5 +200,5 @@ export function FriendsListView() {
         </HStack>
       ))}
     </Page>
-  );
+  )
 }

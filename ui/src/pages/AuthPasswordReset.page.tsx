@@ -1,42 +1,27 @@
 import {
   Button,
-  HStack,
-  Spacer,
-  VStack,
   FormControl,
   FormLabel,
-  Input,
-  Tab,
-  TabList,
-  Tabs,
   Heading,
-} from "@chakra-ui/react";
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { AuthForm } from "../components/AuthForm";
+  HStack,
+  Input,
+  Spacer,
+} from "@chakra-ui/react"
+import { useState } from "react"
+import { Link } from "react-router-dom"
 
-function AuthHeading() {
-  return (
-    <HStack alignItems="center" marginTop="4">
-      <Link to="/">
-        <Heading as="h1" size="lg" fontWeight={500}>
-          FoodieYak
-        </Heading>
-      </Link>
-    </HStack>
-  );
-}
+import { AuthForm } from "../components/AuthForm"
 
 export function AuthPasswordReset() {
-  const [password, setPassword] = useState("");
-  const [passwordAgain, setPasswordAgain] = useState("");
+  const [password, setPassword] = useState("")
+  const [passwordAgain, setPasswordAgain] = useState("")
   const handlePasswordReset = () => {
     // TODO: login user
-  };
+  }
   return (
     <AuthForm
       onSubmit={() => {
-        handlePasswordReset();
+        handlePasswordReset()
       }}
     >
       <Heading as="h1" alignSelf="start" fontSize="xl">
@@ -47,7 +32,9 @@ export function AuthPasswordReset() {
         <Input
           type="password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => {
+            setPassword(e.target.value)
+          }}
         />
       </FormControl>
       <FormControl>
@@ -55,7 +42,9 @@ export function AuthPasswordReset() {
         <Input
           type="password"
           value={passwordAgain}
-          onChange={(e) => setPasswordAgain(e.target.value)}
+          onChange={(e) => {
+            setPasswordAgain(e.target.value)
+          }}
         />
       </FormControl>
       <HStack width="100%">
@@ -66,5 +55,5 @@ export function AuthPasswordReset() {
         <Button type="submit">Update Password</Button>
       </HStack>
     </AuthForm>
-  );
+  )
 }

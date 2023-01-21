@@ -1,10 +1,12 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App";
-import { ChakraProvider } from "@chakra-ui/react";
-import { extendTheme } from "@chakra-ui/react";
-import * as Sentry from "@sentry/browser";
-import { BrowserTracing } from "@sentry/tracing";
+import { ChakraProvider, extendTheme } from "@chakra-ui/react"
+import * as Sentry from "@sentry/browser"
+import { BrowserTracing } from "@sentry/tracing"
+import React from "react"
+import ReactDOM from "react-dom/client"
+
+import App from "./App"
+// todo: rework how we initialize this
+import { db } from "./db"
 
 Sentry.init({
   // TODO: move to env var
@@ -12,26 +14,26 @@ Sentry.init({
   integrations: [new BrowserTracing()],
   tracesSampleRate: 1.0,
   beforeSend: (event) => {
-    console.error(event.event_id, event.exception?.values[0].value);
-    return event;
+    // eslint-disable-next-line no-console
+    console.error(event.event_id, event.exception?.values?.[0].value)
+    return event
   },
-});
+})
 
-// todo: rework how we initialize this
-import { db } from "./db";
-
-console.log(db.app.name);
+// eslint-disable-next-line no-console
+console.log(db.app.name)
 
 const theme = extendTheme({
   config: {
     initialColorMode: "dark",
   },
-});
+})
 
+// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <ChakraProvider theme={theme}>
       <App />
     </ChakraProvider>
-  </React.StrictMode>
-);
+  </React.StrictMode>,
+)

@@ -1,5 +1,4 @@
 import {
-  Text,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
@@ -7,41 +6,43 @@ import {
   Heading,
   HStack,
   Spacer,
-} from "@chakra-ui/react";
-import { ThumbsDown, ThumbsUp } from "react-feather";
-import { Link, useParams } from "react-router-dom";
-import { LocationImage } from "../components/LocationImage";
-import { useCheckIn, useMenuItems, usePlace } from "../hooks";
-import { NoMatch } from "./NoMatchView.page";
-import { Page } from "../components/Page";
-import { DelayedLoader } from "../components/DelayedLoader";
-import { PlaceMenuItem } from "../api-schemas";
-import { formatHumanDate } from "../date";
+  Text,
+} from "@chakra-ui/react"
+import { ThumbsDown, ThumbsUp } from "react-feather"
+import { Link, useParams } from "react-router-dom"
+
+import { PlaceMenuItem } from "../api-schemas"
+import { DelayedLoader } from "../components/DelayedLoader"
+import { LocationImage } from "../components/LocationImage"
+import { Page } from "../components/Page"
+import { formatHumanDate } from "../date"
+import { useCheckIn, useMenuItems, usePlace } from "../hooks"
+import { NoMatch } from "./NoMatchView.page"
 
 export function CheckInDetailView() {
   const { placeId, checkInId }: { placeId: string; checkInId: string } =
-    useParams();
-  const place = usePlace(placeId);
-  const checkIn = useCheckIn(placeId, checkInId);
-  const menuItems = useMenuItems(placeId);
+    useParams()
+  const place = usePlace(placeId)
+  const checkIn = useCheckIn(placeId, checkInId)
+  const menuItems = useMenuItems(placeId)
 
   if (place === "loading" || checkIn === "loading" || menuItems === "loading") {
     return (
       <Page>
         <DelayedLoader />
       </Page>
-    );
+    )
   }
   if (place === "not_found" || checkIn === "not_found") {
-    return <NoMatch />;
+    return <NoMatch />
   }
 
   const menuItemMap = menuItems.reduce<
     Record<PlaceMenuItem["id"], PlaceMenuItem | undefined>
   >((acc, val) => {
-    acc[val.id] = val;
-    return acc;
-  }, {});
+    acc[val.id] = val
+    return acc
+  }, {})
 
   return (
     <Page>
@@ -81,7 +82,7 @@ export function CheckInDetailView() {
         Menu Items
       </Heading>
       {checkIn.ratings.map((m) => (
-        <HStack width="100%">
+        <HStack key={m.id} width="100%">
           <div>{menuItemMap[m.menuItemId]?.name}</div>
           <Spacer />
 
@@ -97,5 +98,5 @@ export function CheckInDetailView() {
         <Button width="100%">Modify Check-In</Button>
       </Link>
     </Page>
-  );
+  )
 }

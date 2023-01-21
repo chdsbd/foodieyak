@@ -1,44 +1,46 @@
 import {
-  VStack,
-  HStack,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
-  FormControl,
-  FormLabel,
-  Input,
-  FormHelperText,
   Button,
-  Heading,
   Card,
   CardBody,
+  FormControl,
+  FormHelperText,
+  FormLabel,
+  Heading,
+  HStack,
+  Input,
   Spacer,
   useToast,
-} from "@chakra-ui/react";
-import { useState } from "react";
-import { Link, useHistory } from "react-router-dom";
-import { Page } from "../components/Page";
-import { useUser } from "../hooks";
-import * as api from "../api";
-import { EmptyStateText } from "../components/EmptyStateText";
-import { DelayedLoader } from "../components/DelayedLoader";
-import { User } from "../api-schemas";
+  VStack,
+} from "@chakra-ui/react"
+import { FirebaseError } from "firebase/app"
+import { useState } from "react"
+import { Link, useHistory } from "react-router-dom"
+
+import * as api from "../api"
+import { User } from "../api-schemas"
+import { DelayedLoader } from "../components/DelayedLoader"
+import { EmptyStateText } from "../components/EmptyStateText"
+import { Page } from "../components/Page"
+import { useUser } from "../hooks"
 
 export function FriendsCreateView() {
-  const toast = useToast();
-  const user = useUser();
-  const history = useHistory();
-  const [email, setEmail] = useState("");
+  const toast = useToast()
+  const user = useUser()
+  const history = useHistory()
+  const [email, setEmail] = useState("")
   const [lookupResults, setLookupResults] = useState<User[] | "initial">(
-    "initial"
-  );
-  const [invitingId, setInvitingId] = useState<string | null>(null);
+    "initial",
+  )
+  const [invitingId, setInvitingId] = useState<string | null>(null)
   if (user.data == null) {
     return (
       <Page>
         <DelayedLoader />
       </Page>
-    );
+    )
   }
   return (
     <Page>
@@ -64,10 +66,15 @@ export function FriendsCreateView() {
         width="100%"
         as="form"
         onSubmit={(e) => {
-          e.preventDefault();
-          api.friendLookup({ email }).then((res) => {
-            setLookupResults(res);
-          });
+          e.preventDefault()
+          api
+            .friendLookup({ email })
+            .then((res) => {
+              setLookupResults(res)
+            })
+            .catch(() => {
+              // TODO:
+            })
         }}
       >
         <FormControl>
@@ -76,7 +83,7 @@ export function FriendsCreateView() {
             type="email"
             value={email}
             onChange={(e) => {
-              setEmail(e.target.value);
+              setEmail(e.target.value)
             }}
           />
           <FormHelperText>Search for a user by email.</FormHelperText>
@@ -90,7 +97,7 @@ export function FriendsCreateView() {
               Lookup Results
             </Heading>
             {lookupResults.map((r) => (
-              <Card w="100%">
+              <Card key={r.email} w="100%">
                 <HStack as={CardBody}>
                   <VStack alignItems={"start"}>
                     <p>{r.displayName}</p>
@@ -102,9 +109,9 @@ export function FriendsCreateView() {
                     isLoading={r.uid === invitingId}
                     onClick={() => {
                       if (user.data == null) {
-                        return;
+                        return
                       }
-                      setInvitingId(r.uid);
+                      setInvitingId(r.uid)
                       api
                         .friendInviteCreate({
                           userId: user.data.uid,
@@ -115,21 +122,21 @@ export function FriendsCreateView() {
                             title: "Invite sent",
                             status: "success",
                             isClosable: true,
-                          });
-                          setInvitingId(null);
-                          history.push("/friends");
+                          })
+                          setInvitingId(null)
+                          history.push("/friends")
                         })
-                        .catch((error) => {
-                          const errorCode = error.code;
-                          const errorMessage = error.message;
+                        .catch((error: FirebaseError) => {
+                          const errorCode = error.code
+                          const errorMessage = error.message
                           toast({
                             title: "Problem creating account",
                             description: `${errorCode}: ${errorMessage}`,
                             status: "error",
                             isClosable: true,
-                          });
-                          setInvitingId(null);
-                        });
+                          })
+                          setInvitingId(null)
+                        })
                     }}
                   >
                     Invite
@@ -144,5 +151,5 @@ export function FriendsCreateView() {
         )}
       </VStack>
     </Page>
-  );
+  )
 }

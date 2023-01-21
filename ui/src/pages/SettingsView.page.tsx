@@ -1,41 +1,40 @@
 import {
   Button,
-  VStack,
   FormControl,
   FormLabel,
   Heading,
   useToast,
-} from "@chakra-ui/react";
-import { getAuth, signOut } from "firebase/auth";
-import { useState } from "react";
-import { useHistory } from "react-router-dom";
-import { NavBar } from "../components/NavBar";
-import { Page } from "../components/Page";
-import { useUser } from "../hooks";
+} from "@chakra-ui/react"
+import { FirebaseError } from "firebase/app"
+import { getAuth, signOut } from "firebase/auth"
+import { useState } from "react"
+import { useHistory } from "react-router-dom"
+
+import { Page } from "../components/Page"
+import { useUser } from "../hooks"
 
 export function SettingsView() {
-  const toast = useToast();
-  const history = useHistory();
-  const [isLoading, setIsLoading] = useState(false);
-  const userResult = useUser();
+  const toast = useToast()
+  const history = useHistory()
+  const [isLoading, setIsLoading] = useState(false)
+  const userResult = useUser()
   const handleLogout = () => {
-    const auth = getAuth();
-    setIsLoading(true);
+    const auth = getAuth()
+    setIsLoading(true)
     signOut(auth)
       .then(() => {
-        history.push({ pathname: "/login" });
+        history.push({ pathname: "/login" })
       })
-      .catch((error) => {
-        // An error happened.
+      .catch((error: FirebaseError) => {
         toast({
           title: "Problem logging out",
           description: `${error.code}: ${error.message}`,
           variant: "error",
           isClosable: true,
-        });
-        setIsLoading(false);
-      });
-  };
+        })
+        setIsLoading(false)
+      })
+  }
   return (
     <Page>
       <Heading as="h1" size="lg">
@@ -50,5 +49,5 @@ export function SettingsView() {
         Logout
       </Button>
     </Page>
-  );
+  )
 }

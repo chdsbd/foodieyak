@@ -8,30 +8,31 @@ import {
   HStack,
   Spacer,
   VStack,
-} from "@chakra-ui/react";
-import { ThumbsDown, ThumbsUp } from "react-feather";
-import { Link, useParams } from "react-router-dom";
-import { calculateCheckinCountsByMenuItem } from "../api-transforms";
-import { DelayedLoader } from "../components/DelayedLoader";
-import { LocationImage } from "../components/LocationImage";
-import { Page } from "../components/Page";
-import { formatHumanDate } from "../date";
-import { useCheckins, useMenuItem, usePlace, useUser } from "../hooks";
-import { notUndefined } from "../type-guards";
-import { NoMatch } from "./NoMatchView.page";
+} from "@chakra-ui/react"
+import { ThumbsDown, ThumbsUp } from "react-feather"
+import { Link, useParams } from "react-router-dom"
+
+import { calculateCheckinCountsByMenuItem } from "../api-transforms"
+import { DelayedLoader } from "../components/DelayedLoader"
+import { LocationImage } from "../components/LocationImage"
+import { Page } from "../components/Page"
+import { formatHumanDate } from "../date"
+import { useCheckins, useMenuItem, usePlace, useUser } from "../hooks"
+import { notUndefined } from "../type-guards"
+import { NoMatch } from "./NoMatchView.page"
 
 export function MenuItemDetailView() {
   const {
     placeId,
     menuItemId,
   }: {
-    placeId: string;
-    menuItemId: string;
-  } = useParams();
-  const place = usePlace(placeId);
-  const menuItem = useMenuItem(placeId, menuItemId);
-  const checkIns = useCheckins(placeId);
-  const currentUser = useUser();
+    placeId: string
+    menuItemId: string
+  } = useParams()
+  const place = usePlace(placeId)
+  const menuItem = useMenuItem(placeId, menuItemId)
+  const checkIns = useCheckins(placeId)
+  const currentUser = useUser()
 
   if (
     currentUser.data == null ||
@@ -43,28 +44,28 @@ export function MenuItemDetailView() {
       <Page>
         <DelayedLoader />
       </Page>
-    );
+    )
   }
   if (place === "not_found" || menuItem === "not_found") {
-    return <NoMatch />;
+    return <NoMatch />
   }
 
   const checkInsForMenuItem = checkIns
     .map((checkin) => {
-      const rating = checkin.ratings.find((x) => x.menuItemId === menuItemId);
+      const rating = checkin.ratings.find((x) => x.menuItemId === menuItemId)
       if (rating == null) {
-        return null;
+        return null
       }
       const c = {
         ...checkin,
         rating: rating.rating,
-      };
-      return c;
+      }
+      return c
     })
-    .filter(notUndefined);
+    .filter(notUndefined)
 
   const checkinCountsByMenuItem =
-    calculateCheckinCountsByMenuItem(checkIns)[menuItemId];
+    calculateCheckinCountsByMenuItem(checkIns)[menuItemId]
 
   return (
     <Page>
@@ -111,6 +112,7 @@ export function MenuItemDetailView() {
 
       {checkInsForMenuItem.map((m) => (
         <HStack
+          key={m.id}
           width="100%"
           as={Link}
           to={`/place/${place.id}/check-in/${m.id}`}
@@ -134,5 +136,5 @@ export function MenuItemDetailView() {
         </HStack>
       ))}
     </Page>
-  );
+  )
 }

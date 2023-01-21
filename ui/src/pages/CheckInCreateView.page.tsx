@@ -1,53 +1,53 @@
 import {
+  Box,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   Button,
-  Heading,
-  HStack,
-  Spacer,
-  VStack,
-  FormControl,
   ButtonGroup,
-  FormLabel,
-  Input,
-  Box,
-  Select,
   Card,
   CardBody,
-  useToast,
-} from "@chakra-ui/react";
-import { ThumbsDown, ThumbsUp } from "react-feather";
-import { Page } from "../components/Page";
-import { Link, useParams, useHistory } from "react-router-dom";
-import { useMenuItems, usePlace, useUser } from "../hooks";
-import { NoMatch } from "./NoMatchView.page";
-import { useState } from "react";
-import { groupBy } from "lodash-es";
-import { parseISO, format } from "date-fns";
-import produce from "immer";
-import { DelayedLoader } from "../components/DelayedLoader";
-import { Place } from "../api-schemas";
+  FormControl,
+  FormLabel,
+  Heading,
+  HStack,
+  Input,
+  Select,
+  Spacer,
+  VStack,
+} from "@chakra-ui/react"
+import { format, parseISO } from "date-fns"
+import produce from "immer"
+import { groupBy } from "lodash-es"
+import { useState } from "react"
+import { ThumbsDown, ThumbsUp } from "react-feather"
+import { Link, useParams } from "react-router-dom"
+
+import { Place } from "../api-schemas"
+import { DelayedLoader } from "../components/DelayedLoader"
+import { Page } from "../components/Page"
+import { useMenuItems, usePlace, useUser } from "../hooks"
+import { NoMatch } from "./NoMatchView.page"
 
 function toISODateString(date: Date | string | number): string {
   // Note(sbdchd): parseISO("2019-11-09") !== new Date("2019-11-09")
-  const dateObj = typeof date === "string" ? parseISO(date) : date;
-  return format(dateObj, "yyyy-MM-dd");
+  const dateObj = typeof date === "string" ? parseISO(date) : date
+  return format(dateObj, "yyyy-MM-dd")
 }
 
 function MenuItemCreator(props: {
-  place: Place;
-  onSelect: (_: string) => void;
+  place: Place
+  onSelect: (_: string) => void
 }) {
-  const user = useUser();
-  const menuItems = useMenuItems(props.place.id);
-  const [selectValue, setSelectValue] = useState<string>("");
+  const user = useUser()
+  const menuItems = useMenuItems(props.place.id)
+  const [selectValue, setSelectValue] = useState<string>("")
   if (user.data == null || menuItems === "loading") {
     return (
       <Page>
         <DelayedLoader />
       </Page>
-    );
+    )
   }
 
   return (
@@ -60,7 +60,7 @@ function MenuItemCreator(props: {
               value={selectValue}
               onChange={(e) => {
                 if (e.target.value === "new") {
-                  const res = prompt("Menu Item Name?");
+                  const res = prompt("Menu Item Name?")
                   if (res) {
                     // query
                     //   .menuItemCreate({
@@ -73,9 +73,9 @@ function MenuItemCreator(props: {
                     //   });
                   }
                 } else {
-                  props.onSelect(e.target.value);
+                  props.onSelect(e.target.value)
                 }
-                setSelectValue("");
+                setSelectValue("")
               }}
             >
               <option value="" selected disabled>
@@ -83,7 +83,7 @@ function MenuItemCreator(props: {
               </option>
               <option value="new">Create new menu item...</option>
               {menuItems.map((mi) => (
-                <option value={mi.id}>
+                <option key={mi.id} value={mi.id}>
                   {mi.name} — {mi.createdById}
                 </option>
               ))}
@@ -92,14 +92,14 @@ function MenuItemCreator(props: {
         </VStack>
       </CardBody>
     </Card>
-  );
+  )
 }
 
 function MenuItem(props: {
-  menuItemName: string;
-  rating: -1 | 1;
-  setRating: (_: -1 | 1) => void;
-  onRemove: () => void;
+  menuItemName: string
+  rating: -1 | 1
+  setRating: (_: -1 | 1) => void
+  onRemove: () => void
 }) {
   return (
     <Card w="100%">
@@ -110,14 +110,14 @@ function MenuItem(props: {
             <ButtonGroup w="100%">
               <Button
                 onClick={() => {
-                  props.setRating(1);
+                  props.setRating(1)
                 }}
               >
                 <ThumbsUp fill={props.rating > 0 ? "lightgreen" : "none"} />
               </Button>
               <Button
                 onClick={() => {
-                  props.setRating(-1);
+                  props.setRating(-1)
                 }}
               >
                 <ThumbsDown fill={props.rating < 0 ? "orange" : "none"} />
@@ -125,7 +125,7 @@ function MenuItem(props: {
               <Spacer />
               <Button
                 onClick={() => {
-                  props.onRemove();
+                  props.onRemove()
                 }}
               >
                 Remove
@@ -135,38 +135,36 @@ function MenuItem(props: {
         </VStack>
       </CardBody>
     </Card>
-  );
+  )
 }
 
 type MenuItemRating = {
-  menuItemId: string;
-  rating: 1 | -1;
-};
+  menuItemId: string
+  rating: 1 | -1
+}
 
 export function CheckInCreateView() {
-  const { placeId }: { placeId: string } = useParams();
-  const place = usePlace(placeId);
-  const user = useUser();
-  const menuItems = useMenuItems(placeId);
+  const { placeId }: { placeId: string } = useParams()
+  const place = usePlace(placeId)
+  const user = useUser()
+  const menuItems = useMenuItems(placeId)
 
-  const [date, setDate] = useState<string>(toISODateString(new Date()));
+  const [date, setDate] = useState<string>(toISODateString(new Date()))
 
-  const history = useHistory();
-  const [menuItemRatings, setMenutItemRatings] = useState<MenuItemRating[]>([]);
-  const toast = useToast();
+  const [menuItemRatings, setMenutItemRatings] = useState<MenuItemRating[]>([])
 
   if (place === "loading" || menuItems === "loading") {
     return (
       <Page>
         <DelayedLoader />
       </Page>
-    );
+    )
   }
   if (place === "not_found") {
-    return <NoMatch />;
+    return <NoMatch />
   }
 
-  const menuItemMap = groupBy(menuItems, (x) => x.id);
+  const menuItemMap = groupBy(menuItems, (x) => x.id)
 
   return (
     <Page>
@@ -209,7 +207,7 @@ export function CheckInCreateView() {
         <Input
           type="date"
           onChange={(e) => {
-            setDate(e.target.value);
+            setDate(e.target.value)
           }}
           value={toISODateString(date)}
         />
@@ -225,13 +223,13 @@ export function CheckInCreateView() {
           setMenutItemRatings(
             produce((s) => {
               if (s.find((x) => x.menuItemId === menuItemId) != null) {
-                return;
+                return
               } else {
-                s.push({ menuItemId, rating: 1 });
+                s.push({ menuItemId, rating: 1 })
               }
-              return s;
-            })
-          );
+              return s
+            }),
+          )
         }}
       />
       {menuItemRatings.map((mir) => {
@@ -243,28 +241,28 @@ export function CheckInCreateView() {
             setRating={(rating) => {
               setMenutItemRatings(
                 produce((s) => {
-                  const item = s.find((x) => x.menuItemId === mir.menuItemId);
+                  const item = s.find((x) => x.menuItemId === mir.menuItemId)
                   if (item != null) {
-                    item.rating = rating;
+                    item.rating = rating
                   }
-                  return s;
-                })
-              );
+                  return s
+                }),
+              )
             }}
             onRemove={() => {
               setMenutItemRatings((s) => {
-                return s.filter((x) => x.menuItemId !== mir.menuItemId);
-              });
+                return s.filter((x) => x.menuItemId !== mir.menuItemId)
+              })
             }}
           />
-        );
+        )
       })}
 
       <Button
         width="100%"
         onClick={() => {
           if (user.data == null) {
-            return;
+            return
           }
           // query
           //   .checkInCreate({
@@ -288,5 +286,5 @@ export function CheckInCreateView() {
         Create Check-In
       </Button>
     </Page>
-  );
+  )
 }

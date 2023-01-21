@@ -1,69 +1,53 @@
 import {
   Button,
-  HStack,
-  Spacer,
-  VStack,
   FormControl,
   FormLabel,
-  Input,
-  Tab,
-  TabList,
-  Tabs,
   Heading,
+  HStack,
+  Input,
+  Spacer,
   useToast,
-} from "@chakra-ui/react";
-import { useState } from "react";
-import { Link, useHistory } from "react-router-dom";
+} from "@chakra-ui/react"
+import { FirebaseError } from "firebase/app"
+import { getAuth, sendPasswordResetEmail } from "firebase/auth"
+import { useState } from "react"
+import { Link } from "react-router-dom"
 
-import { getAuth, sendPasswordResetEmail } from "firebase/auth";
-import { AuthForm } from "../components/AuthForm";
-
-function AuthHeading() {
-  return (
-    <HStack alignItems="center" marginTop="4">
-      <Link to="/">
-        <Heading as="h1" size="lg" fontWeight={500}>
-          FoodieYak
-        </Heading>
-      </Link>
-    </HStack>
-  );
-}
+import { AuthForm } from "../components/AuthForm"
 
 export function AuthForgotPassword() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState("");
-  const toast = useToast();
-  const history = useHistory();
+  const [isLoading, setIsLoading] = useState(false)
+  const [email, setEmail] = useState("")
+  const toast = useToast()
   const handlePasswordReset = () => {
-    setIsLoading(true);
+    setIsLoading(true)
 
-    const auth = getAuth();
+    const auth = getAuth()
     sendPasswordResetEmail(auth, email)
       .then(() => {
-        setEmail("");
+        setEmail("")
         toast({
           title: "Password Reset Email Sent",
           status: "success",
           isClosable: true,
-        });
+        })
       })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
+      .catch((error: FirebaseError) => {
+        const errorCode = error.code
+        const errorMessage = error.message
         toast({
           title: "Problem Sending Reset Email",
           status: "error",
           description: `${errorCode}: ${errorMessage}`,
           isClosable: true,
-        });
-        setIsLoading(false);
-      });
-  };
+        })
+        setIsLoading(false)
+      })
+  }
   return (
     <AuthForm
       onSubmit={() => {
-        handlePasswordReset();
+        handlePasswordReset()
       }}
     >
       <Heading as="h1" alignSelf="start" fontSize="xl">
@@ -74,7 +58,9 @@ export function AuthForgotPassword() {
         <Input
           type="email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => {
+            setEmail(e.target.value)
+          }}
         />
       </FormControl>
       <HStack width="100%">
@@ -87,5 +73,5 @@ export function AuthForgotPassword() {
         </Button>
       </HStack>
     </AuthForm>
-  );
+  )
 }

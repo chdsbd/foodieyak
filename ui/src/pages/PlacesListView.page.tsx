@@ -1,15 +1,16 @@
-import { Button, HStack, Input, VStack } from "@chakra-ui/react";
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { EmptyStateText } from "../components/EmptyStateText";
-import { LocationImage } from "../components/LocationImage";
-import { Page } from "../components/Page";
-import { usePlaces, useUser } from "../hooks";
+import { Button, HStack, Input, VStack } from "@chakra-ui/react"
+import { useState } from "react"
+import { Link } from "react-router-dom"
+
+import { EmptyStateText } from "../components/EmptyStateText"
+import { LocationImage } from "../components/LocationImage"
+import { Page } from "../components/Page"
+import { usePlaces, useUser } from "../hooks"
 
 export function PlacesListView() {
-  const user = useUser();
-  const places = usePlaces(user.data?.uid);
-  const [search, setSearch] = useState("");
+  const user = useUser()
+  const places = usePlaces(user.data?.uid)
+  const [search, setSearch] = useState("")
 
   return (
     <Page
@@ -28,22 +29,27 @@ export function PlacesListView() {
               type="search"
               value={search}
               onChange={(e) => {
-                setSearch(e.target.value);
+                setSearch(e.target.value)
               }}
             />
           )}
 
           {places.filter((x) =>
-            x.name.toLowerCase().includes(search.toLowerCase().trim())
+            x.name.toLowerCase().includes(search.toLowerCase().trim()),
           ).length === 0 && <EmptyStateText>No matching places</EmptyStateText>}
 
           <VStack w="full">
             {places
               .filter((x) =>
-                x.name.toLowerCase().includes(search.toLowerCase().trim())
+                x.name.toLowerCase().includes(search.toLowerCase().trim()),
               )
               .map((place) => (
-                <HStack as={Link} to={`/place/${place.id}`} w="full">
+                <HStack
+                  key={place.id}
+                  as={Link}
+                  to={`/place/${place.id}`}
+                  w="full"
+                >
                   <LocationImage />
                   <div>
                     <div>{place.name}</div>
@@ -55,5 +61,5 @@ export function PlacesListView() {
         </>
       )}
     </Page>
-  );
+  )
 }

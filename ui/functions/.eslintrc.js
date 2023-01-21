@@ -30,4 +30,4 @@ module.exports = {
     semi: "off",
     "require-jsdoc": "off",
   },
-};
+}
