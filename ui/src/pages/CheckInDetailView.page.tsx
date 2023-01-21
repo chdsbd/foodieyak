@@ -17,7 +17,6 @@ import { LocationImage } from "../components/LocationImage"
 import { Page } from "../components/Page"
 import { formatHumanDate } from "../date"
 import { useCheckIn, useMenuItems, usePlace } from "../hooks"
-import { NoMatch } from "./NoMatchView.page"
 
 export function CheckInDetailView() {
   const { placeId, checkInId }: { placeId: string; checkInId: string } =
@@ -32,9 +31,6 @@ export function CheckInDetailView() {
         <DelayedLoader />
       </Page>
     )
-  }
-  if (place === "not_found" || checkIn === "not_found") {
-    return <NoMatch />
   }
 
   const menuItemMap = menuItems.reduce<
