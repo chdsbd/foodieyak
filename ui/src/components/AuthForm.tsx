@@ -1,5 +1,5 @@
-import { Heading, HStack, VStack } from "@chakra-ui/react";
-import React from "react";
+import { Heading, HStack, VStack } from "@chakra-ui/react"
+import React from "react"
 
 function AuthHeading() {
   return (
@@ -8,15 +8,15 @@ function AuthHeading() {
         FoodieYak
       </Heading>
     </HStack>
-  );
+  )
 }
 
 export function AuthForm({
   onSubmit,
   children,
 }: {
-  onSubmit: () => void;
-  children: React.ReactNode;
+  onSubmit: () => void
+  children: React.ReactNode
 }) {
   return (
     <VStack
@@ -25,12 +25,12 @@ export function AuthForm({
       maxWidth={400}
       as="form"
       onSubmit={(e) => {
-        e.preventDefault();
-        onSubmit();
+        e.preventDefault()
+        onSubmit()
       }}
     >
       <AuthHeading />
       {children}
     </VStack>
-  );
+  )
 }

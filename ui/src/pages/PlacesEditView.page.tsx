@@ -11,43 +11,44 @@ import {
   Tooltip,
   useToast,
   VStack,
-} from "@chakra-ui/react";
-import { useEffect, useState } from "react";
-import { Link, useHistory, useParams } from "react-router-dom";
+} from "@chakra-ui/react"
+import { FirebaseError } from "firebase/app"
+import { useEffect, useState } from "react"
+import { Link, useHistory, useParams } from "react-router-dom"
 
-import * as api from "../api";
-import { Page } from "../components/Page";
-import { usePlace, useUser } from "../hooks";
-import { NoMatch } from "./NoMatchView.page";
+import * as api from "../api"
+import { Page } from "../components/Page"
+import { usePlace, useUser } from "../hooks"
+import { NoMatch } from "./NoMatchView.page"
 
 export function PlacesEditView() {
-  const { placeId }: { placeId: string } = useParams();
-  const user = useUser();
-  const history = useHistory();
-  const toast = useToast();
-  const [name, setName] = useState("");
-  const [location, setLocation] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState(false);
+  const { placeId }: { placeId: string } = useParams()
+  const user = useUser()
+  const history = useHistory()
+  const toast = useToast()
+  const [name, setName] = useState("")
+  const [location, setLocation] = useState("")
+  const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
-  const place = usePlace(placeId);
+  const place = usePlace(placeId)
   useEffect(() => {
     if (place === "loading" || place === "not_found") {
-      return;
+      return
     }
-    setName(place?.name ?? "");
-    setLocation(place?.location ?? "");
+    setName(place?.name ?? "")
+    setLocation(place?.location ?? "")
     // @ts-expect-error null coalesing works here.
-  }, [place, place?.name, place?.location]);
+  }, [place, place?.name, place?.location])
   if (place === "loading") {
     return (
       <Page>
         <div />
       </Page>
-    );
+    )
   }
   if (place === "not_found") {
-    return <NoMatch />;
+    return <NoMatch />
   }
 
   return (
@@ -70,11 +71,11 @@ export function PlacesEditView() {
         as="form"
         width="100%"
         onSubmit={(e) => {
-          e.preventDefault();
+          e.preventDefault()
           if (user.data == null) {
-            return;
+            return
           }
-          setSaving(true);
+          setSaving(true)
           api
             .placeUpdate({
               placeId,
@@ -83,27 +84,27 @@ export function PlacesEditView() {
               userId: user.data.uid,
             })
             .then(() => {
-              history.push(`/place/${placeId}`);
-              setSaving(false);
+              history.push(`/place/${placeId}`)
+              setSaving(false)
             })
-            .catch((error) => {
-              const errorCode = error.code;
-              const errorMessage = error.message;
+            .catch((error: FirebaseError) => {
               toast({
                 title: "Problem updating place",
-                description: `${errorCode}: ${errorMessage}`,
+                description: `${error.code}: ${error.message}`,
                 status: "error",
                 isClosable: true,
-              });
-              setSaving(false);
-            });
+              })
+              setSaving(false)
+            })
         }}
       >
         <FormControl>
           <FormLabel>Name</FormLabel>
           <Input
             type="text"
-            onChange={(e) => { setName(e.target.value); }}
+            onChange={(e) => {
+              setName(e.target.value)
+            }}
             value={name}
           />
         </FormControl>
@@ -112,7 +113,9 @@ export function PlacesEditView() {
           <FormLabel>Location</FormLabel>
           <Input
             type="text"
-            onChange={(e) => { setLocation(e.target.value); }}
+            onChange={(e) => {
+              setLocation(e.target.value)
+            }}
             value={location}
           />
         </FormControl>
@@ -132,26 +135,26 @@ export function PlacesEditView() {
               loadingText="Deleting..."
               onClick={() => {
                 if (!confirm("Delete place?")) {
-                  return;
+                  return
                 }
-                setDeleting(true);
+                setDeleting(true)
                 api
                   .placeDelete({ placeId })
                   .then(() => {
-                    history.push(`/`);
-                    setDeleting(false);
+                    history.push(`/`)
+                    setDeleting(false)
                   })
-                  .catch((error) => {
-                    const errorCode = error.code;
-                    const errorMessage = error.message;
+                  .catch((error: FirebaseError) => {
+                    const errorCode = error.code
+                    const errorMessage = error.message
                     toast({
                       title: "Problem deleting place",
                       description: `${errorCode}: ${errorMessage}`,
                       status: "error",
                       isClosable: true,
-                    });
-                    setDeleting(false);
-                  });
+                    })
+                    setDeleting(false)
+                  })
               }}
             >
               Delete Place
@@ -168,5 +171,5 @@ export function PlacesEditView() {
         </ButtonGroup>
       </VStack>
     </Page>
-  );
+  )
 }

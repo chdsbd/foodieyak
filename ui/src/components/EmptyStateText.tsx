@@ -1,5 +1,5 @@
-import { Heading, HStack } from "@chakra-ui/react";
-import React from "react";
+import { Heading, HStack } from "@chakra-ui/react"
+import React from "react"
 
 export function EmptyStateText({ children }: { children: React.ReactNode }) {
   return (
@@ -8,5 +8,5 @@ export function EmptyStateText({ children }: { children: React.ReactNode }) {
         {children}
       </Heading>
     </HStack>
-  );
+  )
 }

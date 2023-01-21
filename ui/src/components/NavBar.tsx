@@ -1,4 +1,4 @@
-import { ChevronDownIcon } from "@chakra-ui/icons";
+import { ChevronDownIcon } from "@chakra-ui/icons"
 import {
   Button,
   Heading,
@@ -8,8 +8,8 @@ import {
   MenuItem,
   MenuList,
   Spacer,
-} from "@chakra-ui/react";
-import { Link } from "react-router-dom";
+} from "@chakra-ui/react"
+import { Link } from "react-router-dom"
 
 function NavigationMoreMenu() {
   return (
@@ -26,7 +26,7 @@ function NavigationMoreMenu() {
         </MenuItem>
       </MenuList>
     </Menu>
-  );
+  )
 }
 
 function HomeButton() {
@@ -36,7 +36,7 @@ function HomeButton() {
         FoodieYak
       </Heading>
     </Link>
-  );
+  )
 }
 
 export function NavBar({ action }: { action?: JSX.Element }) {
@@ -49,5 +49,5 @@ export function NavBar({ action }: { action?: JSX.Element }) {
 
       <NavigationMoreMenu />
     </HStack>
-  );
+  )
 }

@@ -1,17 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"
 
 export function DelayedLoader() {
-  const [showLoading, setShowLoading] = useState(false);
+  const [showLoading, setShowLoading] = useState(false)
   useEffect(() => {
     const handle = setTimeout(() => {
-      setShowLoading(true);
-    }, 300);
+      setShowLoading(true)
+    }, 300)
     return () => {
-      clearTimeout(handle);
-    };
-  }, []);
+      clearTimeout(handle)
+    }
+  }, [])
   if (!showLoading) {
-    return null;
+    return null
   }
-  return <div>loading...</div>;
+  return <div>loading...</div>
 }

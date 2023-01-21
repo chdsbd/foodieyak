@@ -1,7 +1,7 @@
-import { Container } from "@chakra-ui/react";
+import { Container } from "@chakra-ui/react"
 
-import { NavBar } from "../components/NavBar";
-import { Page } from "../components/Page";
+import { NavBar } from "../components/NavBar"
+import { Page } from "../components/Page"
 
 export function NoMatch() {
   return (
@@ -9,5 +9,5 @@ export function NoMatch() {
       <NavBar />
       <Container>Not Found!</Container>
     </Page>
-  );
+  )
 }

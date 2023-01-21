@@ -9,44 +9,45 @@ import {
   TabList,
   Tabs,
   useToast,
-} from "@chakra-ui/react";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { useState } from "react";
-import { Link, useHistory } from "react-router-dom";
+} from "@chakra-ui/react"
+import { FirebaseError } from "firebase/app"
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth"
+import { useState } from "react"
+import { Link, useHistory } from "react-router-dom"
 
-import { AuthForm } from "../components/AuthForm";
+import { AuthForm } from "../components/AuthForm"
 
 export function AuthLoginView() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const toast = useToast();
-  const history = useHistory();
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const toast = useToast()
+  const history = useHistory()
   const handleLogin = () => {
-    const auth = getAuth();
-    setIsLoading(true);
+    const auth = getAuth()
+    setIsLoading(true)
     signInWithEmailAndPassword(auth, email, password)
       .then(() => {
         history.push({
           pathname: "/",
-        });
+        })
       })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
+      .catch((error: FirebaseError) => {
+        const errorCode = error.code
+        const errorMessage = error.message
         toast({
           title: "Problem logging in",
           description: `${errorCode}: ${errorMessage}`,
           status: "error",
           isClosable: true,
-        });
-        setIsLoading(false);
-      });
-  };
+        })
+        setIsLoading(false)
+      })
+  }
   return (
     <AuthForm
       onSubmit={() => {
-        handleLogin();
+        handleLogin()
       }}
     >
       <Tabs index={0} size="lg" width="100%">
@@ -63,7 +64,9 @@ export function AuthLoginView() {
         <Input
           type="email"
           value={email}
-          onChange={(e) => { setEmail(e.target.value); }}
+          onChange={(e) => {
+            setEmail(e.target.value)
+          }}
         />
       </FormControl>
       <FormControl>
@@ -71,7 +74,9 @@ export function AuthLoginView() {
         <Input
           type="password"
           value={password}
-          onChange={(e) => { setPassword(e.target.value); }}
+          onChange={(e) => {
+            setPassword(e.target.value)
+          }}
         />
       </FormControl>
       <HStack width="100%">
@@ -84,5 +89,5 @@ export function AuthLoginView() {
         </Button>
       </HStack>
     </AuthForm>
-  );
+  )
 }

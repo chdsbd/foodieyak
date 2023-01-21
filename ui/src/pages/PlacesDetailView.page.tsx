@@ -14,21 +14,21 @@ import {
   Tabs,
   Text,
   VStack,
-} from "@chakra-ui/react";
-import { Timestamp } from "firebase/firestore";
-import first from "lodash-es/first";
-import orderBy from "lodash-es/orderBy";
-import { Link, useParams } from "react-router-dom";
+} from "@chakra-ui/react"
+import { Timestamp } from "firebase/firestore"
+import first from "lodash-es/first"
+import orderBy from "lodash-es/orderBy"
+import { Link, useParams } from "react-router-dom"
 
-import { CheckInRating, PlaceMenuItem } from "../api-schemas";
-import { calculateCheckinCountsByMenuItem } from "../api-transforms";
-import { DelayedLoader } from "../components/DelayedLoader";
-import { EmptyStateText } from "../components/EmptyStateText";
-import { LocationImage } from "../components/LocationImage";
-import { Page } from "../components/Page";
-import { formatHumanDate } from "../date";
-import { useCheckins, useMenuItems, usePlace, useUser } from "../hooks";
-import { NoMatch } from "./NoMatchView.page";
+import { CheckInRating, PlaceMenuItem } from "../api-schemas"
+import { calculateCheckinCountsByMenuItem } from "../api-transforms"
+import { DelayedLoader } from "../components/DelayedLoader"
+import { EmptyStateText } from "../components/EmptyStateText"
+import { LocationImage } from "../components/LocationImage"
+import { Page } from "../components/Page"
+import { formatHumanDate } from "../date"
+import { useCheckins, useMenuItems, usePlace, useUser } from "../hooks"
+import { NoMatch } from "./NoMatchView.page"
 
 // function Rating(props: { ratings: PlaceCheckIn["ratings"] }) {
 //   const total = props.ratings.length;
@@ -42,49 +42,48 @@ import { NoMatch } from "./NoMatchView.page";
 // }
 
 export function PlacesDetailView() {
-  const { placeId }: { placeId: string } = useParams();
-  const place = usePlace(placeId);
-  const menuitems = useMenuItems(placeId);
-  const checkins = useCheckins(placeId);
-  const user = useUser();
+  const { placeId }: { placeId: string } = useParams()
+  const place = usePlace(placeId)
+  const menuitems = useMenuItems(placeId)
+  const checkins = useCheckins(placeId)
+  const user = useUser()
   if (
     user.data == null ||
     place === "loading" ||
-    menuitems == "loading" ||
-    checkins == "loading"
+    menuitems === "loading" ||
+    checkins === "loading"
   ) {
     return (
       <Page>
         <DelayedLoader />
       </Page>
-    );
+    )
   }
   if (place === "not_found") {
-    return <NoMatch />;
+    return <NoMatch />
   }
 
   function ratingForUser(m: PlaceMenuItem): -1 | 0 | 1 {
     if (checkins === "loading") {
-      return 0;
+      return 0
     }
 
-    const checkinRatings: { rating: CheckInRating; createdAt: Timestamp }[] =
-      [];
+    const checkinRatings: { rating: CheckInRating; createdAt: Timestamp }[] = []
     for (const checkin of checkins) {
       for (const rating of checkin.ratings) {
         if (rating.menuItemId === m.id) {
-          checkinRatings.push({ rating, createdAt: checkin.createdAt });
+          checkinRatings.push({ rating, createdAt: checkin.createdAt })
         }
       }
     }
 
     const latestCheckin = first(
-      orderBy(checkinRatings, (x) => x.createdAt, ["desc"])
-    );
-    return latestCheckin?.rating.rating ?? 0;
+      orderBy(checkinRatings, (x) => x.createdAt, ["desc"]),
+    )
+    return latestCheckin?.rating.rating ?? 0
   }
 
-  const countsByMenuItem = calculateCheckinCountsByMenuItem(checkins);
+  const countsByMenuItem = calculateCheckinCountsByMenuItem(checkins)
 
   return (
     <Page>
@@ -145,7 +144,12 @@ export function PlacesDetailView() {
               <EmptyStateText>No Menu Items</EmptyStateText>
             )}
             {menuitems.map((m) => (
-              <HStack w="full" as={Link} to={`/place/${place.id}/menu/${m.id}`}>
+              <HStack
+                key={m.id}
+                w="full"
+                as={Link}
+                to={`/place/${place.id}/menu/${m.id}`}
+              >
                 <LocationImage />
                 <Text fontSize={"xl"}>{m.name}</Text>
                 <Spacer />
@@ -179,6 +183,7 @@ export function PlacesDetailView() {
             )}
             {checkins.map((c) => (
               <HStack
+                key={c.id}
                 w="full"
                 as={Link}
                 to={`/place/${place.id}/check-in/${c.id}`}
@@ -196,5 +201,5 @@ export function PlacesDetailView() {
         </TabPanels>
       </Tabs>
     </Page>
-  );
+  )
 }

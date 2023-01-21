@@ -8,22 +8,23 @@ import {
   Input,
   useToast,
   VStack,
-} from "@chakra-ui/react";
-import { useState } from "react";
-import { Link, useHistory } from "react-router-dom";
+} from "@chakra-ui/react"
+import { FirebaseError } from "firebase/app"
+import { useState } from "react"
+import { Link, useHistory } from "react-router-dom"
 
-import * as api from "../api";
-import { Page } from "../components/Page";
-import { useFriends, useUser } from "../hooks";
+import * as api from "../api"
+import { Page } from "../components/Page"
+import { useFriends, useUser } from "../hooks"
 
 export function PlacesCreateView() {
-  const [name, setName] = useState("");
-  const [location, setLocation] = useState("");
-  const [saving, setSaving] = useState(false);
-  const user = useUser();
-  const friends = useFriends(user.data?.uid ?? null);
-  const history = useHistory();
-  const toast = useToast();
+  const [name, setName] = useState("")
+  const [location, setLocation] = useState("")
+  const [saving, setSaving] = useState(false)
+  const user = useUser()
+  const friends = useFriends(user.data?.uid ?? null)
+  const history = useHistory()
+  const toast = useToast()
 
   return (
     <Page>
@@ -45,40 +46,40 @@ export function PlacesCreateView() {
         as="form"
         width="100%"
         onSubmit={(e) => {
-          e.preventDefault();
+          e.preventDefault()
           if (user.data == null) {
-            return;
+            return
           }
-          setSaving(true);
+          setSaving(true)
           api
             .placeCreate({
               name,
               location,
               userId: user.data.uid,
-              friendIds: friends != "loading" ? friends.map((f) => f.id) : [],
+              friendIds: friends !== "loading" ? friends.map((f) => f.id) : [],
             })
             .then((docId) => {
-              history.push(`/place/${docId}`);
-              setSaving(false);
+              history.push(`/place/${docId}`)
+              setSaving(false)
             })
-            .catch((error) => {
-              const errorCode = error.code;
-              const errorMessage = error.message;
+            .catch((error: FirebaseError) => {
               toast({
                 title: "Problem creating account",
-                description: `${errorCode}: ${errorMessage}`,
+                description: `${error.code}: ${error.message}`,
                 status: "error",
                 isClosable: true,
-              });
-              setSaving(false);
-            });
+              })
+              setSaving(false)
+            })
         }}
       >
         <FormControl>
           <FormLabel>Name</FormLabel>
           <Input
             type="text"
-            onChange={(e) => { setName(e.target.value); }}
+            onChange={(e) => {
+              setName(e.target.value)
+            }}
             value={name}
           />
         </FormControl>
@@ -87,7 +88,9 @@ export function PlacesCreateView() {
           <FormLabel>Location</FormLabel>
           <Input
             type="text"
-            onChange={(e) => { setLocation(e.target.value); }}
+            onChange={(e) => {
+              setLocation(e.target.value)
+            }}
             value={location}
           />
         </FormControl>
@@ -101,5 +104,5 @@ export function PlacesCreateView() {
         </Button>
       </VStack>
     </Page>
-  );
+  )
 }

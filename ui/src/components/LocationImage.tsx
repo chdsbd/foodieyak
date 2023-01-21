@@ -1,4 +1,4 @@
-import { Box } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react"
 
 export function LocationImage() {
   return (
@@ -10,5 +10,5 @@ export function LocationImage() {
     >
       <div />
     </Box>
-  );
+  )
 }

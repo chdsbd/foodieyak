@@ -1,28 +1,28 @@
-import { Container } from "@chakra-ui/react";
+import { Container } from "@chakra-ui/react"
 import {
   BrowserRouter as Router,
   Redirect,
   Route,
   Switch,
-} from "react-router-dom";
+} from "react-router-dom"
 
-import { ErrorBoundary } from "./components/ErrorBoundary";
-import { useIsAuthed } from "./hooks";
-import { AuthForgotPassword } from "./pages/AuthForgotPassword";
-import { AuthLoginView } from "./pages/AuthLoginView.page";
-import { AuthPasswordReset } from "./pages/AuthPasswordReset.page";
-import { AuthSignupView } from "./pages/AuthSignupView.page";
-import { CheckInCreateView } from "./pages/CheckInCreateView.page";
-import { CheckInDetailView } from "./pages/CheckInDetailView.page";
-import { FriendsCreateView } from "./pages/FriendsCreateView.page";
-import { FriendsListView } from "./pages/FriendsListView.page";
-import { MenuItemDetailView } from "./pages/MenuItemDetailView.page";
-import { NoMatch } from "./pages/NoMatchView.page";
-import { PlacesCreateView } from "./pages/PlacesCreateView.page";
-import { PlacesDetailView } from "./pages/PlacesDetailView.page";
-import { PlacesEditView } from "./pages/PlacesEditView.page";
-import { PlacesListView } from "./pages/PlacesListView.page";
-import { SettingsView } from "./pages/SettingsView.page";
+import { ErrorBoundary } from "./components/ErrorBoundary"
+import { useIsAuthed } from "./hooks"
+import { AuthForgotPassword } from "./pages/AuthForgotPassword"
+import { AuthLoginView } from "./pages/AuthLoginView.page"
+import { AuthPasswordReset } from "./pages/AuthPasswordReset.page"
+import { AuthSignupView } from "./pages/AuthSignupView.page"
+import { CheckInCreateView } from "./pages/CheckInCreateView.page"
+import { CheckInDetailView } from "./pages/CheckInDetailView.page"
+import { FriendsCreateView } from "./pages/FriendsCreateView.page"
+import { FriendsListView } from "./pages/FriendsListView.page"
+import { MenuItemDetailView } from "./pages/MenuItemDetailView.page"
+import { NoMatch } from "./pages/NoMatchView.page"
+import { PlacesCreateView } from "./pages/PlacesCreateView.page"
+import { PlacesDetailView } from "./pages/PlacesDetailView.page"
+import { PlacesEditView } from "./pages/PlacesEditView.page"
+import { PlacesListView } from "./pages/PlacesListView.page"
+import { SettingsView } from "./pages/SettingsView.page"
 
 const routes: (
   | { path: string; authed?: true; exact?: true; element: JSX.Element }
@@ -104,13 +104,13 @@ const routes: (
     path: "*",
     element: <NoMatch />,
   },
-];
+]
 
 function App() {
-  const authStatus = useIsAuthed();
+  const authStatus = useIsAuthed()
   if (authStatus === "loading") {
     // don't have auth data so we dont' know what to show
-    return null;
+    return null
   }
   return (
     <ErrorBoundary>
@@ -119,10 +119,10 @@ function App() {
           <Switch>
             {routes.map((r) => {
               if ("redirect" in r) {
-                return <Redirect key={r.path} from={r.path} to={r.redirect} />;
+                return <Redirect key={r.path} from={r.path} to={r.redirect} />
               }
-              if (r.authed == true && authStatus === "unauthed") {
-                return <Redirect key={r.path} to="/login" />;
+              if (r.authed === true && authStatus === "unauthed") {
+                return <Redirect key={r.path} to="/login" />
               }
               return (
                 <Route
@@ -131,13 +131,13 @@ function App() {
                   children={r.element}
                   exact={r.exact}
                 />
-              );
+              )
             })}
           </Switch>
         </Router>
       </Container>
     </ErrorBoundary>
-  );
+  )
 }
 
-export default App;
+export default App
