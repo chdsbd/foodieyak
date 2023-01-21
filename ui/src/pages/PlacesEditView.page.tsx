@@ -81,6 +81,7 @@ export function PlacesEditView() {
               placeId,
               name,
               location,
+              userId: user.data.uid,
             })
             .then(() => {
               history.push(`/place/${placeId}`);

@@ -10,6 +10,7 @@ import {
   deleteDoc,
   updateDoc,
   Timestamp,
+  writeBatch,
 } from "firebase/firestore";
 import { Friend, Place, User, UserSchema } from "./api-schemas";
 import { db } from "./db";
@@ -34,14 +35,20 @@ export async function placeCreate(params: {
   const docRef = await addDoc(collection(db, "places"), place);
   return docRef.id;
 }
+
+type DocUpdateFields = "lastModifiedAt" | "lastModifiedById";
+
 export async function placeUpdate(params: {
   placeId: string;
   name: string;
   location: string;
+  userId: string;
 }): Promise<void> {
-  const place: Pick<Place, "name" | "location"> = {
+  const place: Pick<Place, "name" | "location" | DocUpdateFields> = {
     name: params.name,
     location: params.location,
+    lastModifiedAt: Timestamp.now(),
+    lastModifiedById: params.userId,
   };
   await updateDoc(doc(db, "places", params.placeId), place);
 }
@@ -85,8 +92,10 @@ export async function friendInviteCreate({
   };
   // /users/{user}/friends/{target}
   // /users/{target}/friends/{user}
-  await setDoc(doc(db, `users`, userId, `friends`, targetUserId), newFriend);
-  await setDoc(doc(db, `users`, targetUserId, `friends`, userId), newFriend);
+  await writeBatch(db)
+    .set(doc(db, `users`, userId, `friends`, targetUserId), newFriend)
+    .set(doc(db, `users`, targetUserId, `friends`, userId), newFriend)
+    .commit();
 }
 
 export async function friendInviteCancel({
@@ -98,8 +107,10 @@ export async function friendInviteCancel({
 }): Promise<void> {
   // /users/{user}/friends/{target}
   // /users/{target}/friends/{user}
-  await deleteDoc(doc(db, `users`, userId, `friends`, targetUserId));
-  await deleteDoc(doc(db, `users`, targetUserId, `friends`, userId));
+  await writeBatch(db)
+    .delete(doc(db, `users`, userId, `friends`, targetUserId))
+    .delete(doc(db, `users`, targetUserId, `friends`, userId))
+    .commit();
 }
 
 export async function friendInviteAccept({
@@ -117,8 +128,10 @@ export async function friendInviteAccept({
   };
   // /users/{user}/friends/{target}
   // /users/{target}/friends/{user}
-  await updateDoc(doc(db, `users`, userId, `friends`, targetUserId), update);
-  await updateDoc(doc(db, `users`, targetUserId, `friends`, userId), update);
+  await writeBatch(db)
+    .update(doc(db, `users`, userId, `friends`, targetUserId), update)
+    .update(doc(db, `users`, targetUserId, `friends`, userId), update)
+    .commit();
 }
 
 export async function userById({ userId }: { userId: string }): Promise<User> {
