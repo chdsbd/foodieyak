@@ -19,7 +19,6 @@ import { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { Page } from "../components/Page";
 import { useUser } from "../hooks";
-import * as query from "../fakeDb";
 import * as api from "../api";
 import { EmptyStateText } from "../components/EmptyStateText";
 import { DelayedLoader } from "../components/DelayedLoader";
@@ -64,7 +63,7 @@ export function FriendsCreateView() {
         as="form"
         onSubmit={(e) => {
           e.preventDefault();
-          api.friendLookup({ email, userId: user.data.uid }).then((res) => {
+          api.friendLookup({ email }).then((res) => {
             setLookupResults(res);
           });
         }}

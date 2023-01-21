@@ -11,11 +11,12 @@ import {
 } from "@chakra-ui/react";
 import { ThumbsDown, ThumbsUp } from "react-feather";
 import { Link, useParams } from "react-router-dom";
+import { calculateCheckinCountsByMenuItem } from "../api-transforms";
 import { DelayedLoader } from "../components/DelayedLoader";
 import { LocationImage } from "../components/LocationImage";
 import { Page } from "../components/Page";
-import { usePlace, useUser } from "../hooks";
-import { menuFromPlace } from "../transforms";
+import { useCheckins, useMenuItem, usePlace, useUser } from "../hooks";
+import { notUndefined } from "../type-guards";
 import { NoMatch } from "./NoMatchView.page";
 
 export function MenuItemDetailView() {
@@ -27,32 +28,42 @@ export function MenuItemDetailView() {
     menuItemId: string;
   } = useParams();
   const place = usePlace(placeId);
+  const menuItem = useMenuItem(placeId, menuItemId);
+  const checkIns = useCheckins(placeId);
   const currentUser = useUser();
 
-  if (currentUser.data == null || place === "loading") {
+  if (
+    currentUser.data == null ||
+    place === "loading" ||
+    menuItem === "loading" ||
+    checkIns === "loading"
+  ) {
     return (
       <Page>
         <DelayedLoader />
       </Page>
     );
   }
-  if (place === "not_found") {
+  if (place === "not_found" || menuItem === "not_found") {
     return <NoMatch />;
   }
 
-  const menuItem = menuFromPlace(place, currentUser.data.uid).find(
-    (x) => x.menuItemId === menuItemId
-  );
-  if (menuItem == null) {
-    return <NoMatch />;
-  }
-
-  const checkInsForMenuItem = place.checkIns
-    .map((x) => {
-      x.ratings = x.ratings.filter((r) => r.menuItemId === menuItemId);
-      return x;
+  const checkInsForMenuItem = checkIns
+    .map((checkin) => {
+      const rating = checkin.ratings.find((x) => x.menuItemId === menuItemId);
+      if (rating == null) {
+        return null;
+      }
+      const c = {
+        ...checkin,
+        rating: rating.rating,
+      };
+      return c;
     })
-    .filter((x) => x.ratings.length > 0);
+    .filter(notUndefined);
+
+  const checkinCountsByMenuItem =
+    calculateCheckinCountsByMenuItem(checkIns)[menuItemId];
 
   return (
     <Page>
@@ -72,9 +83,9 @@ export function MenuItemDetailView() {
         <BreadcrumbItem isCurrentPage>
           <BreadcrumbLink
             as={Link}
-            to={`/place/${place.id}/menu/${menuItem.menuItemId}`}
+            to={`/place/${place.id}/menu/${menuItem.id}`}
           >
-            {menuItem.menuItemName}
+            {menuItem.name}
           </BreadcrumbLink>
         </BreadcrumbItem>
       </Breadcrumb>
@@ -88,12 +99,12 @@ export function MenuItemDetailView() {
 
       <HStack width="100%">
         <Heading alignSelf={"start"} fontSize="2xl">
-          {menuItem.menuItemName}
+          {menuItem.name}
         </Heading>
         <Spacer />
         <ButtonGroup>
-          <Button>↑{menuItem.positiveCount}</Button>
-          <Button>↓{menuItem.negativeCount}</Button>
+          <Button>↑{checkinCountsByMenuItem?.positive ?? ""}</Button>
+          <Button>↓{checkinCountsByMenuItem?.negative ?? ""}</Button>
         </ButtonGroup>
       </HStack>
 
@@ -113,14 +124,10 @@ export function MenuItemDetailView() {
           <Spacer />
           <ButtonGroup>
             <Button>
-              <ThumbsUp
-                fill={m.ratings[0].rating > 0 ? "lightgreen" : "transparent"}
-              />
+              <ThumbsUp fill={m.rating > 0 ? "lightgreen" : "transparent"} />
             </Button>
             <Button>
-              <ThumbsDown
-                fill={m.ratings[0].rating < 0 ? "orange" : "transparent"}
-              />
+              <ThumbsDown fill={m.rating < 0 ? "orange" : "transparent"} />
             </Button>
           </ButtonGroup>
         </HStack>

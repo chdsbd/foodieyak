@@ -33,9 +33,13 @@ export function PlacesEditView() {
 
   const place = usePlace(placeId);
   useEffect(() => {
+    if (place === "loading" || place === "not_found") {
+      return;
+    }
     setName(place?.name ?? "");
     setLocation(place?.location ?? "");
-  }, [place?.name, place?.location]);
+    // @ts-expect-error null coalesing works here.
+  }, [place, place?.name, place?.location]);
   if (place === "loading") {
     return (
       <Page>

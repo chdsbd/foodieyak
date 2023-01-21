@@ -1,24 +1,9 @@
-import { HStack, Button, VStack, Input } from "@chakra-ui/react";
-import { LocationImage } from "../components/LocationImage";
-import { orderBy, first } from "lodash-es";
-import { parseISO } from "date-fns";
-
-import { formatHumanDate } from "../date";
-
+import { Button, HStack, Input, VStack } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
-import { usePlaces, useUser } from "../hooks";
-import { Page } from "../components/Page";
 import { EmptyStateText } from "../components/EmptyStateText";
-import { Place } from "../api";
-
-function lastCheckIn(place: Place): string | undefined {
-  const latestCheckIn = first(
-    orderBy(place.checkIns, (x) => x.createdAt, ["desc"])
-  );
-  if (latestCheckIn != null) {
-    return formatHumanDate(parseISO(latestCheckIn.createdAt));
-  }
-}
+import { LocationImage } from "../components/LocationImage";
+import { Page } from "../components/Page";
+import { usePlaces, useUser } from "../hooks";
 
 export function PlacesListView() {
   const user = useUser();
@@ -44,7 +29,6 @@ export function PlacesListView() {
                 <div>
                   <div>{place.name}</div>
                   <div>{place.location}</div>
-                  <div>{lastCheckIn(place)}</div>
                 </div>
               </HStack>
             ))}

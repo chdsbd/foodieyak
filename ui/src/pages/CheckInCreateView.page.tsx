@@ -20,9 +20,8 @@ import {
 import { ThumbsDown, ThumbsUp } from "react-feather";
 import { Page } from "../components/Page";
 import { Link, useParams, useHistory } from "react-router-dom";
-import { usePlace, useUser } from "../hooks";
+import { useMenuItems, usePlace, useUser } from "../hooks";
 import { NoMatch } from "./NoMatchView.page";
-import * as query from "../fakeDb";
 import { useState } from "react";
 import { groupBy } from "lodash-es";
 import { parseISO, format } from "date-fns";
@@ -41,8 +40,9 @@ function MenuItemCreator(props: {
   onSelect: (_: string) => void;
 }) {
   const user = useUser();
+  const menuItems = useMenuItems(props.place.id);
   const [selectValue, setSelectValue] = useState<string>("");
-  if (user.data == null) {
+  if (user.data == null || menuItems === "loading") {
     return (
       <Page>
         <DelayedLoader />
@@ -62,15 +62,15 @@ function MenuItemCreator(props: {
                 if (e.target.value === "new") {
                   const res = prompt("Menu Item Name?");
                   if (res) {
-                    query
-                      .menuItemCreate({
-                        placeId: props.place.id,
-                        name: res,
-                        userId: user.data.uid,
-                      })
-                      .then((menuItem) => {
-                        props.onSelect(menuItem.id);
-                      });
+                    // query
+                    //   .menuItemCreate({
+                    //     placeId: props.place.id,
+                    //     name: res,
+                    //     userId: user.data.uid,
+                    //   })
+                    //   .then((menuItem) => {
+                    //     props.onSelect(menuItem.id);
+                    //   });
                   }
                 } else {
                   props.onSelect(e.target.value);
@@ -82,9 +82,9 @@ function MenuItemCreator(props: {
                 Choose an existing menu item
               </option>
               <option value="new">Create new menu item...</option>
-              {props.place.menuItems.map((mi) => (
+              {menuItems.map((mi) => (
                 <option value={mi.id}>
-                  {mi.name} — {mi.createdBy}
+                  {mi.name} — {mi.createdById}
                 </option>
               ))}
             </Select>
@@ -147,6 +147,7 @@ export function CheckInCreateView() {
   const { placeId }: { placeId: string } = useParams();
   const place = usePlace(placeId);
   const user = useUser();
+  const menuItems = useMenuItems(placeId);
 
   const [date, setDate] = useState<string>(toISODateString(new Date()));
 
@@ -154,7 +155,7 @@ export function CheckInCreateView() {
   const [menuItemRatings, setMenutItemRatings] = useState<MenuItemRating[]>([]);
   const toast = useToast();
 
-  if (place === "loading") {
+  if (place === "loading" || menuItems === "loading") {
     return (
       <Page>
         <DelayedLoader />
@@ -165,7 +166,7 @@ export function CheckInCreateView() {
     return <NoMatch />;
   }
 
-  const menuItemMap = groupBy(place.menuItems, (x) => x.id);
+  const menuItemMap = groupBy(menuItems, (x) => x.id);
 
   return (
     <Page>
@@ -265,23 +266,23 @@ export function CheckInCreateView() {
           if (user.data == null) {
             return;
           }
-          query
-            .checkInCreate({
-              userId: user.data.uid,
-              date: date,
-              placeId: place.id,
-              reviews: menuItemRatings,
-            })
-            .then((checkIn) => {
-              history.push(`/place/${place.id}/check-in/${checkIn.id}`);
-            })
-            .catch((e) => {
-              toast({
-                title: "Problem creating checkin",
-                description: `${e.code}: ${e.message}`,
-                status: "error",
-              });
-            });
+          // query
+          //   .checkInCreate({
+          //     userId: user.data.uid,
+          //     date: date,
+          //     placeId: place.id,
+          //     reviews: menuItemRatings,
+          //   })
+          //   .then((checkIn) => {
+          //     history.push(`/place/${place.id}/check-in/${checkIn.id}`);
+          //   })
+          //   .catch((e) => {
+          //     toast({
+          //       title: "Problem creating checkin",
+          //       description: `${e.code}: ${e.message}`,
+          //       status: "error",
+          //     });
+          //   });
         }}
       >
         Create Check-In

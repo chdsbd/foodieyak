@@ -61,12 +61,10 @@ export function usePlace(placeId: string): api.Place | "loading" | "not_found" {
   return place;
 }
 
-export function useMenuItems(
-  placeId: string
-): api.PlaceMenuItem[] | "loading" | "not_found" {
-  const [state, setState] = useState<
-    api.PlaceMenuItem[] | "loading" | "not_found"
-  >("loading");
+export function useMenuItems(placeId: string): api.PlaceMenuItem[] | "loading" {
+  const [state, setState] = useState<api.PlaceMenuItem[] | "loading">(
+    "loading"
+  );
   React.useEffect(() => {
     const unsub = onSnapshot(
       query(collection(db, "places", placeId, "menuitems")),
@@ -86,12 +84,31 @@ export function useMenuItems(
   }, [placeId]);
   return state;
 }
-export function useCheckins(
-  placeId: string
-): api.PlaceCheckIn[] | "loading" | "not_found" {
+export function useMenuItem(
+  placeId: string,
+  menuItemId: string
+): api.PlaceMenuItem | "loading" | "not_found" {
   const [state, setState] = useState<
-    api.PlaceCheckIn[] | "loading" | "not_found"
+    api.PlaceMenuItem | "loading" | "not_found"
   >("loading");
+  React.useEffect(() => {
+    const unsub = onSnapshot(
+      doc(collection(db, "places", placeId, "menuitems", menuItemId)),
+      (doc) => {
+        const d: api.PlaceMenuItem = {
+          id: doc.id,
+          ...(doc.data() as Omit<api.PlaceMenuItem, "id">),
+        };
+
+        setState(d);
+      }
+    );
+    return unsub;
+  }, [placeId, menuItemId]);
+  return state;
+}
+export function useCheckins(placeId: string): api.PlaceCheckIn[] | "loading" {
+  const [state, setState] = useState<api.PlaceCheckIn[] | "loading">("loading");
   React.useEffect(() => {
     const unsub = onSnapshot(
       query(collection(db, "places", placeId, "checkins")),
@@ -108,6 +125,30 @@ export function useCheckins(
     );
     return unsub;
   }, [placeId]);
+  return state;
+}
+
+export function useCheckIn(
+  placeId: string,
+  checkInId: string
+): api.PlaceCheckIn | "loading" | "not_found" {
+  const [state, setState] = useState<
+    api.PlaceCheckIn | "loading" | "not_found"
+  >("loading");
+  React.useEffect(() => {
+    const unsub = onSnapshot(
+      doc(collection(db, "places", placeId, "checkins", checkInId)),
+      (doc) => {
+        const d: api.PlaceCheckIn = {
+          id: doc.id,
+          ...(doc.data() as Omit<api.PlaceCheckIn, "id">),
+        };
+
+        setState(d);
+      }
+    );
+    return unsub;
+  }, [placeId, checkInId]);
   return state;
 }
 

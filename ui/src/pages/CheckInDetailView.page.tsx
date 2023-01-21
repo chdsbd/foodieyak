@@ -11,33 +11,36 @@ import {
 import { ThumbsDown, ThumbsUp } from "react-feather";
 import { Link, useParams } from "react-router-dom";
 import { LocationImage } from "../components/LocationImage";
-import { usePlace } from "../hooks";
+import { useCheckIn, useMenuItems, usePlace } from "../hooks";
 import { NoMatch } from "./NoMatchView.page";
-import { groupBy } from "lodash-es";
 import { Page } from "../components/Page";
 import { DelayedLoader } from "../components/DelayedLoader";
+import { PlaceMenuItem } from "../api";
 
 export function CheckInDetailView() {
   const { placeId, checkInId }: { placeId: string; checkInId: string } =
     useParams();
   const place = usePlace(placeId);
+  const checkIn = useCheckIn(placeId, checkInId);
+  const menuItems = useMenuItems(placeId);
 
-  if (place === "loading") {
+  if (place === "loading" || checkIn === "loading" || menuItems === "loading") {
     return (
       <Page>
         <DelayedLoader />
       </Page>
     );
   }
-  if (place === "not_found") {
+  if (place === "not_found" || checkIn === "not_found") {
     return <NoMatch />;
   }
 
-  const checkIn = place.checkIns.find((x) => x.id === checkInId);
-  if (checkIn == null) {
-    return <NoMatch />;
-  }
-  const menuItemMap = groupBy(place.menuItems, (x) => x.id);
+  const menuItemMap = menuItems.reduce<
+    Record<PlaceMenuItem["id"], PlaceMenuItem | undefined>
+  >((acc, val) => {
+    acc[val.id] = val;
+    return acc;
+  }, {});
 
   return (
     <Page>
@@ -78,7 +81,7 @@ export function CheckInDetailView() {
       </Heading>
       {checkIn.ratings.map((m) => (
         <HStack width="100%">
-          <div>{menuItemMap[m.menuItemId][0].name}</div>
+          <div>{menuItemMap[m.menuItemId]?.name}</div>
           <Spacer />
 
           {m.rating > 0 ? (

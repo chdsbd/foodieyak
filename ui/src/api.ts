@@ -32,7 +32,7 @@ export type Place = {
 export type PlaceMenuItem = {
   id: string;
   name: string;
-  createdBy: string;
+  createdById: string;
 };
 
 export type CheckInRating = {
@@ -89,18 +89,15 @@ export async function placeDelete(params: { placeId: string }): Promise<void> {
 
 export type UserFoodieYak = {
   id: string;
-  displayName: string;
+  displayName: string | null;
   email: string;
   emailLookupField: string;
-  createdAt: string;
 };
 
 export async function friendLookup({
   email,
-  userId,
 }: {
   email: string;
-  userId: string;
 }): Promise<UserFoodieYak[]> {
   const matchingDocs = await getDocs(
     query(
@@ -109,7 +106,9 @@ export async function friendLookup({
     )
   );
   const results: UserFoodieYak[] = [];
-  matchingDocs.forEach((doc) => [results.push({ ...doc.data(), id: doc.id })]);
+  matchingDocs.forEach((doc) => [
+    results.push({ ...doc.data(), id: doc.id } as UserFoodieYak),
+  ]);
   return results;
 }
 
@@ -168,13 +167,15 @@ export async function friendInviteAccept({
   });
 }
 
+type DbUser = { id: string; email: string };
+
 export async function userById({
   userId,
 }: {
   userId: string;
-}): Promise<{ id: string; email: string }> {
+}): Promise<DbUser> {
   // /users/{user}/friends/{target}
   // /users/{target}/friends/{user}
   const res = await getDoc(doc(db, "users", userId));
-  return { id: res.id, ...res.data() };
+  return { id: res.id, ...res.data() } as DbUser;
 }

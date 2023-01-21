@@ -6,7 +6,6 @@ import {
   Button,
   Text,
   ButtonGroup,
-  Flex,
   HStack,
   Spacer,
   Tab,
@@ -19,30 +18,25 @@ import {
 import { Link, useParams } from "react-router-dom";
 import { LocationImage } from "../components/LocationImage";
 import { Page } from "../components/Page";
-import {
-  useCheckins,
-  useFriends,
-  useMenuItems,
-  usePlace,
-  useUser,
-} from "../hooks";
-import { PlaceCheckIn } from "../fakeDb";
+import { useCheckins, useMenuItems, usePlace, useUser } from "../hooks";
 import { NoMatch } from "./NoMatchView.page";
-import { menuFromPlace } from "../transforms";
 import { EmptyStateText } from "../components/EmptyStateText";
-import { useEffect, useRef, useState } from "react";
 import { DelayedLoader } from "../components/DelayedLoader";
+import { CheckInRating, PlaceMenuItem } from "../api";
+import orderBy from "lodash-es/orderBy";
+import first from "lodash-es/first";
+import { calculateCheckinCountsByMenuItem } from "../api-transforms";
 
-function Rating(props: { ratings: PlaceCheckIn["ratings"] }) {
-  const total = props.ratings.length;
-  const positive = props.ratings.filter((x) => x.rating > 0).length;
-  const negative = props.ratings.filter((x) => x.rating < 0).length;
-  return (
-    <Flex>
-      {total} reviews ({positive}↑ {negative}↓)
-    </Flex>
-  );
-}
+// function Rating(props: { ratings: PlaceCheckIn["ratings"] }) {
+//   const total = props.ratings.length;
+//   const positive = props.ratings.filter((x) => x.rating > 0).length;
+//   const negative = props.ratings.filter((x) => x.rating < 0).length;
+//   return (
+//     <Flex>
+//       {total} reviews ({positive}↑ {negative}↓)
+//     </Flex>
+//   );
+// }
 
 export function PlacesDetailView() {
   const { placeId }: { placeId: string } = useParams();
@@ -50,7 +44,6 @@ export function PlacesDetailView() {
   const menuitems = useMenuItems(placeId);
   const checkins = useCheckins(placeId);
   const user = useUser();
-  const friends = useFriends(user.data?.uid ?? "");
   if (
     user.data == null ||
     place === "loading" ||
@@ -66,6 +59,29 @@ export function PlacesDetailView() {
   if (place === "not_found") {
     return <NoMatch />;
   }
+
+  function ratingForUser(m: PlaceMenuItem, userId: string): -1 | 0 | 1 {
+    if (checkins === "loading") {
+      return 0;
+    }
+
+    const checkinRatings: { rating: CheckInRating; createdAt: string }[] = [];
+    for (const checkin of checkins) {
+      for (const rating of checkin.ratings) {
+        if (rating.menuItemId === m.id) {
+          checkinRatings.push({ rating, createdAt: checkin.createdAt });
+        }
+      }
+    }
+
+    const latestCheckin = first(
+      orderBy(checkinRatings, (x) => x.createdAt, ["desc"])
+    );
+    return latestCheckin?.rating.rating ?? 0;
+  }
+
+  const countsByMenuItem = calculateCheckinCountsByMenuItem(checkins);
+
   return (
     <Page>
       <Breadcrumb alignSelf={"start"}>
@@ -125,24 +141,28 @@ export function PlacesDetailView() {
               <EmptyStateText>No Menu Items</EmptyStateText>
             )}
             {menuitems.map((m) => (
-              <HStack
-                w="full"
-                as={Link}
-                to={`/place/${place.id}/menu/${m.menuItemId}`}
-              >
+              <HStack w="full" as={Link} to={`/place/${place.id}/menu/${m.id}`}>
                 <LocationImage />
-                <Text fontSize={"xl"}>{m.menuItemName}</Text>
+                <Text fontSize={"xl"}>{m.name}</Text>
                 <Spacer />
                 <ButtonGroup>
                   <Button
-                    colorScheme={(m.selfRating ?? 0) > 0 ? "green" : undefined}
+                    colorScheme={
+                      (ratingForUser(m, user.data.uid) ?? 0) > 0
+                        ? "green"
+                        : undefined
+                    }
                   >
-                    ↑{m.positiveCount}
+                    ↑{countsByMenuItem[m.id]?.positive}
                   </Button>
                   <Button
-                    colorScheme={(m.selfRating ?? 0) < 0 ? "red" : undefined}
+                    colorScheme={
+                      (ratingForUser(m, user.data.uid) ?? 0) < 0
+                        ? "red"
+                        : undefined
+                    }
                   >
-                    ↓{m.negativeCount}
+                    ↓{countsByMenuItem[m.id]?.negative}
                   </Button>
                 </ButtonGroup>
               </HStack>
@@ -165,16 +185,11 @@ export function PlacesDetailView() {
               >
                 <LocationImage />
                 <VStack align={"start"}>
-                  <div>
-                    {c.userId === user.data.uid
-                      ? user.data.displayName || user.data.email
-                      : friends.find((x) => x.id === c.userId)?.email ??
-                        "Unknown User"}
-                  </div>
+                  <div>{c.userId}</div>
                   <div>{c.createdAt}</div>
                 </VStack>
                 <Spacer />
-                <Rating ratings={c.ratings} />
+                {/* <Rating ratings={c.ratings} /> */}
               </HStack>
             ))}
           </TabPanel>
