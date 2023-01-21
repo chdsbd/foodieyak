@@ -131,10 +131,11 @@ export function useCheckIn(placeId: string, checkInId: string) {
 
 export function usePlaces(userId: string | undefined) {
   return useQuery(
-    query(
-      collection(db, "places"),
-      where("viewerIds", "array-contains", userId),
-    ),
+    !!userId &&
+      query(
+        collection(db, "places"),
+        where("viewerIds", "array-contains", userId),
+      ),
     PlaceSchema,
   )
 }
