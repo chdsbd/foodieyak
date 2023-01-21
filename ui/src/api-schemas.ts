@@ -1,5 +1,6 @@
 import { Timestamp } from "firebase/firestore";
 import { z } from "zod";
+
 const TimestampSchema = z
   .object({
     seconds: z.number(),

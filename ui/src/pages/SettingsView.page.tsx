@@ -8,6 +8,7 @@ import {
 import { getAuth, signOut } from "firebase/auth";
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
+
 import { Page } from "../components/Page";
 import { useUser } from "../hooks";
 

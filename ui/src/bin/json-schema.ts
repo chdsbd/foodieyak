@@ -1,6 +1,6 @@
 import { z } from "zod";
 // import zodToJsonSchema from "zod-to-json-schema";
-import { zodToTs, createTypeAlias, printNode } from "zod-to-ts";
+import { createTypeAlias, printNode,zodToTs } from "zod-to-ts";
 
 import {
   FriendSchema,

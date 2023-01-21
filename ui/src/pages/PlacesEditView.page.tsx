@@ -14,10 +14,10 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
-import { Page } from "../components/Page";
-import { usePlace, useUser } from "../hooks";
 
 import * as api from "../api";
+import { Page } from "../components/Page";
+import { usePlace, useUser } from "../hooks";
 import { NoMatch } from "./NoMatchView.page";
 
 export function PlacesEditView() {
@@ -103,7 +103,7 @@ export function PlacesEditView() {
           <FormLabel>Name</FormLabel>
           <Input
             type="text"
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => { setName(e.target.value); }}
             value={name}
           />
         </FormControl>
@@ -112,7 +112,7 @@ export function PlacesEditView() {
           <FormLabel>Location</FormLabel>
           <Input
             type="text"
-            onChange={(e) => setLocation(e.target.value)}
+            onChange={(e) => { setLocation(e.target.value); }}
             value={location}
           />
         </FormControl>

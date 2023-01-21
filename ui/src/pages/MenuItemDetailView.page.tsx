@@ -11,6 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { ThumbsDown, ThumbsUp } from "react-feather";
 import { Link, useParams } from "react-router-dom";
+
 import { calculateCheckinCountsByMenuItem } from "../api-transforms";
 import { DelayedLoader } from "../components/DelayedLoader";
 import { LocationImage } from "../components/LocationImage";

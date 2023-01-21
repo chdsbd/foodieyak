@@ -1,7 +1,8 @@
+import * as Sentry from "@sentry/browser";
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
+import { collection, doc,onSnapshot, query, where } from "firebase/firestore";
 import React, { useState } from "react";
-import { db } from "./db";
-import { collection, query, where, onSnapshot, doc } from "firebase/firestore";
+
 import {
   Friend,
   FriendSchema,
@@ -12,7 +13,7 @@ import {
   PlaceMenuItemSchema,
   PlaceSchema,
 } from "./api-schemas";
-import * as Sentry from "@sentry/browser";
+import { db } from "./db";
 
 export function useIsAuthed(): "authed" | "unauthed" | "loading" {
   const auth = getAuth();

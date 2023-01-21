@@ -1,4 +1,5 @@
 import { Container } from "@chakra-ui/react";
+
 import { NavBar } from "../components/NavBar";
 import { Page } from "../components/Page";
 

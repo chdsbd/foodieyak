@@ -1,5 +1,6 @@
 import { Timestamp } from "firebase/firestore";
 import { countBy, orderBy, uniqBy } from "lodash-es";
+
 import { PlaceCheckIn, PlaceMenuItem } from "./api-schemas";
 
 type CountsByMenuItem = Record<

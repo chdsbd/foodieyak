@@ -1,14 +1,15 @@
 import {
   Button,
-  HStack,
-  Spacer,
   FormControl,
   FormLabel,
-  Input,
   Heading,
+  HStack,
+  Input,
+  Spacer,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+
 import { AuthForm } from "../components/AuthForm";
 
 export function AuthPasswordReset() {
@@ -31,7 +32,7 @@ export function AuthPasswordReset() {
         <Input
           type="password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => { setPassword(e.target.value); }}
         />
       </FormControl>
       <FormControl>
@@ -39,7 +40,7 @@ export function AuthPasswordReset() {
         <Input
           type="password"
           value={passwordAgain}
-          onChange={(e) => setPasswordAgain(e.target.value)}
+          onChange={(e) => { setPasswordAgain(e.target.value); }}
         />
       </FormControl>
       <HStack width="100%">

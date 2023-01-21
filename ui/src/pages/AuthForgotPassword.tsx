@@ -1,17 +1,17 @@
 import {
   Button,
-  HStack,
-  Spacer,
   FormControl,
   FormLabel,
-  Input,
   Heading,
+  HStack,
+  Input,
+  Spacer,
   useToast,
 } from "@chakra-ui/react";
+import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 import { AuthForm } from "../components/AuthForm";
 
 export function AuthForgotPassword() {
@@ -57,7 +57,7 @@ export function AuthForgotPassword() {
         <Input
           type="email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => { setEmail(e.target.value); }}
         />
       </FormControl>
       <HStack width="100%">

@@ -1,18 +1,19 @@
 import {
   Button,
-  HStack,
-  Spacer,
   FormControl,
   FormLabel,
+  HStack,
   Input,
+  Spacer,
   Tab,
   TabList,
   Tabs,
   useToast,
 } from "@chakra-ui/react";
-import { Link, useHistory } from "react-router-dom";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
+import { Link, useHistory } from "react-router-dom";
+
 import { AuthForm } from "../components/AuthForm";
 
 export function AuthLoginView() {
@@ -62,7 +63,7 @@ export function AuthLoginView() {
         <Input
           type="email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => { setEmail(e.target.value); }}
         />
       </FormControl>
       <FormControl>
@@ -70,7 +71,7 @@ export function AuthLoginView() {
         <Input
           type="password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => { setPassword(e.target.value); }}
         />
       </FormControl>
       <HStack width="100%">

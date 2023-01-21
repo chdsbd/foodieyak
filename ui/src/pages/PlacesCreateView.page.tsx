@@ -11,10 +11,10 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
-import { Page } from "../components/Page";
-import { useFriends, useUser } from "../hooks";
 
 import * as api from "../api";
+import { Page } from "../components/Page";
+import { useFriends, useUser } from "../hooks";
 
 export function PlacesCreateView() {
   const [name, setName] = useState("");
@@ -78,7 +78,7 @@ export function PlacesCreateView() {
           <FormLabel>Name</FormLabel>
           <Input
             type="text"
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => { setName(e.target.value); }}
             value={name}
           />
         </FormControl>
@@ -87,7 +87,7 @@ export function PlacesCreateView() {
           <FormLabel>Location</FormLabel>
           <Input
             type="text"
-            onChange={(e) => setLocation(e.target.value)}
+            onChange={(e) => { setLocation(e.target.value); }}
             value={location}
           />
         </FormControl>

@@ -1,10 +1,12 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App";
-import { ChakraProvider } from "@chakra-ui/react";
-import { extendTheme } from "@chakra-ui/react";
+import { ChakraProvider , extendTheme } from "@chakra-ui/react";
 import * as Sentry from "@sentry/browser";
 import { BrowserTracing } from "@sentry/tracing";
+import React from "react";
+import ReactDOM from "react-dom/client";
+
+import App from "./App";
+// todo: rework how we initialize this
+import { db } from "./db";
 
 Sentry.init({
   // TODO: move to env var
@@ -16,9 +18,6 @@ Sentry.init({
     return event;
   },
 });
-
-// todo: rework how we initialize this
-import { db } from "./db";
 
 console.log(db.app.name);
 

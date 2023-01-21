@@ -1,11 +1,11 @@
 import { Container } from "@chakra-ui/react";
-
 import {
   BrowserRouter as Router,
-  Switch,
-  Route,
   Redirect,
+  Route,
+  Switch,
 } from "react-router-dom";
+
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { useIsAuthed } from "./hooks";
 import { AuthForgotPassword } from "./pages/AuthForgotPassword";

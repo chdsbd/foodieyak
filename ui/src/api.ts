@@ -1,16 +1,17 @@
 import {
   addDoc,
-  getDoc,
   collection,
-  query,
-  where,
-  getDocs,
-  doc,
   deleteDoc,
-  updateDoc,
+  doc,
+  getDoc,
+  getDocs,
+  query,
   Timestamp,
+  updateDoc,
+  where,
   writeBatch,
 } from "firebase/firestore";
+
 import { Friend, Place, User, UserSchema } from "./api-schemas";
 import { db } from "./db";
 

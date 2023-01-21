@@ -3,7 +3,7 @@ name: Javascript
 on: [push, pull_request]
 
 jobs:
-  typescript:
+  typecheck:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -18,7 +18,7 @@ jobs:
         working-directory: "./ui"
         run: ./s/typecheck
 
-  eslint:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -31,9 +31,9 @@ jobs:
         run: yarn install
       - name: Lint
         working-directory: "./ui"
-        run: ./s/eslint
+        run: ./s/lint
 
-  prettier:
+  fmt:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

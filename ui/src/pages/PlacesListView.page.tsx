@@ -1,6 +1,7 @@
 import { Button, HStack, Input, VStack } from "@chakra-ui/react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+
 import { EmptyStateText } from "../components/EmptyStateText";
 import { LocationImage } from "../components/LocationImage";
 import { Page } from "../components/Page";

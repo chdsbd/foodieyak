@@ -1,22 +1,23 @@
 import {
-  VStack,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
+  Button,
   Heading,
   HStack,
   Spacer,
-  Button,
   useToast,
+  VStack,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { EmptyStateText } from "../components/EmptyStateText";
-import { Page } from "../components/Page";
-import { useFriends, useUser } from "../hooks";
+
 import * as api from "../api";
 import { DelayedLoader } from "../components/DelayedLoader";
+import { EmptyStateText } from "../components/EmptyStateText";
+import { Page } from "../components/Page";
 import { formatHumanDateTime } from "../date";
+import { useFriends, useUser } from "../hooks";
 
 function UserIdToName({ userId }: { userId: string }) {
   const [name, setName] = useState<{ name: string } | "loading">("loading");

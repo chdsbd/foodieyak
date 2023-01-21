@@ -1,5 +1,4 @@
 import {
-  Text,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
@@ -7,16 +6,18 @@ import {
   Heading,
   HStack,
   Spacer,
+  Text,
 } from "@chakra-ui/react";
 import { ThumbsDown, ThumbsUp } from "react-feather";
 import { Link, useParams } from "react-router-dom";
+
+import { PlaceMenuItem } from "../api-schemas";
+import { DelayedLoader } from "../components/DelayedLoader";
 import { LocationImage } from "../components/LocationImage";
+import { Page } from "../components/Page";
+import { formatHumanDate } from "../date";
 import { useCheckIn, useMenuItems, usePlace } from "../hooks";
 import { NoMatch } from "./NoMatchView.page";
-import { Page } from "../components/Page";
-import { DelayedLoader } from "../components/DelayedLoader";
-import { PlaceMenuItem } from "../api-schemas";
-import { formatHumanDate } from "../date";
 
 export function CheckInDetailView() {
   const { placeId, checkInId }: { placeId: string; checkInId: string } =

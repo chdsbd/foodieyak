@@ -1,4 +1,5 @@
 import { VStack } from "@chakra-ui/react";
+
 import { NavBar } from "./NavBar";
 
 export function Page({

@@ -4,7 +4,6 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   Button,
-  Text,
   ButtonGroup,
   HStack,
   Spacer,
@@ -13,21 +12,23 @@ import {
   TabPanel,
   TabPanels,
   Tabs,
+  Text,
   VStack,
 } from "@chakra-ui/react";
+import { Timestamp } from "firebase/firestore";
+import first from "lodash-es/first";
+import orderBy from "lodash-es/orderBy";
 import { Link, useParams } from "react-router-dom";
+
+import { CheckInRating, PlaceMenuItem } from "../api-schemas";
+import { calculateCheckinCountsByMenuItem } from "../api-transforms";
+import { DelayedLoader } from "../components/DelayedLoader";
+import { EmptyStateText } from "../components/EmptyStateText";
 import { LocationImage } from "../components/LocationImage";
 import { Page } from "../components/Page";
+import { formatHumanDate } from "../date";
 import { useCheckins, useMenuItems, usePlace, useUser } from "../hooks";
 import { NoMatch } from "./NoMatchView.page";
-import { EmptyStateText } from "../components/EmptyStateText";
-import { DelayedLoader } from "../components/DelayedLoader";
-import orderBy from "lodash-es/orderBy";
-import first from "lodash-es/first";
-import { calculateCheckinCountsByMenuItem } from "../api-transforms";
-import { CheckInRating, PlaceMenuItem } from "../api-schemas";
-import { formatHumanDate } from "../date";
-import { Timestamp } from "firebase/firestore";
 
 // function Rating(props: { ratings: PlaceCheckIn["ratings"] }) {
 //   const total = props.ratings.length;

@@ -1,4 +1,4 @@
-import { Button, Link, Heading, HStack, VStack } from "@chakra-ui/react";
+import { Button, Heading, HStack, Link, VStack } from "@chakra-ui/react";
 import * as Sentry from "@sentry/browser";
 import { Component } from "react";
 
