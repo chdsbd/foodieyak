@@ -2,7 +2,17 @@ import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 import React, { useState } from "react";
 import { db } from "./db";
 import { collection, query, where, onSnapshot, doc } from "firebase/firestore";
-import * as api from "./api";
+import {
+  Friend,
+  FriendSchema,
+  Place,
+  PlaceCheckIn,
+  PlaceCheckInSchema,
+  PlaceMenuItem,
+  PlaceMenuItemSchema,
+  PlaceSchema,
+} from "./api-schemas";
+import * as Sentry from "@sentry/browser";
 
 export function useIsAuthed(): "authed" | "unauthed" | "loading" {
   const auth = getAuth();
@@ -44,16 +54,16 @@ export function useUser(): QueryResult {
   return state;
 }
 
-export function usePlace(placeId: string): api.Place | "loading" | "not_found" {
-  const [place, setPlace] = useState<api.Place | "loading" | "not_found">(
+export function usePlace(placeId: string): Place | "loading" | "not_found" {
+  const [place, setPlace] = useState<Place | "loading" | "not_found">(
     "loading"
   );
   React.useEffect(() => {
     const unsub = onSnapshot(doc(db, "places", placeId), (doc) => {
-      const place: api.Place = {
+      const place = PlaceSchema.parse({
         id: doc.id,
-        ...(doc.data() as Omit<api.Place, "id">),
-      };
+        ...doc.data(),
+      });
       setPlace(place);
     });
     return unsub;
@@ -61,20 +71,18 @@ export function usePlace(placeId: string): api.Place | "loading" | "not_found" {
   return place;
 }
 
-export function useMenuItems(placeId: string): api.PlaceMenuItem[] | "loading" {
-  const [state, setState] = useState<api.PlaceMenuItem[] | "loading">(
-    "loading"
-  );
+export function useMenuItems(placeId: string): PlaceMenuItem[] | "loading" {
+  const [state, setState] = useState<PlaceMenuItem[] | "loading">("loading");
   React.useEffect(() => {
     const unsub = onSnapshot(
       query(collection(db, "places", placeId, "menuitems")),
       (doc) => {
-        const docs: api.PlaceMenuItem[] = [];
+        const docs: PlaceMenuItem[] = [];
         doc.forEach((doc) => {
-          const d: api.PlaceMenuItem = {
+          const d = PlaceMenuItemSchema.parse({
             id: doc.id,
-            ...(doc.data() as Omit<api.PlaceMenuItem, "id">),
-          };
+            ...doc.data(),
+          });
           docs.push(d);
         });
         setState(docs);
@@ -87,18 +95,18 @@ export function useMenuItems(placeId: string): api.PlaceMenuItem[] | "loading" {
 export function useMenuItem(
   placeId: string,
   menuItemId: string
-): api.PlaceMenuItem | "loading" | "not_found" {
-  const [state, setState] = useState<
-    api.PlaceMenuItem | "loading" | "not_found"
-  >("loading");
+): PlaceMenuItem | "loading" | "not_found" {
+  const [state, setState] = useState<PlaceMenuItem | "loading" | "not_found">(
+    "loading"
+  );
   React.useEffect(() => {
     const unsub = onSnapshot(
       doc(collection(db, "places", placeId, "menuitems", menuItemId)),
       (doc) => {
-        const d: api.PlaceMenuItem = {
+        const d = PlaceMenuItemSchema.parse({
           id: doc.id,
-          ...(doc.data() as Omit<api.PlaceMenuItem, "id">),
-        };
+          ...doc.data(),
+        });
 
         setState(d);
       }
@@ -107,18 +115,20 @@ export function useMenuItem(
   }, [placeId, menuItemId]);
   return state;
 }
-export function useCheckins(placeId: string): api.PlaceCheckIn[] | "loading" {
-  const [state, setState] = useState<api.PlaceCheckIn[] | "loading">("loading");
+export function useCheckins(placeId: string): PlaceCheckIn[] | "loading" {
+  const [state, setState] = useState<PlaceCheckIn[] | "loading">("loading");
   React.useEffect(() => {
     const unsub = onSnapshot(
       query(collection(db, "places", placeId, "checkins")),
       (doc) => {
-        const docs: api.PlaceCheckIn[] = [];
+        const docs: PlaceCheckIn[] = [];
         doc.forEach((doc) => {
-          docs.push({
-            id: doc.id,
-            ...(doc.data() as Omit<api.PlaceCheckIn, "id">),
-          });
+          docs.push(
+            PlaceCheckInSchema.parse({
+              id: doc.id,
+              ...doc.data(),
+            })
+          );
         });
         setState(docs);
       }
@@ -131,18 +141,18 @@ export function useCheckins(placeId: string): api.PlaceCheckIn[] | "loading" {
 export function useCheckIn(
   placeId: string,
   checkInId: string
-): api.PlaceCheckIn | "loading" | "not_found" {
-  const [state, setState] = useState<
-    api.PlaceCheckIn | "loading" | "not_found"
-  >("loading");
+): PlaceCheckIn | "loading" | "not_found" {
+  const [state, setState] = useState<PlaceCheckIn | "loading" | "not_found">(
+    "loading"
+  );
   React.useEffect(() => {
     const unsub = onSnapshot(
       doc(collection(db, "places", placeId, "checkins", checkInId)),
       (doc) => {
-        const d: api.PlaceCheckIn = {
+        const d = PlaceCheckInSchema.parse({
           id: doc.id,
-          ...(doc.data() as Omit<api.PlaceCheckIn, "id">),
-        };
+          ...doc.data(),
+        });
 
         setState(d);
       }
@@ -153,7 +163,7 @@ export function useCheckIn(
 }
 
 export function usePlaces(userId: string | undefined) {
-  const [places, setPlaces] = useState<api.Place[] | "loading">("loading");
+  const [places, setPlaces] = useState<Place[] | "loading">("loading");
   React.useEffect(() => {
     if (userId == null) {
       return;
@@ -163,9 +173,10 @@ export function usePlaces(userId: string | undefined) {
       where("viewerIds", "array-contains", userId)
     );
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const places: api.Place[] = [];
+      const places: Place[] = [];
+
       querySnapshot.forEach((doc) => {
-        places.push({ id: doc.id, ...(doc.data() as Omit<api.Place, "id">) });
+        places.push(PlaceSchema.parse({ id: doc.id, ...doc.data() }));
       });
       setPlaces(places);
     });
@@ -177,13 +188,6 @@ export function usePlaces(userId: string | undefined) {
 }
 
 export function useFriends(userId: string | null) {
-  type Friend = {
-    accepted: boolean;
-    acceptedAt: Date | null;
-    createdById: string;
-    id: string;
-    invitedAt: Date;
-  };
   const [state, setState] = useState<Friend[]>([]);
   React.useEffect(() => {
     if (!userId) {
@@ -193,7 +197,13 @@ export function useFriends(userId: string | null) {
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const friends: Friend[] = [];
       querySnapshot.forEach((doc) => {
-        friends.push({ id: doc.id, ...(doc.data() as Omit<Friend, "id">) });
+        const r = FriendSchema.safeParse({ id: doc.id, ...doc.data() });
+        if (!r.success) {
+          console.log(r.error, doc.data());
+          Sentry.captureException(r.error);
+        } else {
+          friends.push(r.data);
+        }
       });
       setState(friends);
     });

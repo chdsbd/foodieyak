@@ -22,15 +22,16 @@ import { useUser } from "../hooks";
 import * as api from "../api";
 import { EmptyStateText } from "../components/EmptyStateText";
 import { DelayedLoader } from "../components/DelayedLoader";
+import { User } from "../api-schemas";
 
 export function FriendsCreateView() {
   const toast = useToast();
   const user = useUser();
   const history = useHistory();
   const [email, setEmail] = useState("");
-  const [lookupResults, setLookupResults] = useState<
-    api.UserFoodieYak[] | "initial"
-  >("initial");
+  const [lookupResults, setLookupResults] = useState<User[] | "initial">(
+    "initial"
+  );
   if (user.data == null) {
     return (
       <Page>

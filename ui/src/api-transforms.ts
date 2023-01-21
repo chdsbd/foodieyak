@@ -1,5 +1,6 @@
+import { Timestamp } from "firebase/firestore";
 import { countBy, orderBy, uniqBy } from "lodash-es";
-import { PlaceCheckIn, PlaceMenuItem } from "./api";
+import { PlaceCheckIn, PlaceMenuItem } from "./api-schemas";
 
 type CountsByMenuItem = Record<
   PlaceMenuItem["id"],
@@ -11,7 +12,7 @@ export function calculateCheckinCountsByMenuItem(
 ): CountsByMenuItem {
   const checkinRatings: Record<
     PlaceMenuItem["id"],
-    { userId: string; rating: number; createdAt: string }[] | undefined
+    { userId: string; rating: number; createdAt: Timestamp }[] | undefined
   > = {};
   for (const checkin of checkins) {
     for (const rating of checkin.ratings) {
@@ -20,7 +21,7 @@ export function calculateCheckinCountsByMenuItem(
       checkinRatings[rating.menuItemId]?.push({
         createdAt: checkin.createdAt,
         rating: rating.rating,
-        userId: checkin.userId,
+        userId: checkin.createdById,
       });
     }
   }

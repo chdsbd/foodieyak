@@ -15,7 +15,8 @@ import { useCheckIn, useMenuItems, usePlace } from "../hooks";
 import { NoMatch } from "./NoMatchView.page";
 import { Page } from "../components/Page";
 import { DelayedLoader } from "../components/DelayedLoader";
-import { PlaceMenuItem } from "../api";
+import { PlaceMenuItem } from "../api-schemas";
+import { formatHumanDate } from "../date";
 
 export function CheckInDetailView() {
   const { placeId, checkInId }: { placeId: string; checkInId: string } =
@@ -62,7 +63,7 @@ export function CheckInDetailView() {
             as={Link}
             to={`/place/${place.id}/check-in/${checkIn.id}`}
           >
-            {checkIn.createdAt}
+            {formatHumanDate(checkIn.createdAt)}
           </BreadcrumbLink>
         </BreadcrumbItem>
       </Breadcrumb>
@@ -74,7 +75,7 @@ export function CheckInDetailView() {
         </div>
       </HStack>
 
-      <Text alignSelf={"start"}>{checkIn.createdAt}</Text>
+      <Text alignSelf={"start"}>{formatHumanDate(checkIn.createdAt)}</Text>
 
       <Heading as="h2" size="md" alignSelf={"start"}>
         Menu Items

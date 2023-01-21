@@ -15,6 +15,7 @@ import { calculateCheckinCountsByMenuItem } from "../api-transforms";
 import { DelayedLoader } from "../components/DelayedLoader";
 import { LocationImage } from "../components/LocationImage";
 import { Page } from "../components/Page";
+import { formatHumanDate } from "../date";
 import { useCheckins, useMenuItem, usePlace, useUser } from "../hooks";
 import { notUndefined } from "../type-guards";
 import { NoMatch } from "./NoMatchView.page";
@@ -117,8 +118,8 @@ export function MenuItemDetailView() {
           <HStack>
             <LocationImage />
             <VStack align="start">
-              <div>{m.userId}</div>
-              <div>{m.createdAt}</div>
+              <div>{m.createdById}</div>
+              <div>{formatHumanDate(m.createdAt)}</div>
             </VStack>
           </HStack>
           <Spacer />

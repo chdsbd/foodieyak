@@ -5,6 +5,7 @@ import isAfter from "date-fns/isAfter";
 import min from "date-fns/min";
 import parseISO from "date-fns/parseISO";
 import subDays from "date-fns/subDays";
+import { Timestamp } from "firebase/firestore";
 
 export function toISODateString(date: Date | string | number): string {
   // Note(sbdchd): parseISO("2019-11-09") !== new Date("2019-11-09")
@@ -71,6 +72,9 @@ function formatHumanDateRaw(date: Date, now: Date): string {
   return formatAbsoluteDate(date, { includeYear: true });
 }
 
-export function formatHumanDate(date: Date): string {
+export function formatHumanDate(date: Date | Timestamp): string {
+  if (date instanceof Timestamp) {
+    date = date.toDate();
+  }
   return formatHumanDateRaw(date, new Date());
 }

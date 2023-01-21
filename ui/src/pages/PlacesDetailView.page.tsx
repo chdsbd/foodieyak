@@ -22,10 +22,12 @@ import { useCheckins, useMenuItems, usePlace, useUser } from "../hooks";
 import { NoMatch } from "./NoMatchView.page";
 import { EmptyStateText } from "../components/EmptyStateText";
 import { DelayedLoader } from "../components/DelayedLoader";
-import { CheckInRating, PlaceMenuItem } from "../api";
 import orderBy from "lodash-es/orderBy";
 import first from "lodash-es/first";
 import { calculateCheckinCountsByMenuItem } from "../api-transforms";
+import { CheckInRating, PlaceMenuItem } from "../api-schemas";
+import { formatHumanDate } from "../date";
+import { Timestamp } from "firebase/firestore";
 
 // function Rating(props: { ratings: PlaceCheckIn["ratings"] }) {
 //   const total = props.ratings.length;
@@ -65,7 +67,8 @@ export function PlacesDetailView() {
       return 0;
     }
 
-    const checkinRatings: { rating: CheckInRating; createdAt: string }[] = [];
+    const checkinRatings: { rating: CheckInRating; createdAt: Timestamp }[] =
+      [];
     for (const checkin of checkins) {
       for (const rating of checkin.ratings) {
         if (rating.menuItemId === m.id) {
@@ -185,8 +188,8 @@ export function PlacesDetailView() {
               >
                 <LocationImage />
                 <VStack align={"start"}>
-                  <div>{c.userId}</div>
-                  <div>{c.createdAt}</div>
+                  <div>{c.createdById}</div>
+                  <div>{formatHumanDate(c.createdAt)}</div>
                 </VStack>
                 <Spacer />
                 {/* <Rating ratings={c.ratings} /> */}

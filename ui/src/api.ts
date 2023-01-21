@@ -9,51 +9,10 @@ import {
   setDoc,
   deleteDoc,
   updateDoc,
+  Timestamp,
 } from "firebase/firestore";
+import { Friend, Place, User, UserSchema } from "./api-schemas";
 import { db } from "./db";
-
-export type User = {
-  id: string;
-  email: string;
-  name?: string;
-  friends: User[];
-};
-
-export type Place = {
-  id: string;
-  name: string;
-  location: string;
-  createdById: User["id"];
-  viewerIds: User["id"][];
-  menuItemCount: number | undefined;
-  checkInCount: number | undefined;
-};
-
-export type PlaceMenuItem = {
-  id: string;
-  name: string;
-  createdById: string;
-};
-
-export type CheckInRating = {
-  id: string;
-  menuItemId: string;
-  rating: 1 | -1;
-};
-
-export type PlaceCheckIn = {
-  id: string;
-  userId: User["id"];
-  createdAt: string;
-  ratings: CheckInRating[];
-};
-
-export type UserInvite = {
-  id: string;
-  invitedByUserId: User["id"];
-  inviteeEmailAddress: string;
-  createdAt: string;
-};
 
 export async function placeCreate(params: {
   name: string;
@@ -65,6 +24,9 @@ export async function placeCreate(params: {
     name: params.name,
     location: params.location,
     createdById: params.userId,
+    createdAt: Timestamp.now(),
+    lastModifiedAt: null,
+    lastModifiedById: null,
     viewerIds: [params.userId, ...params.friendIds],
     checkInCount: 0,
     menuItemCount: 0,
@@ -87,27 +49,20 @@ export async function placeDelete(params: { placeId: string }): Promise<void> {
   await deleteDoc(doc(db, "places", params.placeId));
 }
 
-export type UserFoodieYak = {
-  id: string;
-  displayName: string | null;
-  email: string;
-  emailLookupField: string;
-};
-
 export async function friendLookup({
   email,
 }: {
   email: string;
-}): Promise<UserFoodieYak[]> {
+}): Promise<User[]> {
   const matchingDocs = await getDocs(
     query(
       collection(db, `users`),
       where("emailLowerCase", "==", email.toLowerCase())
     )
   );
-  const results: UserFoodieYak[] = [];
+  const results: User[] = [];
   matchingDocs.forEach((doc) => [
-    results.push({ ...doc.data(), id: doc.id } as UserFoodieYak),
+    results.push(UserSchema.parse({ ...doc.data(), id: doc.id })),
   ]);
   return results;
 }
@@ -119,20 +74,19 @@ export async function friendInviteCreate({
   userId: string;
   targetUserId: string;
 }): Promise<void> {
+  type FriendCreate = Omit<Friend, "id">;
+  let newFriend: FriendCreate = {
+    createdById: userId,
+    lastModifiedAt: null,
+    lastModifiedById: null,
+    accepted: false,
+    acceptedAt: null,
+    createdAt: Timestamp.now(),
+  };
   // /users/{user}/friends/{target}
   // /users/{target}/friends/{user}
-  await setDoc(doc(db, `users`, userId, `friends`, targetUserId), {
-    invitedAt: new Date(),
-    createdById: userId,
-    accepted: false,
-    acceptedAt: null,
-  });
-  await setDoc(doc(db, `users`, targetUserId, `friends`, userId), {
-    invitedAt: new Date(),
-    createdById: userId,
-    accepted: false,
-    acceptedAt: null,
-  });
+  await setDoc(doc(db, `users`, userId, `friends`, targetUserId), newFriend);
+  await setDoc(doc(db, `users`, targetUserId, `friends`, userId), newFriend);
 }
 
 export async function friendInviteCancel({
@@ -155,27 +109,21 @@ export async function friendInviteAccept({
   userId: string;
   targetUserId: string;
 }): Promise<void> {
+  type FriendUpdate = Pick<Friend, "accepted" | "acceptedAt">;
+
+  const update: FriendUpdate = {
+    accepted: true,
+    acceptedAt: Timestamp.now(),
+  };
   // /users/{user}/friends/{target}
   // /users/{target}/friends/{user}
-  await updateDoc(doc(db, `users`, userId, `friends`, targetUserId), {
-    accepted: true,
-    acceptedAt: new Date(),
-  });
-  await updateDoc(doc(db, `users`, targetUserId, `friends`, userId), {
-    accepted: true,
-    acceptedAt: new Date(),
-  });
+  await updateDoc(doc(db, `users`, userId, `friends`, targetUserId), update);
+  await updateDoc(doc(db, `users`, targetUserId, `friends`, userId), update);
 }
 
-type DbUser = { id: string; email: string };
-
-export async function userById({
-  userId,
-}: {
-  userId: string;
-}): Promise<DbUser> {
+export async function userById({ userId }: { userId: string }): Promise<User> {
   // /users/{user}/friends/{target}
   // /users/{target}/friends/{user}
   const res = await getDoc(doc(db, "users", userId));
-  return { id: res.id, ...res.data() } as DbUser;
+  return UserSchema.parse({ id: res.id, ...res.data() });
 }

@@ -26,8 +26,8 @@ import { useState } from "react";
 import { groupBy } from "lodash-es";
 import { parseISO, format } from "date-fns";
 import produce from "immer";
-import { Place } from "../api";
 import { DelayedLoader } from "../components/DelayedLoader";
+import { Place } from "../api-schemas";
 
 function toISODateString(date: Date | string | number): string {
   // Note(sbdchd): parseISO("2019-11-09") !== new Date("2019-11-09")
