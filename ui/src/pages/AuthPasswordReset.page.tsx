@@ -2,30 +2,14 @@ import {
   Button,
   HStack,
   Spacer,
-  VStack,
   FormControl,
   FormLabel,
   Input,
-  Tab,
-  TabList,
-  Tabs,
   Heading,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { AuthForm } from "../components/AuthForm";
-
-function AuthHeading() {
-  return (
-    <HStack alignItems="center" marginTop="4">
-      <Link to="/">
-        <Heading as="h1" size="lg" fontWeight={500}>
-          FoodieYak
-        </Heading>
-      </Link>
-    </HStack>
-  );
-}
 
 export function AuthPasswordReset() {
   const [password, setPassword] = useState("");

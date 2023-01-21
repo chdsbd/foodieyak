@@ -1,5 +1,5 @@
 import { z } from "zod";
-import zodToJsonSchema from "zod-to-json-schema";
+// import zodToJsonSchema from "zod-to-json-schema";
 import { zodToTs, createTypeAlias, printNode } from "zod-to-ts";
 
 import {
@@ -18,7 +18,9 @@ const mySchema = z.object({
   FriendSchema,
 });
 
-const jsonSchema = zodToJsonSchema(mySchema, "Schema");
+// TODO: write these to files
+
+// zodToJsonSchema(mySchema, "Schema");
 const { node } = zodToTs(mySchema, "FullSchema");
 // console.log(JSON.stringify(jsonSchema, null, 2));
 console.log(printNode(createTypeAlias(node, "Schema")));

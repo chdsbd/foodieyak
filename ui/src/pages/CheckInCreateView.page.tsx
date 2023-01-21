@@ -15,11 +15,10 @@ import {
   Select,
   Card,
   CardBody,
-  useToast,
 } from "@chakra-ui/react";
 import { ThumbsDown, ThumbsUp } from "react-feather";
 import { Page } from "../components/Page";
-import { Link, useParams, useHistory } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useMenuItems, usePlace, useUser } from "../hooks";
 import { NoMatch } from "./NoMatchView.page";
 import { useState } from "react";
@@ -151,9 +150,7 @@ export function CheckInCreateView() {
 
   const [date, setDate] = useState<string>(toISODateString(new Date()));
 
-  const history = useHistory();
   const [menuItemRatings, setMenutItemRatings] = useState<MenuItemRating[]>([]);
-  const toast = useToast();
 
   if (place === "loading" || menuItems === "loading") {
     return (

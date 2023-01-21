@@ -2,7 +2,6 @@ import {
   Button,
   HStack,
   Spacer,
-  VStack,
   FormControl,
   FormLabel,
   Input,
@@ -37,11 +36,7 @@ export function AuthSignupView() {
     }
     setIsLoading(true);
     createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // Signed in
-        const user = userCredential.user;
-        // TODO: store somewhere probably?
-        // ...
+      .then(() => {
         toast({
           title: "Account created",
           status: "success",

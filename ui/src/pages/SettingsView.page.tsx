@@ -1,6 +1,5 @@
 import {
   Button,
-  VStack,
   FormControl,
   FormLabel,
   Heading,
@@ -9,7 +8,6 @@ import {
 import { getAuth, signOut } from "firebase/auth";
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
-import { NavBar } from "../components/NavBar";
 import { Page } from "../components/Page";
 import { useUser } from "../hooks";
 

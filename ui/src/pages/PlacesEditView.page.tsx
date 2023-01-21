@@ -15,7 +15,7 @@ import {
 import { useEffect, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 import { Page } from "../components/Page";
-import { useFriends, usePlace, useUser } from "../hooks";
+import { usePlace, useUser } from "../hooks";
 
 import * as api from "../api";
 import { NoMatch } from "./NoMatchView.page";
@@ -23,7 +23,6 @@ import { NoMatch } from "./NoMatchView.page";
 export function PlacesEditView() {
   const { placeId }: { placeId: string } = useParams();
   const user = useUser();
-  const friends = useFriends(user.data?.uid ?? null);
   const history = useHistory();
   const toast = useToast();
   const [name, setName] = useState("");

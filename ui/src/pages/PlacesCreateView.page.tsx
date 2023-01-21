@@ -55,7 +55,7 @@ export function PlacesCreateView() {
               name,
               location,
               userId: user.data.uid,
-              friendIds: friends.map((f) => f.id),
+              friendIds: friends != "loading" ? friends.map((f) => f.id) : [],
             })
             .then((docId) => {
               history.push(`/place/${docId}`);

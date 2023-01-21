@@ -62,7 +62,7 @@ export function PlacesDetailView() {
     return <NoMatch />;
   }
 
-  function ratingForUser(m: PlaceMenuItem, userId: string): -1 | 0 | 1 {
+  function ratingForUser(m: PlaceMenuItem): -1 | 0 | 1 {
     if (checkins === "loading") {
       return 0;
     }
@@ -151,18 +151,14 @@ export function PlacesDetailView() {
                 <ButtonGroup>
                   <Button
                     colorScheme={
-                      (ratingForUser(m, user.data.uid) ?? 0) > 0
-                        ? "green"
-                        : undefined
+                      (ratingForUser(m) ?? 0) > 0 ? "green" : undefined
                     }
                   >
                     ↑{countsByMenuItem[m.id]?.positive}
                   </Button>
                   <Button
                     colorScheme={
-                      (ratingForUser(m, user.data.uid) ?? 0) < 0
-                        ? "red"
-                        : undefined
+                      (ratingForUser(m) ?? 0) < 0 ? "red" : undefined
                     }
                   >
                     ↓{countsByMenuItem[m.id]?.negative}

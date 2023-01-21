@@ -2,39 +2,22 @@ import {
   Button,
   HStack,
   Spacer,
-  VStack,
   FormControl,
   FormLabel,
   Input,
-  Tab,
-  TabList,
-  Tabs,
   Heading,
   useToast,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import { Link, useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 import { AuthForm } from "../components/AuthForm";
-
-function AuthHeading() {
-  return (
-    <HStack alignItems="center" marginTop="4">
-      <Link to="/">
-        <Heading as="h1" size="lg" fontWeight={500}>
-          FoodieYak
-        </Heading>
-      </Link>
-    </HStack>
-  );
-}
 
 export function AuthForgotPassword() {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const toast = useToast();
-  const history = useHistory();
   const handlePasswordReset = () => {
     setIsLoading(true);
 

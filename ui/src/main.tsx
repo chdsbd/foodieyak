@@ -12,7 +12,7 @@ Sentry.init({
   integrations: [new BrowserTracing()],
   tracesSampleRate: 1.0,
   beforeSend: (event) => {
-    console.error(event.event_id, event.exception?.values[0].value);
+    console.error(event.event_id, event.exception?.values?.[0].value);
     return event;
   },
 });

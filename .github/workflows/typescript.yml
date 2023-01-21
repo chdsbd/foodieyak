@@ -1,0 +1,49 @@
+name: Javascript
+
+on: [push, pull_request]
+
+jobs:
+  typescript:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
+      - name: Install dependencies
+        working-directory: "./ui"
+        run: yarn install
+      - name: Typescript
+        working-directory: "./ui"
+        run: ./s/typecheck
+
+  eslint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
+      - name: Install dependencies
+        working-directory: "./ui"
+        run: yarn install
+      - name: Lint
+        working-directory: "./ui"
+        run: ./s/eslint
+
+  prettier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
+      - name: Install dependencies
+        working-directory: "./ui"
+        run: yarn install
+      - name: Check Formatting
+        working-directory: "./ui"
+        run: ./s/fmt

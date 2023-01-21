@@ -87,7 +87,7 @@ export function FriendsListView() {
                       userId: user.data.uid,
                       targetUserId: i.id,
                     })
-                    .then((res) => {
+                    .then(() => {
                       toast({
                         title: "Invite canceled",
                         status: "success",
@@ -117,7 +117,7 @@ export function FriendsListView() {
                         userId: user.data.uid,
                         targetUserId: i.id,
                       })
-                      .then((res) => {
+                      .then(() => {
                         toast({
                           title: "Invite accepted",
                           status: "success",
@@ -173,7 +173,7 @@ export function FriendsListView() {
                   userId: user.data.uid,
                   targetUserId: f.id,
                 })
-                .then((res) => {
+                .then(() => {
                   toast({
                     title: "Friend removed",
                     status: "success",

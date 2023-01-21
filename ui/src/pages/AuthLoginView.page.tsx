@@ -2,15 +2,12 @@ import {
   Button,
   HStack,
   Spacer,
-  VStack,
   FormControl,
   FormLabel,
   Input,
   Tab,
   TabList,
   Tabs,
-  Heading,
-  useColorMode,
   useToast,
 } from "@chakra-ui/react";
 import { Link, useHistory } from "react-router-dom";
@@ -28,10 +25,7 @@ export function AuthLoginView() {
     const auth = getAuth();
     setIsLoading(true);
     signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // Signed in
-        const user = userCredential.user;
-        // ...
+      .then(() => {
         history.push({
           pathname: "/",
         });
