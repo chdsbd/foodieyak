@@ -44,6 +44,7 @@ function MenuItemCreator(props: {
 }) {
   const user = useUser()
   const menuItems = useMenuItems(props.place.id)
+  const toast = useToast()
   const [selectValue, setSelectValue] = useState<string>("")
   if (user.data == null || menuItems === "loading") {
     return (
@@ -65,15 +66,22 @@ function MenuItemCreator(props: {
                 if (e.target.value === "new") {
                   const res = prompt("Menu Item Name?")
                   if (res) {
-                    // query
-                    //   .menuItemCreate({
-                    //     placeId: props.place.id,
-                    //     name: res,
-                    //     userId: user.data.uid,
-                    //   })
-                    //   .then((menuItem) => {
-                    //     props.onSelect(menuItem.id);
-                    //   });
+                    api.menuItems
+                      .create({
+                        placeId: props.place.id,
+                        name: res,
+                        userId: user.data.uid,
+                      })
+                      .then((menuItemId) => {
+                        props.onSelect(menuItemId)
+                      })
+                      .catch((e: FirebaseError) => {
+                        toast({
+                          title: "Problem creating menu item",
+                          description: `${e.code}: ${e.message}`,
+                          status: "error",
+                        })
+                      })
                   }
                 } else {
                   props.onSelect(e.target.value)

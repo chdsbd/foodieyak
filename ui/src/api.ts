@@ -12,7 +12,14 @@ import {
   writeBatch,
 } from "firebase/firestore"
 
-import { Friend, Place, PlaceCheckIn, User, UserSchema } from "./api-schemas"
+import {
+  Friend,
+  Place,
+  PlaceCheckIn,
+  PlaceMenuItem,
+  User,
+  UserSchema,
+} from "./api-schemas"
 import { db } from "./db"
 
 export async function placeCreate(params: {
@@ -75,6 +82,23 @@ export const checkin = {
     const res = await addDoc(
       collection(db, "places", params.placeId, "checkins"),
       checkin,
+    )
+    return res.id
+  },
+}
+
+export const menuItems = {
+  async create(params: { name: string; userId: string; placeId: string }) {
+    const menuItem: Omit<PlaceMenuItem, "id"> = {
+      createdAt: Timestamp.now(),
+      createdById: params.userId,
+      lastModifiedAt: null,
+      lastModifiedById: null,
+      name: params.name,
+    }
+    const res = await addDoc(
+      collection(db, "places", params.placeId, "menuitems"),
+      menuItem,
     )
     return res.id
   },
