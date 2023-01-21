@@ -16,6 +16,7 @@ import { Page } from "../components/Page";
 import { useFriends, useUser } from "../hooks";
 import * as api from "../api";
 import { DelayedLoader } from "../components/DelayedLoader";
+import { formatHumanDateTime } from "../date";
 
 function UserIdToName({ userId }: { userId: string }) {
   const [name, setName] = useState<{ name: string } | "loading">("loading");
@@ -70,13 +71,12 @@ export function FriendsListView() {
                 <div>
                   <UserIdToName userId={i.id} />
                 </div>
-                {/* <div>{formatHumanDateTime(new Date(i.createdAt))}</div> */}
+                <div>{formatHumanDateTime(i.createdAt)}</div>
               </VStack>
               <Spacer />
 
               <Button
                 size="sm"
-                // colorScheme={"red"}
                 variant="outline"
                 onClick={() => {
                   if (!confirm("Remove invite?")) {
@@ -111,7 +111,6 @@ export function FriendsListView() {
               {i.createdById != user.data.uid && (
                 <Button
                   size="sm"
-                  // colorScheme={"green"}
                   onClick={() => {
                     api
                       .friendInviteAccept({

@@ -44,7 +44,11 @@ function formatHumanDateTimeRaw(date: Date, now: Date): string {
   return formatAbsoluteDateTime(date, { includeYear: true });
 }
 
-export function formatHumanDateTime(date: Date): string {
+export function formatHumanDateTime(date: Date | Timestamp): string {
+  if (date instanceof Timestamp) {
+    date = date.toDate();
+  }
+
   return formatHumanDateTimeRaw(date, new Date());
 }
 
