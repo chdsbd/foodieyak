@@ -175,6 +175,7 @@ async function updateUser(user: identity.AuthUserRecord) {
       displayName: user.displayName || "",
       email: user.email ?? "",
       emailLowerCase: user.email?.toLowerCase() ?? null,
+      createdAt: new Date(),
     });
 }
 

@@ -16,7 +16,8 @@ const BaseSchema = z.object({
   lastModifiedAt: z.nullable(TimestampSchema),
 });
 
-export const UserSchema = BaseSchema.extend({
+export const UserSchema = z.object({
+  uid: z.string(),
   displayName: z.nullable(z.string()),
   email: z.string(),
   emailLookupField: z.optional(z.string()),

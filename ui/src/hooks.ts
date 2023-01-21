@@ -199,8 +199,20 @@ export function useFriends(userId: string | null) {
       querySnapshot.forEach((doc) => {
         const r = FriendSchema.safeParse({ id: doc.id, ...doc.data() });
         if (!r.success) {
-          console.log(r.error, doc.data());
-          Sentry.captureException(r.error);
+          console.log(
+            "FriendSchema",
+            r.error.cause,
+            r.error.message,
+            r.error,
+            doc.data()
+          );
+
+          Sentry.captureException(r.error, {
+            extra: {
+              schemaErrors: r.error.flatten(),
+            },
+            fingerprint: ["zod.schema.parse", "FriendSchema"],
+          });
         } else {
           friends.push(r.data);
         }
