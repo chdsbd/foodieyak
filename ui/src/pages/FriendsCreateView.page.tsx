@@ -32,6 +32,7 @@ export function FriendsCreateView() {
   const [lookupResults, setLookupResults] = useState<User[] | "initial">(
     "initial"
   );
+  const [invitingId, setInvitingId] = useState<string | null>(null);
   if (user.data == null) {
     return (
       <Page>
@@ -97,14 +98,17 @@ export function FriendsCreateView() {
                   </VStack>
                   <Spacer />
                   <Button
+                    loadingText="Inviting..."
+                    isLoading={r.uid === invitingId}
                     onClick={() => {
                       if (user.data == null) {
                         return;
                       }
+                      setInvitingId(r.uid);
                       api
                         .friendInviteCreate({
                           userId: user.data.uid,
-                          targetUserId: r.id,
+                          targetUserId: r.uid,
                         })
                         .then(() => {
                           toast({
@@ -112,6 +116,7 @@ export function FriendsCreateView() {
                             status: "success",
                             isClosable: true,
                           });
+                          setInvitingId(null);
                           history.push("/friends");
                         })
                         .catch((error) => {
@@ -123,6 +128,7 @@ export function FriendsCreateView() {
                             status: "error",
                             isClosable: true,
                           });
+                          setInvitingId(null);
                         });
                     }}
                   >
