@@ -16,6 +16,7 @@ import { calculateCheckinCountsByMenuItem } from "../api-transforms"
 import { DelayedLoader } from "../components/DelayedLoader"
 import { LocationImage } from "../components/LocationImage"
 import { Page } from "../components/Page"
+import { PlaceInfoPanel } from "../components/PlaceInfoPanel"
 import { formatHumanDate } from "../date"
 import { useCheckins, useMenuItem, usePlace, useUser } from "../hooks"
 import { notUndefined } from "../type-guards"
@@ -91,13 +92,7 @@ export function MenuItemDetailView() {
           </BreadcrumbLink>
         </BreadcrumbItem>
       </Breadcrumb>
-      <HStack w="100%">
-        <LocationImage />
-        <div>
-          <div>{place.id}</div>
-          <div>{place.location}</div>
-        </div>
-      </HStack>
+      <PlaceInfoPanel place={place} />
 
       <HStack width="100%">
         <Heading alignSelf={"start"} fontSize="2xl">
@@ -118,7 +113,6 @@ export function MenuItemDetailView() {
           to={`/place/${place.id}/check-in/${m.id}`}
         >
           <HStack>
-            <LocationImage />
             <VStack align="start">
               <div>{m.createdById}</div>
               <div>{formatHumanDate(m.createdAt)}</div>

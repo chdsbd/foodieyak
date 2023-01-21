@@ -15,6 +15,7 @@ import { PlaceMenuItem } from "../api-schemas"
 import { DelayedLoader } from "../components/DelayedLoader"
 import { LocationImage } from "../components/LocationImage"
 import { Page } from "../components/Page"
+import { PlaceInfoPanel } from "../components/PlaceInfoPanel"
 import { formatHumanDate } from "../date"
 import { useCheckIn, useMenuItems, usePlace } from "../hooks"
 import { NoMatch } from "./NoMatchView.page"
@@ -68,13 +69,7 @@ export function CheckInDetailView() {
           </BreadcrumbLink>
         </BreadcrumbItem>
       </Breadcrumb>
-      <HStack w="100%">
-        <LocationImage />
-        <div>
-          <div>{place.name}</div>
-          <div>{place.location}</div>
-        </div>
-      </HStack>
+      <PlaceInfoPanel place={place} />
 
       <Text alignSelf={"start"}>{formatHumanDate(checkIn.createdAt)}</Text>
 

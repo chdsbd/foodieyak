@@ -9,7 +9,6 @@ import {
   CardBody,
   CardFooter,
   CardHeader,
-  Heading,
   HStack,
   Spacer,
   Tab,
@@ -31,6 +30,7 @@ import { DelayedLoader } from "../components/DelayedLoader"
 import { EmptyStateText } from "../components/EmptyStateText"
 import { LocationImage } from "../components/LocationImage"
 import { Page } from "../components/Page"
+import { PlaceInfoPanel } from "../components/PlaceInfoPanel"
 import { formatHumanDateTime } from "../date"
 import { useCheckins, useMenuItems, usePlace, useUser } from "../hooks"
 import { UserIdToName } from "./FriendsListView.page"
@@ -110,20 +110,7 @@ export function PlacesDetailView() {
         </BreadcrumbItem>
       </Breadcrumb>
       <HStack w="100%" alignItems={"stretch"}>
-        <Box
-          minHeight={"100px"}
-          minWidth="100px"
-          background={"darkgray"}
-          marginRight={4}
-        >
-          <div />
-        </Box>
-        <VStack justifyContent={"center"}>
-          <div>
-            <div>{place.name}</div>
-            <div>{place.location}</div>
-          </div>
-        </VStack>
+        <PlaceInfoPanel place={place} />
         <Spacer />
         <VStack alignItems={"start"}>
           <Link to={`/place/${placeId}/edit`}>
@@ -159,25 +146,28 @@ export function PlacesDetailView() {
                 as={Link}
                 to={`/place/${place.id}/menu/${m.id}`}
               >
-                <LocationImage />
-                <Text fontSize={"xl"}>{m.name}</Text>
-                <Spacer />
-                <ButtonGroup>
-                  <Button
-                    colorScheme={
-                      (ratingForUser(m) ?? 0) > 0 ? "green" : undefined
-                    }
-                  >
-                    ↑{countsByMenuItem[m.id]?.positive}
-                  </Button>
-                  <Button
-                    colorScheme={
-                      (ratingForUser(m) ?? 0) < 0 ? "red" : undefined
-                    }
-                  >
-                    ↓{countsByMenuItem[m.id]?.negative}
-                  </Button>
-                </ButtonGroup>
+                <Card w="full" size="sm">
+                  <HStack as={CardBody} w="full">
+                    <Text fontSize={"lg"}>{m.name}</Text>
+                    <Spacer />
+                    <ButtonGroup>
+                      <Button
+                        colorScheme={
+                          (ratingForUser(m) ?? 0) > 0 ? "green" : undefined
+                        }
+                      >
+                        ↑{countsByMenuItem[m.id]?.positive}
+                      </Button>
+                      <Button
+                        colorScheme={
+                          (ratingForUser(m) ?? 0) < 0 ? "red" : undefined
+                        }
+                      >
+                        ↓{countsByMenuItem[m.id]?.negative}
+                      </Button>
+                    </ButtonGroup>
+                  </HStack>
+                </Card>
               </HStack>
             ))}
           </TabPanel>

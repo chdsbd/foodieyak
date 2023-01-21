@@ -28,7 +28,9 @@ import { Link, useHistory, useParams } from "react-router-dom"
 import * as api from "../api"
 import { Place } from "../api-schemas"
 import { DelayedLoader } from "../components/DelayedLoader"
+import { LocationImage } from "../components/LocationImage"
 import { Page } from "../components/Page"
+import { PlaceInfoPanel } from "../components/PlaceInfoPanel"
 import { useMenuItems, usePlace, useUser } from "../hooks"
 import { NoMatch } from "./NoMatchView.page"
 
@@ -201,20 +203,7 @@ export function CheckInCreateView() {
           </BreadcrumbLink>
         </BreadcrumbItem>
       </Breadcrumb>
-      <HStack w="100%">
-        <Box
-          minHeight={"100px"}
-          minWidth="100px"
-          background={"darkgray"}
-          marginRight={4}
-        >
-          <div />
-        </Box>
-        <div>
-          <div>{place.name}</div>
-          <div>{place.location}</div>
-        </div>
-      </HStack>
+      <PlaceInfoPanel place={place} />
 
       <FormControl>
         <FormLabel>Date</FormLabel>
@@ -231,6 +220,7 @@ export function CheckInCreateView() {
         Menu Items
       </Heading>
 
+      {/* TODO(chdsbd): Replace with modal for creating new menu items. This is glitchy adn we need a loading state.*/}
       <MenuItemCreator
         place={place}
         onSelect={(menuItemId) => {
