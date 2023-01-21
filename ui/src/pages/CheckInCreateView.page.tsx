@@ -27,7 +27,6 @@ import { Place } from "../api-schemas"
 import { DelayedLoader } from "../components/DelayedLoader"
 import { Page } from "../components/Page"
 import { useMenuItems, usePlace, useUser } from "../hooks"
-import { NoMatch } from "./NoMatchView.page"
 
 function toISODateString(date: Date | string | number): string {
   // Note(sbdchd): parseISO("2019-11-09") !== new Date("2019-11-09")
@@ -159,9 +158,6 @@ export function CheckInCreateView() {
         <DelayedLoader />
       </Page>
     )
-  }
-  if (place === "not_found") {
-    return <NoMatch />
   }
 
   const menuItemMap = groupBy(menuItems, (x) => x.id)
