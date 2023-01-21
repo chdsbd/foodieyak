@@ -14,15 +14,18 @@ import {
   Input,
   Select,
   Spacer,
+  useToast,
   VStack,
 } from "@chakra-ui/react"
 import { format, parseISO } from "date-fns"
+import { FirebaseError } from "firebase/app"
 import produce from "immer"
 import { groupBy } from "lodash-es"
 import { useState } from "react"
 import { ThumbsDown, ThumbsUp } from "react-feather"
-import { Link, useParams } from "react-router-dom"
+import { Link, useHistory, useParams } from "react-router-dom"
 
+import * as api from "../api"
 import { Place } from "../api-schemas"
 import { DelayedLoader } from "../components/DelayedLoader"
 import { Page } from "../components/Page"
@@ -140,6 +143,7 @@ function MenuItem(props: {
 
 type MenuItemRating = {
   menuItemId: string
+  comment: string
   rating: 1 | -1
 }
 
@@ -148,6 +152,8 @@ export function CheckInCreateView() {
   const place = usePlace(placeId)
   const user = useUser()
   const menuItems = useMenuItems(placeId)
+  const history = useHistory()
+  const toast = useToast()
 
   const [date, setDate] = useState<string>(toISODateString(new Date()))
 
@@ -225,7 +231,7 @@ export function CheckInCreateView() {
               if (s.find((x) => x.menuItemId === menuItemId) != null) {
                 return
               } else {
-                s.push({ menuItemId, rating: 1 })
+                s.push({ menuItemId, comment: "", rating: 1 })
               }
               return s
             }),
@@ -264,23 +270,24 @@ export function CheckInCreateView() {
           if (user.data == null) {
             return
           }
-          // query
-          //   .checkInCreate({
-          //     userId: user.data.uid,
-          //     date: date,
-          //     placeId: place.id,
-          //     reviews: menuItemRatings,
-          //   })
-          //   .then((checkIn) => {
-          //     history.push(`/place/${place.id}/check-in/${checkIn.id}`);
-          //   })
-          //   .catch((e) => {
-          //     toast({
-          //       title: "Problem creating checkin",
-          //       description: `${e.code}: ${e.message}`,
-          //       status: "error",
-          //     });
-          //   });
+          api.checkin
+            .create({
+              userId: user.data.uid,
+              date: new Date(date),
+              placeId: place.id,
+              comment: "",
+              reviews: menuItemRatings,
+            })
+            .then((checkInId) => {
+              history.push(`/place/${place.id}/check-in/${checkInId}`)
+            })
+            .catch((e: FirebaseError) => {
+              toast({
+                title: "Problem creating check-in",
+                description: `${e.code}: ${e.message}`,
+                status: "error",
+              })
+            })
         }}
       >
         Create Check-In

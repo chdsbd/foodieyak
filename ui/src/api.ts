@@ -12,7 +12,7 @@ import {
   writeBatch,
 } from "firebase/firestore"
 
-import { Friend, Place, User, UserSchema } from "./api-schemas"
+import { Friend, Place, PlaceCheckIn, User, UserSchema } from "./api-schemas"
 import { db } from "./db"
 
 export async function placeCreate(params: {
@@ -54,6 +54,30 @@ export async function placeUpdate(params: {
 }
 export async function placeDelete(params: { placeId: string }): Promise<void> {
   await deleteDoc(doc(db, "places", params.placeId))
+}
+
+export const checkin = {
+  async create(params: {
+    placeId: string
+    date: Date
+    userId: string
+    comment: string
+    reviews: { menuItemId: string; rating: -1 | 1; comment: string }[]
+  }) {
+    const checkin: Omit<PlaceCheckIn, "id"> = {
+      createdAt: Timestamp.now(),
+      createdById: params.userId,
+      lastModifiedAt: null,
+      lastModifiedById: null,
+      comment: params.comment,
+      ratings: params.reviews,
+    }
+    const res = await addDoc(
+      collection(db, "places", params.placeId, "checkins"),
+      checkin,
+    )
+    return res.id
+  },
 }
 
 export async function friendLookup({

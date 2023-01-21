@@ -102,7 +102,7 @@ export function useMenuItem(
   )
   React.useEffect(() => {
     const unsub = onSnapshot(
-      doc(collection(db, "places", placeId, "menuitems", menuItemId)),
+      doc(db, "places", placeId, "menuitems", menuItemId),
       (doc) => {
         const d = PlaceMenuItemSchema.parse({
           id: doc.id,
@@ -148,7 +148,7 @@ export function useCheckIn(
   )
   React.useEffect(() => {
     const unsub = onSnapshot(
-      doc(collection(db, "places", placeId, "checkins", checkInId)),
+      doc(db, "places", placeId, "checkins", checkInId),
       (doc) => {
         const d = PlaceCheckInSchema.parse({
           id: doc.id,

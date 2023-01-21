@@ -82,7 +82,7 @@ export function CheckInDetailView() {
         Menu Items
       </Heading>
       {checkIn.ratings.map((m) => (
-        <HStack key={m.id} width="100%">
+        <HStack key={m.menuItemId} width="100%">
           <div>{menuItemMap[m.menuItemId]?.name}</div>
           <Spacer />
 
