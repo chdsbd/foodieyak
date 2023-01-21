@@ -1,13 +1,24 @@
 import { z } from "zod";
 import zodToJsonSchema from "zod-to-json-schema";
+import { zodToTs, createTypeAlias, printNode } from "zod-to-ts";
 
-const mySchema = z
-  .object({
-    myString: z.string().min(5),
-    myUnion: z.union([z.number(), z.boolean()]),
-  })
-  .describe("My neat object schema");
+import {
+  FriendSchema,
+  PlaceCheckInSchema,
+  PlaceMenuItemSchema,
+  PlaceSchema,
+  UserSchema,
+} from "../api-schemas";
 
-const jsonSchema = zodToJsonSchema(mySchema, "mySchema");
+const mySchema = z.object({
+  UserSchema,
+  PlaceSchema,
+  PlaceMenuItemSchema,
+  PlaceCheckInSchema,
+  FriendSchema,
+});
 
-console.log(jsonSchema);
+const jsonSchema = zodToJsonSchema(mySchema, "Schema");
+const { node } = zodToTs(mySchema, "FullSchema");
+// console.log(JSON.stringify(jsonSchema, null, 2));
+console.log(printNode(createTypeAlias(node, "Schema")));

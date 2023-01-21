@@ -2,9 +2,9 @@
   "name": "foodieyak",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
   "scripts": {
     "dev": "vite",
+    "json-schema": "./node_modules/.bin/esbuild src/bin/json-schema.ts --platform=node --log-level=warning --bundle  --outfile=build/bin/index.js && node build/bin/index.js | tee build/schema.json && echo Created ./build/schema.json",
     "build": "vite build",
     "preview": "vite preview"
   },
@@ -28,7 +28,8 @@
     "react-feather": "^2.0.10",
     "react-router-dom": "v5",
     "zod": "^3.20.2",
-    "zod-to-json-schema": "^3.20.2"
+    "zod-to-json-schema": "^3.20.2",
+    "zod-to-ts": "^1.1.2"
   },
   "devDependencies": {
     "@types/react": "^18.0.26",
