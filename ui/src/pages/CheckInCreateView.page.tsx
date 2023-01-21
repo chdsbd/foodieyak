@@ -14,6 +14,7 @@ import {
   Input,
   Select,
   Spacer,
+  Textarea,
   useToast,
   VStack,
 } from "@chakra-ui/react"
@@ -57,54 +58,49 @@ function MenuItemCreator(props: {
   }
 
   return (
-    <Card w="100%">
-      <CardBody>
-        <VStack w="100%">
-          <FormControl>
-            <FormLabel>New Menu Item</FormLabel>
-            <Select
-              value={selectValue}
-              onChange={(e) => {
-                if (e.target.value === "new") {
-                  const res = prompt("Menu Item Name?")
-                  if (res) {
-                    api.menuItems
-                      .create({
-                        placeId: props.place.id,
-                        name: res,
-                        userId: user.data.uid,
-                      })
-                      .then((menuItemId) => {
-                        props.onSelect(menuItemId)
-                      })
-                      .catch((e: FirebaseError) => {
-                        toast({
-                          title: "Problem creating menu item",
-                          description: `${e.code}: ${e.message}`,
-                          status: "error",
-                        })
-                      })
-                  }
-                } else {
-                  props.onSelect(e.target.value)
-                }
-                setSelectValue("")
-              }}
-            >
-              <option value="" selected disabled>
-                Choose an existing menu item
-              </option>
-              <option value="new">Create new menu item...</option>
-              {menuItems.map((mi) => (
-                <option key={mi.id} value={mi.id}>
-                  {mi.name} — {mi.createdById}
-                </option>
-              ))}
-            </Select>
-          </FormControl>
-        </VStack>
-      </CardBody>
-    </Card>
+    <VStack w="100%">
+      <FormControl>
+        <Select
+          value={selectValue}
+          onChange={(e) => {
+            if (e.target.value === "new") {
+              const res = prompt("Menu Item Name?")
+              if (res) {
+                api.menuItems
+                  .create({
+                    placeId: props.place.id,
+                    name: res,
+                    userId: user.data.uid,
+                  })
+                  .then((menuItemId) => {
+                    props.onSelect(menuItemId)
+                  })
+                  .catch((e: FirebaseError) => {
+                    toast({
+                      title: "Problem creating menu item",
+                      description: `${e.code}: ${e.message}`,
+                      status: "error",
+                    })
+                  })
+              }
+            } else {
+              props.onSelect(e.target.value)
+            }
+            setSelectValue("")
+          }}
+        >
+          <option value="" selected disabled>
+            Select a menu item to rate
+          </option>
+          <option value="new">Create new menu item...</option>
+          {menuItems.map((mi) => (
+            <option key={mi.id} value={mi.id}>
+              {mi.name} — {mi.createdById}
+            </option>
+          ))}
+        </Select>
+      </FormControl>
+    </VStack>
   )
 }
 
@@ -213,6 +209,16 @@ export function CheckInCreateView() {
             setDate(e.target.value)
           }}
           value={toISODateString(date)}
+        />
+      </FormControl>
+      <FormControl>
+        <FormLabel>Comment</FormLabel>
+        <Textarea
+          placeholder="Add a note about your visit..."
+          // onChange={(e) => {
+          //   setDate(e.target.value)
+          // }}
+          // value={toISODateString(date)}
         />
       </FormControl>
 
