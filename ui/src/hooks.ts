@@ -1,6 +1,5 @@
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 import React, { useState } from "react";
-import * as localQuery from "./fakeDb";
 import { db } from "./db";
 import { collection, query, where, onSnapshot, doc } from "firebase/firestore";
 import * as api from "./api";
@@ -46,12 +45,16 @@ export function useUser(): QueryResult {
 }
 
 export function usePlace(placeId: string): api.Place | "loading" | "not_found" {
-  const [place, setPlace] = useState<
-    localQuery.Place | "loading" | "not_found"
-  >("loading");
+  const [place, setPlace] = useState<api.Place | "loading" | "not_found">(
+    "loading"
+  );
   React.useEffect(() => {
     const unsub = onSnapshot(doc(db, "places", placeId), (doc) => {
-      setPlace({ id: doc.id, ...doc.data() });
+      const place: api.Place = {
+        id: doc.id,
+        ...(doc.data() as Omit<api.Place, "id">),
+      };
+      setPlace(place);
     });
     return unsub;
   }, [placeId]);
@@ -62,15 +65,19 @@ export function useMenuItems(
   placeId: string
 ): api.PlaceMenuItem[] | "loading" | "not_found" {
   const [state, setState] = useState<
-    api.PlaceMenuItem | "loading" | "not_found"
+    api.PlaceMenuItem[] | "loading" | "not_found"
   >("loading");
   React.useEffect(() => {
     const unsub = onSnapshot(
       query(collection(db, "places", placeId, "menuitems")),
       (doc) => {
-        const docs = [];
+        const docs: api.PlaceMenuItem[] = [];
         doc.forEach((doc) => {
-          docs.push({ id: doc.id, ...doc.data() });
+          const d: api.PlaceMenuItem = {
+            id: doc.id,
+            ...(doc.data() as Omit<api.PlaceMenuItem, "id">),
+          };
+          docs.push(d);
         });
         setState(docs);
       }
@@ -83,15 +90,18 @@ export function useCheckins(
   placeId: string
 ): api.PlaceCheckIn[] | "loading" | "not_found" {
   const [state, setState] = useState<
-    api.PlaceMenuItem | "loading" | "not_found"
+    api.PlaceCheckIn[] | "loading" | "not_found"
   >("loading");
   React.useEffect(() => {
     const unsub = onSnapshot(
       query(collection(db, "places", placeId, "checkins")),
       (doc) => {
-        const docs = [];
+        const docs: api.PlaceCheckIn[] = [];
         doc.forEach((doc) => {
-          docs.push({ id: doc.id, ...doc.data() });
+          docs.push({
+            id: doc.id,
+            ...(doc.data() as Omit<api.PlaceCheckIn, "id">),
+          });
         });
         setState(docs);
       }
@@ -102,9 +112,7 @@ export function useCheckins(
 }
 
 export function usePlaces(userId: string | undefined) {
-  const [places, setPlaces] = useState<localQuery.Place[] | "loading">(
-    "loading"
-  );
+  const [places, setPlaces] = useState<api.Place[] | "loading">("loading");
   React.useEffect(() => {
     if (userId == null) {
       return;
@@ -114,9 +122,9 @@ export function usePlaces(userId: string | undefined) {
       where("viewerIds", "array-contains", userId)
     );
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const places = [];
+      const places: api.Place[] = [];
       querySnapshot.forEach((doc) => {
-        places.push({ id: doc.id, ...doc.data() });
+        places.push({ id: doc.id, ...(doc.data() as Omit<api.Place, "id">) });
       });
       setPlaces(places);
     });
@@ -128,28 +136,23 @@ export function usePlaces(userId: string | undefined) {
 }
 
 export function useFriends(userId: string | null) {
-  const [state, setState] = useState<
-    {
-      accepted: boolean;
-
-      acceptedAt: Date | null;
-
-      createdById: string;
-
-      id: string;
-
-      invitedAt: Date;
-    }[]
-  >([]);
+  type Friend = {
+    accepted: boolean;
+    acceptedAt: Date | null;
+    createdById: string;
+    id: string;
+    invitedAt: Date;
+  };
+  const [state, setState] = useState<Friend[]>([]);
   React.useEffect(() => {
     if (!userId) {
       return;
     }
     const q = query(collection(db, `users`, userId, "friends"));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const friends = [];
+      const friends: Friend[] = [];
       querySnapshot.forEach((doc) => {
-        friends.push({ id: doc.id, ...doc.data() });
+        friends.push({ id: doc.id, ...(doc.data() as Omit<Friend, "id">) });
       });
       setState(friends);
     });
