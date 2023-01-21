@@ -35,15 +35,15 @@ export function FriendsListView() {
   const toast = useToast();
   const user = useUser();
   const friends = useFriends(user.data?.uid ?? "");
-  const invites = friends.filter((f) => !f.accepted);
-  const acceptedFriends = friends.filter((f) => f.accepted);
-  if (user.data == null) {
+  if (user.data == null || friends === "loading") {
     return (
       <Page>
         <DelayedLoader />
       </Page>
     );
   }
+  const invites = friends.filter((f) => !f.accepted);
+  const acceptedFriends = friends.filter((f) => f.accepted);
   return (
     <Page>
       <Breadcrumb alignSelf={"start"}>

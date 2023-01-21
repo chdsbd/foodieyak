@@ -188,7 +188,7 @@ export function usePlaces(userId: string | undefined) {
 }
 
 export function useFriends(userId: string | null) {
-  const [state, setState] = useState<Friend[]>([]);
+  const [state, setState] = useState<Friend[] | "loading">("loading");
   React.useEffect(() => {
     if (!userId) {
       return;
