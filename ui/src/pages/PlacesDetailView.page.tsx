@@ -5,6 +5,11 @@ import {
   BreadcrumbLink,
   Button,
   ButtonGroup,
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  Heading,
   HStack,
   Spacer,
   Tab,
@@ -20,26 +25,30 @@ import first from "lodash-es/first"
 import orderBy from "lodash-es/orderBy"
 import { Link, useParams } from "react-router-dom"
 
-import { CheckInRating, PlaceMenuItem } from "../api-schemas"
+import { CheckInRating, PlaceCheckIn, PlaceMenuItem } from "../api-schemas"
 import { calculateCheckinCountsByMenuItem } from "../api-transforms"
 import { DelayedLoader } from "../components/DelayedLoader"
 import { EmptyStateText } from "../components/EmptyStateText"
 import { LocationImage } from "../components/LocationImage"
 import { Page } from "../components/Page"
-import { formatHumanDate } from "../date"
+import { formatHumanDateTime } from "../date"
 import { useCheckins, useMenuItems, usePlace, useUser } from "../hooks"
+import { UserIdToName } from "./FriendsListView.page"
 import { NoMatch } from "./NoMatchView.page"
 
-// function Rating(props: { ratings: PlaceCheckIn["ratings"] }) {
-//   const total = props.ratings.length;
-//   const positive = props.ratings.filter((x) => x.rating > 0).length;
-//   const negative = props.ratings.filter((x) => x.rating < 0).length;
-//   return (
-//     <Flex>
-//       {total} reviews ({positive}↑ {negative}↓)
-//     </Flex>
-//   );
-// }
+function Rating(props: { ratings: PlaceCheckIn["ratings"] }) {
+  const total = props.ratings.length
+  const positive = props.ratings.filter((x) => x.rating > 0).length
+  const negative = props.ratings.filter((x) => x.rating < 0).length
+  return (
+    <HStack alignItems={"start"}>
+      <div>{total} items reviewed</div>
+      <div>
+        {positive}↑ {negative}↓
+      </div>
+    </HStack>
+  )
+}
 
 export function PlacesDetailView() {
   const { placeId }: { placeId: string } = useParams()
@@ -188,13 +197,26 @@ export function PlacesDetailView() {
                 as={Link}
                 to={`/place/${place.id}/check-in/${c.id}`}
               >
-                <LocationImage />
-                <VStack align={"start"}>
-                  <div>{c.createdById}</div>
-                  <div>{formatHumanDate(c.createdAt)}</div>
-                </VStack>
-                <Spacer />
-                {/* <Rating ratings={c.ratings} /> */}
+                <Card w="100%" size="sm">
+                  <CardHeader paddingBottom="0">
+                    <HStack w="100%" alignItems={"start"}>
+                      <Text fontWeight={"bold"}>
+                        <UserIdToName userId={c.createdById} />
+                      </Text>
+                      <Text color={"rgb(108, 117, 125)"}>
+                        {formatHumanDateTime(c.createdAt)}
+                      </Text>
+                    </HStack>
+                  </CardHeader>
+                  <CardBody>
+                    <Text>{c.comment}</Text>
+                  </CardBody>
+                  {c.ratings.length > 0 && (
+                    <CardFooter color="rgb(108, 117, 125)">
+                      <Rating ratings={c.ratings} />
+                    </CardFooter>
+                  )}
+                </Card>
               </HStack>
             ))}
           </TabPanel>
