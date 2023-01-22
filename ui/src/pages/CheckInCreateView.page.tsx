@@ -192,7 +192,9 @@ export function CheckInCreateView() {
           </BreadcrumbLink>
         </BreadcrumbItem>
       </Breadcrumb>
-      <PlaceInfoPanel place={place} />
+      <Heading as="h1" size="lg">
+        Check-In
+      </Heading>
 
       <FormControl>
         <FormLabel>Date</FormLabel>
