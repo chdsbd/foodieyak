@@ -38,6 +38,7 @@ export function CheckInEditView() {
   const checkIn = useCheckIn(placeId, checkInId)
   const history = useHistory()
   const toast = useToast()
+  const [isSaving, setIsSaving] = useState(false)
 
   const [date, setDate] = useState<string>(toISODateString(new Date()))
   const [comment, setComment] = useState<string>("")
@@ -172,10 +173,13 @@ export function CheckInEditView() {
         <Button variant={"outline"}>Cancel</Button>
         <Spacer />
         <Button
+          loadingText="Saving changes..."
+          isLoading={isSaving}
           onClick={() => {
             if (user.data == null) {
               return
             }
+            setIsSaving(true)
             api.checkin
               .update({
                 userId: user.data.uid,
@@ -187,6 +191,7 @@ export function CheckInEditView() {
               })
               .then(() => {
                 history.push(`/place/${place.id}/check-in/${checkInId}`)
+                setIsSaving(false)
               })
               .catch((e: FirebaseError) => {
                 toast({
@@ -194,6 +199,7 @@ export function CheckInEditView() {
                   description: `${e.code}: ${e.message}`,
                   status: "error",
                 })
+                setIsSaving(false)
               })
           }}
         >
