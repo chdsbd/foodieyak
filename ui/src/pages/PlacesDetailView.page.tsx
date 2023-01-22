@@ -1,5 +1,4 @@
 import {
-  Box,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
@@ -28,13 +27,11 @@ import { CheckInRating, PlaceCheckIn, PlaceMenuItem } from "../api-schemas"
 import { calculateCheckinCountsByMenuItem } from "../api-transforms"
 import { DelayedLoader } from "../components/DelayedLoader"
 import { EmptyStateText } from "../components/EmptyStateText"
-import { LocationImage } from "../components/LocationImage"
 import { Page } from "../components/Page"
 import { PlaceInfoPanel } from "../components/PlaceInfoPanel"
 import { formatHumanDateTime } from "../date"
 import { useCheckins, useMenuItems, usePlace, useUser } from "../hooks"
 import { UserIdToName } from "./FriendsListView.page"
-import { NoMatch } from "./NoMatchView.page"
 
 function Rating(props: { ratings: PlaceCheckIn["ratings"] }) {
   const total = props.ratings.length
@@ -67,9 +64,6 @@ export function PlacesDetailView() {
         <DelayedLoader />
       </Page>
     )
-  }
-  if (place === "not_found") {
-    return <NoMatch />
   }
 
   function ratingForUser(m: PlaceMenuItem): -1 | 0 | 1 {

@@ -1,5 +1,4 @@
 import {
-  Box,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
@@ -10,7 +9,6 @@ import {
   FormControl,
   FormLabel,
   Heading,
-  HStack,
   Input,
   Select,
   Spacer,
@@ -29,11 +27,9 @@ import { Link, useHistory, useParams } from "react-router-dom"
 import * as api from "../api"
 import { Place } from "../api-schemas"
 import { DelayedLoader } from "../components/DelayedLoader"
-import { LocationImage } from "../components/LocationImage"
 import { Page } from "../components/Page"
 import { PlaceInfoPanel } from "../components/PlaceInfoPanel"
 import { useMenuItems, usePlace, useUser } from "../hooks"
-import { NoMatch } from "./NoMatchView.page"
 
 function toISODateString(date: Date | string | number): string {
   // Note(sbdchd): parseISO("2019-11-09") !== new Date("2019-11-09")
@@ -171,9 +167,6 @@ export function CheckInCreateView() {
         <DelayedLoader />
       </Page>
     )
-  }
-  if (place === "not_found") {
-    return <NoMatch />
   }
 
   const menuItemMap = groupBy(menuItems, (x) => x.id)

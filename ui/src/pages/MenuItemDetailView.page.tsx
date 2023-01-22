@@ -14,13 +14,11 @@ import { Link, useParams } from "react-router-dom"
 
 import { calculateCheckinCountsByMenuItem } from "../api-transforms"
 import { DelayedLoader } from "../components/DelayedLoader"
-import { LocationImage } from "../components/LocationImage"
 import { Page } from "../components/Page"
 import { PlaceInfoPanel } from "../components/PlaceInfoPanel"
 import { formatHumanDate } from "../date"
 import { useCheckins, useMenuItem, usePlace, useUser } from "../hooks"
 import { notUndefined } from "../type-guards"
-import { NoMatch } from "./NoMatchView.page"
 
 export function MenuItemDetailView() {
   const {
@@ -46,9 +44,6 @@ export function MenuItemDetailView() {
         <DelayedLoader />
       </Page>
     )
-  }
-  if (place === "not_found" || menuItem === "not_found") {
-    return <NoMatch />
   }
 
   const checkInsForMenuItem = checkIns

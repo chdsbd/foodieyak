@@ -1,14 +1,8 @@
 import { Timestamp } from "firebase/firestore"
 import { z } from "zod"
 
-const TimestampSchema = z
-  .object({
-    seconds: z.number(),
-    nanoseconds: z.number(),
-  })
-  .transform((x) => {
-    return new Timestamp(x.seconds, x.nanoseconds)
-  })
+const TimestampSchema = z.instanceof(Timestamp)
+
 const BaseSchema = z.object({
   id: z.string(),
   createdById: z.string(),

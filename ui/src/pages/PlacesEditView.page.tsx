@@ -19,7 +19,6 @@ import { Link, useHistory, useParams } from "react-router-dom"
 import * as api from "../api"
 import { Page } from "../components/Page"
 import { usePlace, useUser } from "../hooks"
-import { NoMatch } from "./NoMatchView.page"
 
 export function PlacesEditView() {
   const { placeId }: { placeId: string } = useParams()
@@ -33,7 +32,7 @@ export function PlacesEditView() {
 
   const place = usePlace(placeId)
   useEffect(() => {
-    if (place === "loading" || place === "not_found") {
+    if (place === "loading") {
       return
     }
     setName(place?.name ?? "")
@@ -46,9 +45,6 @@ export function PlacesEditView() {
         <div />
       </Page>
     )
-  }
-  if (place === "not_found") {
-    return <NoMatch />
   }
 
   return (
