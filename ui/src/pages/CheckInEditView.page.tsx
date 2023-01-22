@@ -54,6 +54,7 @@ export function CheckInEditView() {
   }, [checkIn?.comment])
   useEffect(() => {
     if (checkIn !== "loading") {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const createdAt: Date = checkIn.createdAt.toDate()
       setDate(toISODateString(createdAt))
     }
