@@ -9,7 +9,7 @@ import {
   query,
   where,
 } from "firebase/firestore"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { z } from "zod"
 
 import {
@@ -100,49 +100,51 @@ export function useUser(): QueryResult {
 }
 
 export function usePlace(placeId: string): Place | "loading" {
-  return useQuery(doc(db, "places", placeId), PlaceSchema)
+  const q = useMemo(() => {
+    return doc(db, "places", placeId)
+  }, [placeId])
+  return useQuery(q, PlaceSchema)
 }
 
 export function useMenuItems(placeId: string) {
-  return useQuery(
-    query(collection(db, "places", placeId, "menuitems")),
-    PlaceMenuItemSchema,
-  )
+  const q = useMemo(() => {
+    return collection(db, "places", placeId, "menuitems")
+  }, [placeId])
+  return useQuery(q, PlaceMenuItemSchema)
 }
 export function useMenuItem(placeId: string, menuItemId: string) {
   return useQuery(
-    doc(collection(db, "places", placeId, "menuitems", menuItemId)),
+    doc(db, "places", placeId, "menuitems", menuItemId),
     PlaceMenuItemSchema,
   )
 }
 export function useCheckins(placeId: string) {
-  return useQuery(
-    query(collection(db, "places", placeId, "checkins")),
-    PlaceCheckInSchema,
-  )
+  const q = useMemo(() => {
+    return query(collection(db, "places", placeId, "checkins"))
+  }, [placeId])
+  return useQuery(q, PlaceCheckInSchema)
 }
 
 export function useCheckIn(placeId: string, checkInId: string) {
-  return useQuery(
-    doc(collection(db, "places", placeId, "checkins", checkInId)),
-    PlaceCheckInSchema,
-  )
+  const q = useMemo(() => {
+    return doc(db, "places", placeId, "checkins", checkInId)
+  }, [placeId, checkInId])
+  return useQuery(q, PlaceCheckInSchema)
 }
 
 export function usePlaces(userId: string | undefined) {
-  return useQuery(
-    !!userId &&
-      query(
-        collection(db, "places"),
-        where("viewerIds", "array-contains", userId),
-      ),
-    PlaceSchema,
-  )
+  const q = useMemo(() => {
+    return query(
+      collection(db, "places"),
+      where("viewerIds", "array-contains", userId ?? ""),
+    )
+  }, [userId])
+  return useQuery(!!userId && q, PlaceSchema)
 }
 
 export function useFriends(userId: string | null) {
-  return useQuery(
-    !!userId && query(collection(db, `users`, userId, "friends")),
-    FriendSchema,
-  )
+  const q = useMemo(() => {
+    return query(collection(db, "users", userId ?? "", "friends"))
+  }, [userId])
+  return useQuery(!!userId && q, FriendSchema)
 }
