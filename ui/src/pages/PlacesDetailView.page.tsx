@@ -6,8 +6,6 @@ import {
   ButtonGroup,
   Card,
   CardBody,
-  CardFooter,
-  CardHeader,
   HStack,
   Spacer,
   Tab,
@@ -23,16 +21,14 @@ import first from "lodash-es/first"
 import orderBy from "lodash-es/orderBy"
 import { Link, useParams } from "react-router-dom"
 
-import { CheckInRating, PlaceCheckIn, PlaceMenuItem } from "../api-schemas"
+import { CheckInRating, PlaceMenuItem } from "../api-schemas"
 import { calculateCheckinCountsByMenuItem } from "../api-transforms"
 import { CheckInCommentCard } from "../components/CheckInCommentCard"
 import { DelayedLoader } from "../components/DelayedLoader"
 import { EmptyStateText } from "../components/EmptyStateText"
 import { Page } from "../components/Page"
 import { PlaceInfoPanel } from "../components/PlaceInfoPanel"
-import { formatHumanDateTime } from "../date"
 import { useCheckins, useMenuItems, usePlace, useUser } from "../hooks"
-import { UserIdToName } from "./FriendsListView.page"
 
 export function PlacesDetailView() {
   const { placeId }: { placeId: string } = useParams()

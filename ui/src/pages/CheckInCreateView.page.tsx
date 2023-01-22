@@ -28,7 +28,6 @@ import * as api from "../api"
 import { Place } from "../api-schemas"
 import { DelayedLoader } from "../components/DelayedLoader"
 import { Page } from "../components/Page"
-import { PlaceInfoPanel } from "../components/PlaceInfoPanel"
 import { useMenuItems, usePlace, useUser } from "../hooks"
 
 function toISODateString(date: Date | string | number): string {

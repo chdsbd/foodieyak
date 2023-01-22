@@ -3,13 +3,9 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   Button,
-  FormControl,
-  FormLabel,
   Heading,
   HStack,
-  Input,
   Spacer,
-  Text,
   VStack,
 } from "@chakra-ui/react"
 import { ThumbsDown, ThumbsUp } from "react-feather"
@@ -20,10 +16,8 @@ import { CheckInCommentCard } from "../components/CheckInCommentCard"
 import { DelayedLoader } from "../components/DelayedLoader"
 import { EmptyStateText } from "../components/EmptyStateText"
 import { Page } from "../components/Page"
-import { PlaceInfoPanel } from "../components/PlaceInfoPanel"
-import { formatHumanDate, formatHumanDateTime } from "../date"
+import { formatHumanDate } from "../date"
 import { useCheckIn, useMenuItems, usePlace } from "../hooks"
-import { UserIdToName } from "./FriendsListView.page"
 
 export function CheckInDetailView() {
   const { placeId, checkInId }: { placeId: string; checkInId: string } =
