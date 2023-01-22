@@ -35,10 +35,11 @@ export const PlaceMenuItemSchema = BaseSchema.extend({
 export type PlaceMenuItem = z.infer<typeof PlaceMenuItemSchema>
 
 export const PlaceCheckInSchema = BaseSchema.extend({
+  comment: z.string(),
   ratings: z.array(
     z.object({
-      id: z.string(),
       menuItemId: z.string(),
+      comment: z.string(),
       rating: z.literal(-1).or(z.literal(1)),
     }),
   ),

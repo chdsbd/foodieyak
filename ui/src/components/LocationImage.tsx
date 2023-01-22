@@ -7,6 +7,7 @@ export function LocationImage() {
       minWidth="100px"
       background={"darkgray"}
       marginRight={2}
+      rounded={"lg"}
     >
       <div />
     </Box>

@@ -14,6 +14,7 @@ import { AuthPasswordReset } from "./pages/AuthPasswordReset.page"
 import { AuthSignupView } from "./pages/AuthSignupView.page"
 import { CheckInCreateView } from "./pages/CheckInCreateView.page"
 import { CheckInDetailView } from "./pages/CheckInDetailView.page"
+import { CheckInEditView } from "./pages/CheckInEditView.page"
 import { FriendsCreateView } from "./pages/FriendsCreateView.page"
 import { FriendsListView } from "./pages/FriendsListView.page"
 import { MenuItemDetailView } from "./pages/MenuItemDetailView.page"
@@ -43,6 +44,11 @@ const routes: (
   {
     path: "/forgot-password",
     element: <AuthForgotPassword />,
+  },
+  {
+    authed: true,
+    path: "/place/:placeId/check-in/:checkInId/edit",
+    element: <CheckInEditView />,
   },
   {
     authed: true,

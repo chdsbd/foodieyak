@@ -20,7 +20,7 @@ import { Page } from "../components/Page"
 import { formatHumanDateTime } from "../date"
 import { useFriends, useUser } from "../hooks"
 
-function UserIdToName({ userId }: { userId: string }) {
+export function UserIdToName({ userId }: { userId: string }) {
   const [name, setName] = useState<{ name: string } | "loading">("loading")
   useEffect(() => {
     api

@@ -1,10 +1,11 @@
 import {
-  Box,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   Button,
   ButtonGroup,
+  Card,
+  CardBody,
   HStack,
   Spacer,
   Tab,
@@ -22,23 +23,12 @@ import { Link, useParams } from "react-router-dom"
 
 import { CheckInRating, PlaceMenuItem } from "../api-schemas"
 import { calculateCheckinCountsByMenuItem } from "../api-transforms"
+import { CheckInCommentCard } from "../components/CheckInCommentCard"
 import { DelayedLoader } from "../components/DelayedLoader"
 import { EmptyStateText } from "../components/EmptyStateText"
-import { LocationImage } from "../components/LocationImage"
 import { Page } from "../components/Page"
-import { formatHumanDate } from "../date"
+import { PlaceInfoPanel } from "../components/PlaceInfoPanel"
 import { useCheckins, useMenuItems, usePlace, useUser } from "../hooks"
-
-// function Rating(props: { ratings: PlaceCheckIn["ratings"] }) {
-//   const total = props.ratings.length;
-//   const positive = props.ratings.filter((x) => x.rating > 0).length;
-//   const negative = props.ratings.filter((x) => x.rating < 0).length;
-//   return (
-//     <Flex>
-//       {total} reviews ({positive}↑ {negative}↓)
-//     </Flex>
-//   );
-// }
 
 export function PlacesDetailView() {
   const { placeId }: { placeId: string } = useParams()
@@ -97,20 +87,7 @@ export function PlacesDetailView() {
         </BreadcrumbItem>
       </Breadcrumb>
       <HStack w="100%" alignItems={"stretch"}>
-        <Box
-          minHeight={"100px"}
-          minWidth="100px"
-          background={"darkgray"}
-          marginRight={4}
-        >
-          <div />
-        </Box>
-        <VStack justifyContent={"center"}>
-          <div>
-            <div>{place.name}</div>
-            <div>{place.location}</div>
-          </div>
-        </VStack>
+        <PlaceInfoPanel place={place} />
         <Spacer />
         <VStack alignItems={"start"}>
           <Link to={`/place/${placeId}/edit`}>
@@ -146,25 +123,28 @@ export function PlacesDetailView() {
                 as={Link}
                 to={`/place/${place.id}/menu/${m.id}`}
               >
-                <LocationImage />
-                <Text fontSize={"xl"}>{m.name}</Text>
-                <Spacer />
-                <ButtonGroup>
-                  <Button
-                    colorScheme={
-                      (ratingForUser(m) ?? 0) > 0 ? "green" : undefined
-                    }
-                  >
-                    ↑{countsByMenuItem[m.id]?.positive}
-                  </Button>
-                  <Button
-                    colorScheme={
-                      (ratingForUser(m) ?? 0) < 0 ? "red" : undefined
-                    }
-                  >
-                    ↓{countsByMenuItem[m.id]?.negative}
-                  </Button>
-                </ButtonGroup>
+                <Card w="full" size="sm">
+                  <HStack as={CardBody} w="full">
+                    <Text fontSize={"lg"}>{m.name}</Text>
+                    <Spacer />
+                    <ButtonGroup>
+                      <Button
+                        colorScheme={
+                          (ratingForUser(m) ?? 0) > 0 ? "green" : undefined
+                        }
+                      >
+                        ↑{countsByMenuItem[m.id]?.positive}
+                      </Button>
+                      <Button
+                        colorScheme={
+                          (ratingForUser(m) ?? 0) < 0 ? "red" : undefined
+                        }
+                      >
+                        ↓{countsByMenuItem[m.id]?.negative}
+                      </Button>
+                    </ButtonGroup>
+                  </HStack>
+                </Card>
               </HStack>
             ))}
           </TabPanel>
@@ -184,13 +164,7 @@ export function PlacesDetailView() {
                 as={Link}
                 to={`/place/${place.id}/check-in/${c.id}`}
               >
-                <LocationImage />
-                <VStack align={"start"}>
-                  <div>{c.createdById}</div>
-                  <div>{formatHumanDate(c.createdAt)}</div>
-                </VStack>
-                <Spacer />
-                {/* <Rating ratings={c.ratings} /> */}
+                <CheckInCommentCard checkIn={c} />
               </HStack>
             ))}
           </TabPanel>

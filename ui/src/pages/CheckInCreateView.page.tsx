@@ -1,5 +1,4 @@
 import {
-  Box,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
@@ -10,19 +9,22 @@ import {
   FormControl,
   FormLabel,
   Heading,
-  HStack,
   Input,
   Select,
   Spacer,
+  Textarea,
+  useToast,
   VStack,
 } from "@chakra-ui/react"
 import { format, parseISO } from "date-fns"
+import { FirebaseError } from "firebase/app"
 import produce from "immer"
 import { groupBy } from "lodash-es"
 import { useState } from "react"
 import { ThumbsDown, ThumbsUp } from "react-feather"
-import { Link, useParams } from "react-router-dom"
+import { Link, useHistory, useParams } from "react-router-dom"
 
+import * as api from "../api"
 import { Place } from "../api-schemas"
 import { DelayedLoader } from "../components/DelayedLoader"
 import { Page } from "../components/Page"
@@ -34,12 +36,13 @@ function toISODateString(date: Date | string | number): string {
   return format(dateObj, "yyyy-MM-dd")
 }
 
-function MenuItemCreator(props: {
+export function MenuItemCreator(props: {
   place: Place
   onSelect: (_: string) => void
 }) {
   const user = useUser()
   const menuItems = useMenuItems(props.place.id)
+  const toast = useToast()
   const [selectValue, setSelectValue] = useState<string>("")
   if (user.data == null || menuItems === "loading") {
     return (
@@ -50,51 +53,53 @@ function MenuItemCreator(props: {
   }
 
   return (
-    <Card w="100%">
-      <CardBody>
-        <VStack w="100%">
-          <FormControl>
-            <FormLabel>New Menu Item</FormLabel>
-            <Select
-              value={selectValue}
-              onChange={(e) => {
-                if (e.target.value === "new") {
-                  const res = prompt("Menu Item Name?")
-                  if (res) {
-                    // query
-                    //   .menuItemCreate({
-                    //     placeId: props.place.id,
-                    //     name: res,
-                    //     userId: user.data.uid,
-                    //   })
-                    //   .then((menuItem) => {
-                    //     props.onSelect(menuItem.id);
-                    //   });
-                  }
-                } else {
-                  props.onSelect(e.target.value)
-                }
-                setSelectValue("")
-              }}
-            >
-              <option value="" selected disabled>
-                Choose an existing menu item
-              </option>
-              <option value="new">Create new menu item...</option>
-              {menuItems.map((mi) => (
-                <option key={mi.id} value={mi.id}>
-                  {mi.name} — {mi.createdById}
-                </option>
-              ))}
-            </Select>
-          </FormControl>
-        </VStack>
-      </CardBody>
-    </Card>
+    <VStack w="100%">
+      <FormControl>
+        <Select
+          value={selectValue}
+          onChange={(e) => {
+            if (e.target.value === "new") {
+              const res = prompt("Menu Item Name?")
+              if (res) {
+                api.menuItems
+                  .create({
+                    placeId: props.place.id,
+                    name: res,
+                    userId: user.data.uid,
+                  })
+                  .then((menuItemId) => {
+                    props.onSelect(menuItemId)
+                  })
+                  .catch((e: FirebaseError) => {
+                    toast({
+                      title: "Problem creating menu item",
+                      description: `${e.code}: ${e.message}`,
+                      status: "error",
+                    })
+                  })
+              }
+            } else {
+              props.onSelect(e.target.value)
+            }
+            setSelectValue("")
+          }}
+        >
+          <option value="" selected disabled>
+            Select a menu item to rate
+          </option>
+          <option value="new">Create new menu item...</option>
+          {menuItems.map((mi) => (
+            <option key={mi.id} value={mi.id}>
+              {mi.name} — {mi.createdById}
+            </option>
+          ))}
+        </Select>
+      </FormControl>
+    </VStack>
   )
 }
 
-function MenuItem(props: {
+export function MenuItem(props: {
   menuItemName: string
   rating: -1 | 1
   setRating: (_: -1 | 1) => void
@@ -137,8 +142,9 @@ function MenuItem(props: {
   )
 }
 
-type MenuItemRating = {
+export type MenuItemRating = {
   menuItemId: string
+  comment: string
   rating: 1 | -1
 }
 
@@ -147,8 +153,11 @@ export function CheckInCreateView() {
   const place = usePlace(placeId)
   const user = useUser()
   const menuItems = useMenuItems(placeId)
+  const history = useHistory()
+  const toast = useToast()
 
   const [date, setDate] = useState<string>(toISODateString(new Date()))
+  const [comment, setComment] = useState<string>("")
 
   const [menuItemRatings, setMenutItemRatings] = useState<MenuItemRating[]>([])
 
@@ -183,20 +192,9 @@ export function CheckInCreateView() {
           </BreadcrumbLink>
         </BreadcrumbItem>
       </Breadcrumb>
-      <HStack w="100%">
-        <Box
-          minHeight={"100px"}
-          minWidth="100px"
-          background={"darkgray"}
-          marginRight={4}
-        >
-          <div />
-        </Box>
-        <div>
-          <div>{place.name}</div>
-          <div>{place.location}</div>
-        </div>
-      </HStack>
+      <Heading as="h1" size="lg">
+        Check-In
+      </Heading>
 
       <FormControl>
         <FormLabel>Date</FormLabel>
@@ -208,11 +206,22 @@ export function CheckInCreateView() {
           value={toISODateString(date)}
         />
       </FormControl>
+      <FormControl>
+        <FormLabel>Comment</FormLabel>
+        <Textarea
+          placeholder="Add a note about your visit..."
+          onChange={(e) => {
+            setComment(e.target.value)
+          }}
+          value={comment}
+        />
+      </FormControl>
 
       <Heading as="h2" size="md" alignSelf={"start"}>
         Menu Items
       </Heading>
 
+      {/* TODO(chdsbd): Replace with modal for creating new menu items. This is glitchy adn we need a loading state.*/}
       <MenuItemCreator
         place={place}
         onSelect={(menuItemId) => {
@@ -221,7 +230,7 @@ export function CheckInCreateView() {
               if (s.find((x) => x.menuItemId === menuItemId) != null) {
                 return
               } else {
-                s.push({ menuItemId, rating: 1 })
+                s.push({ menuItemId, comment: "", rating: 1 })
               }
               return s
             }),
@@ -260,23 +269,24 @@ export function CheckInCreateView() {
           if (user.data == null) {
             return
           }
-          // query
-          //   .checkInCreate({
-          //     userId: user.data.uid,
-          //     date: date,
-          //     placeId: place.id,
-          //     reviews: menuItemRatings,
-          //   })
-          //   .then((checkIn) => {
-          //     history.push(`/place/${place.id}/check-in/${checkIn.id}`);
-          //   })
-          //   .catch((e) => {
-          //     toast({
-          //       title: "Problem creating checkin",
-          //       description: `${e.code}: ${e.message}`,
-          //       status: "error",
-          //     });
-          //   });
+          api.checkin
+            .create({
+              userId: user.data.uid,
+              date: new Date(date),
+              placeId: place.id,
+              comment,
+              reviews: menuItemRatings,
+            })
+            .then((checkInId) => {
+              history.push(`/place/${place.id}/check-in/${checkInId}`)
+            })
+            .catch((e: FirebaseError) => {
+              toast({
+                title: "Problem creating check-in",
+                description: `${e.code}: ${e.message}`,
+                status: "error",
+              })
+            })
         }}
       >
         Create Check-In

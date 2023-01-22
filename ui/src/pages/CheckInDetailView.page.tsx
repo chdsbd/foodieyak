@@ -6,14 +6,15 @@ import {
   Heading,
   HStack,
   Spacer,
-  Text,
+  VStack,
 } from "@chakra-ui/react"
 import { ThumbsDown, ThumbsUp } from "react-feather"
 import { Link, useParams } from "react-router-dom"
 
 import { PlaceMenuItem } from "../api-schemas"
+import { CheckInCommentCard } from "../components/CheckInCommentCard"
 import { DelayedLoader } from "../components/DelayedLoader"
-import { LocationImage } from "../components/LocationImage"
+import { EmptyStateText } from "../components/EmptyStateText"
 import { Page } from "../components/Page"
 import { formatHumanDate } from "../date"
 import { useCheckIn, useMenuItems, usePlace } from "../hooks"
@@ -60,25 +61,46 @@ export function CheckInDetailView() {
             as={Link}
             to={`/place/${place.id}/check-in/${checkIn.id}`}
           >
-            {formatHumanDate(checkIn.createdAt)}
+            Check-In — {formatHumanDate(checkIn.createdAt)}
           </BreadcrumbLink>
         </BreadcrumbItem>
       </Breadcrumb>
-      <HStack w="100%">
-        <LocationImage />
-        <div>
-          <div>{place.name}</div>
-          <div>{place.location}</div>
-        </div>
+
+      <HStack w="full">
+        <Heading as="h1" size="lg" alignSelf={"start"}>
+          Check-In
+        </Heading>
+        <Spacer />
+        <VStack alignItems={"start"}>
+          <Link to={`/place/${place.id}/check-in/${checkIn.id}/edit`}>
+            <Button size="sm" variant={"outline"}>
+              Edit
+            </Button>
+          </Link>
+        </VStack>
       </HStack>
 
-      <Text alignSelf={"start"}>{formatHumanDate(checkIn.createdAt)}</Text>
+      {/* <Heading as="h2" size="md">
+        Created
+      </Heading>
+      <Text alignSelf={"start"}>
+        {formatHumanDateTime(checkIn.createdAt)} by{" "}
+        <UserIdToName userId={checkIn.createdById} />
+      </Text>
+      <Heading as="h2" size="md">
+        Comment
+      </Heading>
+      <Text alignSelf={"start"}>{checkIn.comment}</Text> */}
+      <CheckInCommentCard checkIn={checkIn} />
 
       <Heading as="h2" size="md" alignSelf={"start"}>
         Menu Items
       </Heading>
+      {checkIn.ratings.length === 0 && (
+        <EmptyStateText>No Ratings</EmptyStateText>
+      )}
       {checkIn.ratings.map((m) => (
-        <HStack key={m.id} width="100%">
+        <HStack key={m.menuItemId} width="100%">
           <div>{menuItemMap[m.menuItemId]?.name}</div>
           <Spacer />
 
@@ -89,10 +111,6 @@ export function CheckInDetailView() {
           )}
         </HStack>
       ))}
-
-      <Link to={`/place/${place.id}/check-in/${checkIn.id}/edit`}>
-        <Button width="100%">Modify Check-In</Button>
-      </Link>
     </Page>
   )
 }
