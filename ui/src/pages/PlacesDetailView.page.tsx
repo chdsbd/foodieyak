@@ -86,7 +86,7 @@ export function PlacesDetailView() {
 
         <BreadcrumbItem isCurrentPage>
           <BreadcrumbLink as={Link} to={`/place/${place.id}`}>
-            Place — {place.name}
+            {place.name}
           </BreadcrumbLink>
         </BreadcrumbItem>
       </Breadcrumb>
