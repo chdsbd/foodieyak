@@ -37,7 +37,7 @@ function toISODateString(date: Date | string | number): string {
   return format(dateObj, "yyyy-MM-dd")
 }
 
-function MenuItemCreator(props: {
+export function MenuItemCreator(props: {
   place: Place
   onSelect: (_: string) => void
 }) {
@@ -100,7 +100,7 @@ function MenuItemCreator(props: {
   )
 }
 
-function MenuItem(props: {
+export function MenuItem(props: {
   menuItemName: string
   rating: -1 | 1
   setRating: (_: -1 | 1) => void
@@ -143,7 +143,7 @@ function MenuItem(props: {
   )
 }
 
-type MenuItemRating = {
+export type MenuItemRating = {
   menuItemId: string
   comment: string
   rating: 1 | -1
