@@ -4,6 +4,7 @@ import {
   BreadcrumbLink,
   Button,
   ButtonGroup,
+  Divider,
   FormControl,
   FormLabel,
   Heading,
@@ -39,6 +40,7 @@ export function CheckInEditView() {
   const history = useHistory()
   const toast = useToast()
   const [isSaving, setIsSaving] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const [date, setDate] = useState<string>(toISODateString(new Date()))
   const [comment, setComment] = useState<string>("")
@@ -47,11 +49,16 @@ export function CheckInEditView() {
     if (checkIn !== "loading") {
       setComment(checkIn.comment)
     }
+    // @ts-expect-error this will work.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkIn?.comment])
   useEffect(() => {
     if (checkIn !== "loading") {
-      setDate(toISODateString(checkIn.createdAt.toDate()))
+      const createdAt: Date = checkIn.createdAt.toDate()
+      setDate(toISODateString(createdAt))
     }
+    // @ts-expect-error this will work.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkIn?.createdAt])
 
   const [menuItemRatings, setMenutItemRatings] = useState<MenuItemRating[]>([])
@@ -173,7 +180,7 @@ export function CheckInEditView() {
         <Button variant={"outline"}>Cancel</Button>
         <Spacer />
         <Button
-          loadingText="Saving changes..."
+          loadingText="Saving changes"
           isLoading={isSaving}
           onClick={() => {
             if (user.data == null) {
@@ -195,7 +202,7 @@ export function CheckInEditView() {
               })
               .catch((e: FirebaseError) => {
                 toast({
-                  title: "Problem creating check-in",
+                  title: "Problem updating check-in",
                   description: `${e.code}: ${e.message}`,
                   status: "error",
                 })
@@ -206,6 +213,34 @@ export function CheckInEditView() {
           Save Changes
         </Button>
       </ButtonGroup>
+      <Divider />
+      <Button
+        variant={"outline"}
+        colorScheme={"red"}
+        isLoading={isDeleting}
+        loadingText="Removing Check-In"
+        onClick={() => {
+          if (confirm("Are you sure you want to remove this check-in?")) {
+            setIsDeleting(true)
+            api.checkin
+              .delete({ placeId, checkInId })
+              .then(() => {
+                history.push(`/place/${place.id}`)
+                setIsDeleting(false)
+              })
+              .catch((e: FirebaseError) => {
+                toast({
+                  title: "Problem deleting check-in",
+                  description: `${e.code}: ${e.message}`,
+                  status: "error",
+                })
+                setIsDeleting(false)
+              })
+          }
+        }}
+      >
+        Remove Check-In
+      </Button>
     </Page>
   )
 }

@@ -104,6 +104,11 @@ export const checkin = {
       checkin,
     )
   },
+  async delete(params: { placeId: string; checkInId: string }) {
+    await deleteDoc(
+      doc(db, "places", params.placeId, "checkins", params.checkInId),
+    )
+  },
 }
 
 export const menuItems = {

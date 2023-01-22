@@ -10,6 +10,7 @@ import {
   Input,
   Spacer,
   Text,
+  VStack,
 } from "@chakra-ui/react"
 import { ThumbsDown, ThumbsUp } from "react-feather"
 import { Link, useParams } from "react-router-dom"
@@ -71,9 +72,19 @@ export function CheckInDetailView() {
         </BreadcrumbItem>
       </Breadcrumb>
 
-      <Heading as="h1" size="lg" alignSelf={"start"}>
-        Check-In
-      </Heading>
+      <HStack w="full">
+        <Heading as="h1" size="lg" alignSelf={"start"}>
+          Check-In
+        </Heading>
+        <Spacer />
+        <VStack alignItems={"start"}>
+          <Link to={`/place/${place.id}/check-in/${checkIn.id}/edit`}>
+            <Button size="sm" variant={"outline"}>
+              Edit
+            </Button>
+          </Link>
+        </VStack>
+      </HStack>
 
       {/* <Heading as="h2" size="md">
         Created
@@ -106,10 +117,6 @@ export function CheckInDetailView() {
           )}
         </HStack>
       ))}
-
-      <Link to={`/place/${place.id}/check-in/${checkIn.id}/edit`}>
-        <Button width="100%">Modify Check-In</Button>
-      </Link>
     </Page>
   )
 }
