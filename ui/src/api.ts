@@ -85,6 +85,25 @@ export const checkin = {
     )
     return res.id
   },
+  async update(params: {
+    placeId: string
+    checkInId: string
+    date: Date
+    userId: string
+    comment: string
+    reviews: { menuItemId: string; rating: -1 | 1; comment: string }[]
+  }) {
+    const checkin: Omit<PlaceCheckIn, "id" | "createdAt" | "createdById"> = {
+      lastModifiedAt: Timestamp.now(),
+      lastModifiedById: params.userId,
+      comment: params.comment,
+      ratings: params.reviews,
+    }
+    await updateDoc(
+      doc(db, "places", params.placeId, "checkins", params.checkInId),
+      checkin,
+    )
+  },
 }
 
 export const menuItems = {

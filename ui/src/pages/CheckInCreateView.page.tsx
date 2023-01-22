@@ -158,6 +158,7 @@ export function CheckInCreateView() {
   const toast = useToast()
 
   const [date, setDate] = useState<string>(toISODateString(new Date()))
+  const [comment, setComment] = useState<string>("")
 
   const [menuItemRatings, setMenutItemRatings] = useState<MenuItemRating[]>([])
 
@@ -210,10 +211,10 @@ export function CheckInCreateView() {
         <FormLabel>Comment</FormLabel>
         <Textarea
           placeholder="Add a note about your visit..."
-          // onChange={(e) => {
-          //   setDate(e.target.value)
-          // }}
-          // value={toISODateString(date)}
+          onChange={(e) => {
+            setComment(e.target.value)
+          }}
+          value={comment}
         />
       </FormControl>
 
@@ -274,7 +275,7 @@ export function CheckInCreateView() {
               userId: user.data.uid,
               date: new Date(date),
               placeId: place.id,
-              comment: "",
+              comment,
               reviews: menuItemRatings,
             })
             .then((checkInId) => {
