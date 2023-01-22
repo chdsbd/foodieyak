@@ -3,8 +3,11 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   Button,
+  FormControl,
+  FormLabel,
   Heading,
   HStack,
+  Input,
   Spacer,
   Text,
 } from "@chakra-ui/react"
@@ -12,11 +15,14 @@ import { ThumbsDown, ThumbsUp } from "react-feather"
 import { Link, useParams } from "react-router-dom"
 
 import { PlaceMenuItem } from "../api-schemas"
+import { CheckInCommentCard } from "../components/CheckInCommentCard"
 import { DelayedLoader } from "../components/DelayedLoader"
+import { EmptyStateText } from "../components/EmptyStateText"
 import { Page } from "../components/Page"
 import { PlaceInfoPanel } from "../components/PlaceInfoPanel"
-import { formatHumanDate } from "../date"
+import { formatHumanDate, formatHumanDateTime } from "../date"
 import { useCheckIn, useMenuItems, usePlace } from "../hooks"
+import { UserIdToName } from "./FriendsListView.page"
 
 export function CheckInDetailView() {
   const { placeId, checkInId }: { placeId: string; checkInId: string } =
@@ -60,17 +66,34 @@ export function CheckInDetailView() {
             as={Link}
             to={`/place/${place.id}/check-in/${checkIn.id}`}
           >
-            {formatHumanDate(checkIn.createdAt)}
+            Check-In — {formatHumanDate(checkIn.createdAt)}
           </BreadcrumbLink>
         </BreadcrumbItem>
       </Breadcrumb>
-      <PlaceInfoPanel place={place} />
 
-      <Text alignSelf={"start"}>{formatHumanDate(checkIn.createdAt)}</Text>
+      <Heading as="h1" size="lg" alignSelf={"start"}>
+        Check-In
+      </Heading>
+
+      {/* <Heading as="h2" size="md">
+        Created
+      </Heading>
+      <Text alignSelf={"start"}>
+        {formatHumanDateTime(checkIn.createdAt)} by{" "}
+        <UserIdToName userId={checkIn.createdById} />
+      </Text>
+      <Heading as="h2" size="md">
+        Comment
+      </Heading>
+      <Text alignSelf={"start"}>{checkIn.comment}</Text> */}
+      <CheckInCommentCard checkIn={checkIn} />
 
       <Heading as="h2" size="md" alignSelf={"start"}>
         Menu Items
       </Heading>
+      {checkIn.ratings.length === 0 && (
+        <EmptyStateText>No Ratings</EmptyStateText>
+      )}
       {checkIn.ratings.map((m) => (
         <HStack key={m.menuItemId} width="100%">
           <div>{menuItemMap[m.menuItemId]?.name}</div>
