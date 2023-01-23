@@ -20,18 +20,26 @@ import { Page } from "../components/Page"
 import { formatHumanDateTime } from "../date"
 import { useFriends, useUser } from "../hooks"
 
+// HACK(chdsbd): This is horrible.
+const userIdcache: Record<string, string | undefined> = {}
+
 export function UserIdToName({ userId }: { userId: string }) {
   const [name, setName] = useState<{ name: string } | "loading">("loading")
   useEffect(() => {
     api
       .userById({ userId })
       .then((res) => {
+        userIdcache[userId] = res.email
         setName({ name: res.email })
       })
       .catch(() => {
         // TODO:
       })
   }, [userId])
+  const nameCacheEntry = userIdcache[userId]
+  if (nameCacheEntry != null) {
+    return <> {nameCacheEntry}</>
+  }
   if (name === "loading") {
     return null
   }

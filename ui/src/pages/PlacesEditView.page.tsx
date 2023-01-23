@@ -119,7 +119,7 @@ export function PlacesEditView() {
         <ButtonGroup w="100%">
           <Tooltip
             isDisabled={(place.checkInCount ?? 0) === 0}
-            label={`Deletion not allowed. All '${place.checkInCount}' CheckIns must be deleted first.`}
+            label={`Deletion disabled until all (${place.checkInCount}) check-Ins have been deleted.`}
           >
             <Button
               // size="lg"
