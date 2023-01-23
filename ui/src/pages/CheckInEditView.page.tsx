@@ -45,6 +45,7 @@ export function CheckInEditView() {
 
   const [date, setDate] = useState<string>(toISODateString(new Date()))
   const [comment, setComment] = useState<string>("")
+  const [menuItemRatings, setMenutItemRatings] = useState<MenuItemRating[]>([])
 
   useEffect(() => {
     if (checkIn !== "loading") {
@@ -62,8 +63,13 @@ export function CheckInEditView() {
     // @ts-expect-error this will work.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkIn?.createdAt])
-
-  const [menuItemRatings, setMenutItemRatings] = useState<MenuItemRating[]>([])
+  useEffect(() => {
+    if (checkIn !== "loading") {
+      setMenutItemRatings(checkIn.ratings)
+    }
+    // @ts-expect-error this will work.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkIn?.ratings])
 
   if (place === "loading" || menuItems === "loading" || checkIn === "loading") {
     return (
