@@ -10,6 +10,7 @@ import {
   HStack,
   Spacer,
   Text,
+  Box,
   VStack,
 } from "@chakra-ui/react"
 import { ThumbsDown, ThumbsUp } from "react-feather"
@@ -67,6 +68,10 @@ export function MenuItemDetailView() {
   const checkinCountsByMenuItem =
     calculateCheckinCountsByMenuItem(checkIns)[menuItemId]
 
+  const countDifference =
+    (checkinCountsByMenuItem?.positive ?? 0) -
+    (checkinCountsByMenuItem?.negative ?? 0)
+
   return (
     <Page>
       <Breadcrumb alignSelf={"start"}>
@@ -92,17 +97,26 @@ export function MenuItemDetailView() {
         </BreadcrumbItem>
       </Breadcrumb>
 
-      <HStack width="100%">
-        <Heading alignSelf={"start"} fontSize="2xl">
-          {menuItem.name}
-        </Heading>
+      <Heading alignSelf={"start"} as="h1" size="lg">
+        Menu Item
+      </Heading>
+
+      <HStack width="full">
+        <Text fontSize="xl">{menuItem.name}</Text>
         <Spacer />
         <ButtonGroup>
-          <Button>↑{checkinCountsByMenuItem?.positive ?? ""}</Button>
-          <Button>↓{checkinCountsByMenuItem?.negative ?? ""}</Button>
+          <Button>
+            <ThumbsUp fill={countDifference > 0 ? "lightgreen" : "none"} />
+          </Button>
+          <Button>
+            <ThumbsDown fill={countDifference < 0 ? "orange" : "none"} />
+          </Button>
         </ButtonGroup>
       </HStack>
-      <Heading fontSize="xl">Check-Ins</Heading>
+
+      <Heading as="h2" size="md">
+        Related Check-Ins
+      </Heading>
       {checkInsForMenuItem.length === 0 && (
         <EmptyStateText>No Check-Ins for menu item.</EmptyStateText>
       )}
@@ -125,18 +139,13 @@ export function MenuItemDetailView() {
                   </VStack>
                 </HStack>
                 <Spacer />
-                <ButtonGroup>
-                  <Button>
-                    <ThumbsUp
-                      fill={m.rating > 0 ? "lightgreen" : "transparent"}
-                    />
-                  </Button>
-                  <Button>
-                    <ThumbsDown
-                      fill={m.rating < 0 ? "orange" : "transparent"}
-                    />
-                  </Button>
-                </ButtonGroup>
+                <Box padding="4">
+                  {m.rating > 0 ? (
+                    <ThumbsUp fill={"lightgreen"} />
+                  ) : (
+                    <ThumbsDown fill={"orange"} />
+                  )}
+                </Box>
               </HStack>
             </CardBody>
           </Card>
