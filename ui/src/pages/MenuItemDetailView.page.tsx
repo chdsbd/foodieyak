@@ -101,19 +101,34 @@ export function MenuItemDetailView() {
         Menu Item
       </Heading>
 
-      <HStack width="full">
-        <Text fontSize="xl">{menuItem.name}</Text>
-        <Spacer />
-        <ButtonGroup>
-          <Button>
-            <ThumbsUp fill={countDifference > 0 ? "lightgreen" : "none"} />
-          </Button>
-          <Button>
-            <ThumbsDown fill={countDifference < 0 ? "orange" : "none"} />
-          </Button>
-        </ButtonGroup>
-      </HStack>
+      <Text fontSize="xl">{menuItem.name}</Text>
 
+      <Heading as="h2" size="md">
+        Ratings
+      </Heading>
+      <HStack>
+        <Card size="sm">
+          <CardBody>
+            <HStack>
+              <ThumbsUp fill={"lightgreen"} />
+              <Text fontWeight="bold">
+                {checkinCountsByMenuItem?.positive ?? 0}
+              </Text>
+            </HStack>
+          </CardBody>
+        </Card>
+
+        <Card size="sm">
+          <CardBody>
+            <HStack>
+              <ThumbsDown fill={"orange"} />
+              <Text fontWeight="bold">
+                {checkinCountsByMenuItem?.negative ?? 0}
+              </Text>
+            </HStack>
+          </CardBody>
+        </Card>
+      </HStack>
       <Heading as="h2" size="md">
         Related Check-Ins
       </Heading>
