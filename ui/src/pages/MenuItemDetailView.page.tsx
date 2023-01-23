@@ -66,10 +66,6 @@ export function MenuItemDetailView() {
   const checkinCountsByMenuItem =
     calculateCheckinCountsByMenuItem(checkIns)[menuItemId]
 
-  const countDifference =
-    (checkinCountsByMenuItem?.positive ?? 0) -
-    (checkinCountsByMenuItem?.negative ?? 0)
-
   return (
     <Page>
       <Breadcrumb alignSelf={"start"}>
