@@ -4,9 +4,12 @@ import {
   BreadcrumbLink,
   Button,
   ButtonGroup,
+  Card,
+  CardBody,
   Heading,
   HStack,
   Spacer,
+  Text,
   VStack,
 } from "@chakra-ui/react"
 import { ThumbsDown, ThumbsUp } from "react-feather"
@@ -14,11 +17,12 @@ import { Link, useParams } from "react-router-dom"
 
 import { calculateCheckinCountsByMenuItem } from "../api-transforms"
 import { DelayedLoader } from "../components/DelayedLoader"
+import { EmptyStateText } from "../components/EmptyStateText"
 import { Page } from "../components/Page"
-import { PlaceInfoPanel } from "../components/PlaceInfoPanel"
 import { formatHumanDate } from "../date"
 import { useCheckins, useMenuItem, usePlace, useUser } from "../hooks"
 import { notUndefined } from "../type-guards"
+import { UserIdToName } from "./FriendsListView.page"
 
 export function MenuItemDetailView() {
   const {
@@ -87,7 +91,6 @@ export function MenuItemDetailView() {
           </BreadcrumbLink>
         </BreadcrumbItem>
       </Breadcrumb>
-      <PlaceInfoPanel place={place} />
 
       <HStack width="100%">
         <Heading alignSelf={"start"} fontSize="2xl">
@@ -99,7 +102,10 @@ export function MenuItemDetailView() {
           <Button>↓{checkinCountsByMenuItem?.negative ?? ""}</Button>
         </ButtonGroup>
       </HStack>
-
+      <Heading fontSize="xl">Check-Ins</Heading>
+      {checkInsForMenuItem.length === 0 && (
+        <EmptyStateText>No Check-Ins for menu item.</EmptyStateText>
+      )}
       {checkInsForMenuItem.map((m) => (
         <HStack
           key={m.id}
@@ -107,21 +113,33 @@ export function MenuItemDetailView() {
           as={Link}
           to={`/place/${place.id}/check-in/${m.id}`}
         >
-          <HStack>
-            <VStack align="start">
-              <div>{m.createdById}</div>
-              <div>{formatHumanDate(m.createdAt)}</div>
-            </VStack>
-          </HStack>
-          <Spacer />
-          <ButtonGroup>
-            <Button>
-              <ThumbsUp fill={m.rating > 0 ? "lightgreen" : "transparent"} />
-            </Button>
-            <Button>
-              <ThumbsDown fill={m.rating < 0 ? "orange" : "transparent"} />
-            </Button>
-          </ButtonGroup>
+          <Card size="sm" w="full">
+            <CardBody>
+              <HStack w="full">
+                <HStack>
+                  <VStack align="start">
+                    <Text fontWeight={"bold"}>
+                      <UserIdToName userId={m.createdById} />
+                    </Text>
+                    <div>{formatHumanDate(m.createdAt)}</div>
+                  </VStack>
+                </HStack>
+                <Spacer />
+                <ButtonGroup>
+                  <Button>
+                    <ThumbsUp
+                      fill={m.rating > 0 ? "lightgreen" : "transparent"}
+                    />
+                  </Button>
+                  <Button>
+                    <ThumbsDown
+                      fill={m.rating < 0 ? "orange" : "transparent"}
+                    />
+                  </Button>
+                </ButtonGroup>
+              </HStack>
+            </CardBody>
+          </Card>
         </HStack>
       ))}
     </Page>

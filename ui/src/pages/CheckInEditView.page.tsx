@@ -6,6 +6,7 @@ import {
   ButtonGroup,
   Divider,
   FormControl,
+  FormHelperText,
   FormLabel,
   Heading,
   Input,
@@ -71,6 +72,8 @@ export function CheckInEditView() {
       </Page>
     )
   }
+
+  const isCheckInAuthor = checkIn.createdById !== user.data?.uid
 
   const menuItemMap = groupBy(menuItems, (x) => x.id)
 
@@ -215,33 +218,41 @@ export function CheckInEditView() {
         </Button>
       </ButtonGroup>
       <Divider />
-      <Button
-        variant={"outline"}
-        colorScheme={"red"}
-        isLoading={isDeleting}
-        loadingText="Removing Check-In"
-        onClick={() => {
-          if (confirm("Are you sure you want to remove this check-in?")) {
-            setIsDeleting(true)
-            api.checkin
-              .delete({ placeId, checkInId })
-              .then(() => {
-                history.push(`/place/${place.id}`)
-                setIsDeleting(false)
-              })
-              .catch((e: FirebaseError) => {
-                toast({
-                  title: "Problem deleting check-in",
-                  description: `${e.code}: ${e.message}`,
-                  status: "error",
+      <FormControl>
+        <Button
+          variant={"outline"}
+          colorScheme={"red"}
+          isLoading={isDeleting}
+          isDisabled={isCheckInAuthor}
+          loadingText="Removing Check-In"
+          onClick={() => {
+            if (confirm("Are you sure you want to remove this check-in?")) {
+              setIsDeleting(true)
+              api.checkin
+                .delete({ placeId, checkInId })
+                .then(() => {
+                  history.push(`/place/${place.id}`)
+                  setIsDeleting(false)
                 })
-                setIsDeleting(false)
-              })
-          }
-        }}
-      >
-        Remove Check-In
-      </Button>
+                .catch((e: FirebaseError) => {
+                  toast({
+                    title: "Problem deleting check-in",
+                    description: `${e.code}: ${e.message}`,
+                    status: "error",
+                  })
+                  setIsDeleting(false)
+                })
+            }
+          }}
+        >
+          Remove Check-In
+        </Button>
+        {isCheckInAuthor && (
+          <FormHelperText>
+            Only the author may perform this action.
+          </FormHelperText>
+        )}
+      </FormControl>
     </Page>
   )
 }

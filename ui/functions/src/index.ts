@@ -123,6 +123,8 @@ async function updateSubcollectionCounts({ placeId }: { placeId: string }) {
       .get()
   ).data().count
 
+  functions.logger.info("counts", { menuItemCount, checkInCount })
+
   await admin.firestore().doc(`places/${placeId}`).update({
     checkInCount,
     menuItemCount,
