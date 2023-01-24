@@ -8,17 +8,17 @@ function Rating(props: { ratings: PlaceCheckIn["ratings"] }) {
   const positive = props.ratings.filter((x) => x.rating > 0).length
   const negative = props.ratings.filter((x) => x.rating < 0).length
   return (
-    <div>
+    <Text as={"div"} fontSize="sm">
       {positive > 0 && <>{positive}↑ </>}
       {negative > 0 && <>{negative}↓</>}
-    </div>
+    </Text>
   )
 }
 
 export function CheckInCommentCard({ checkIn: c }: { checkIn: PlaceCheckIn }) {
   return (
     <VStack alignItems="start" as={Card} width="full" size="sm">
-      <VStack as={CardBody} alignItems="start">
+      <VStack as={CardBody} alignItems="start" spacing={0}>
         <Text>
           <Text as="span" fontWeight={"bold"}>
             <UserIdToName userId={c.createdById} />

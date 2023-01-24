@@ -10,7 +10,7 @@ export function Page({
   action?: JSX.Element
 }) {
   return (
-    <VStack spacing={4} alignItems="start">
+    <VStack spacing={2} alignItems="start">
       <NavBar action={action} />
       {children}
     </VStack>

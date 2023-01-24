@@ -43,22 +43,20 @@ export function CheckInDetailView() {
 
   return (
     <Page>
-      <Text
-        as={Link}
-        to={`/place/${place.id}`}
-        fontSize="md"
-        marginTop={0}
-        margin={0}
-        fontWeight={500}
-        style={{ marginTop: 0 }}
-      >
-        {place.name}
-      </Text>
-
-      <HStack w="full" style={{ marginTop: 0 }}>
-        <Heading as="h1" size="md">
-          Check-In
-        </Heading>
+      <HStack w="full">
+        <VStack spacing={0} alignItems="start">
+          <Text
+            as={Link}
+            to={`/place/${place.id}`}
+            fontSize="md"
+            fontWeight={500}
+          >
+            {place.name}
+          </Text>
+          <Heading as="h1" size="md">
+            Check-In
+          </Heading>
+        </VStack>
         <Spacer />
         <VStack alignItems={"start"}>
           <Link to={`/place/${place.id}/check-in/${checkIn.id}/edit`}>
@@ -71,9 +69,7 @@ export function CheckInDetailView() {
 
       <CheckInCommentCard checkIn={checkIn} />
 
-      <Heading as="h2" size="md">
-        Menu Items
-      </Heading>
+      <Text fontWeight={500}>Menu Items</Text>
 
       {checkIn.ratings.length === 0 && (
         <EmptyStateText>No Ratings</EmptyStateText>

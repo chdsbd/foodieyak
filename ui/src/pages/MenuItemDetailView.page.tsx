@@ -65,21 +65,20 @@ export function MenuItemDetailView() {
 
   return (
     <Page>
-      <Text
-        as={Link}
-        to={`/place/${place.id}`}
-        fontSize="md"
-        marginTop={0}
-        margin={0}
-        fontWeight={500}
-        style={{ marginTop: 0 }}
-      >
-        {place.name}
-      </Text>
-      <VStack style={{ marginTop: 0 }} alignItems="start">
-        <Heading alignSelf={"start"} as="h1" size="lg">
-          {menuItem.name}
-        </Heading>
+      <VStack alignItems="start" spacing={2}>
+        <VStack alignItems="start" spacing={0}>
+          <Text
+            as={Link}
+            to={`/place/${place.id}`}
+            fontSize="md"
+            fontWeight={500}
+          >
+            {place.name}
+          </Text>
+          <Heading alignSelf={"start"} as="h1" size="lg">
+            {menuItem.name}
+          </Heading>
+        </VStack>
         <HStack>
           <Upvote count={checkinCountsByMenuItem?.positive ?? 0} />
           <Downvote count={checkinCountsByMenuItem?.positive ?? 0} />

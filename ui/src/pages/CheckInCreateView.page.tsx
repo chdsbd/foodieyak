@@ -1,7 +1,4 @@
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
   Button,
   ButtonGroup,
   Card,
@@ -9,6 +6,7 @@ import {
   FormControl,
   FormLabel,
   Heading,
+  HStack,
   Input,
   Select,
   Spacer,
@@ -172,28 +170,19 @@ export function CheckInCreateView() {
 
   return (
     <Page>
-      <Breadcrumb alignSelf={"start"}>
-        <BreadcrumbItem>
-          <BreadcrumbLink as={Link} to="/">
-            Home
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-
-        <BreadcrumbItem>
-          <BreadcrumbLink as={Link} to={`/place/${place.id}`}>
-            Tenoch
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-
-        <BreadcrumbItem isCurrentPage>
-          <BreadcrumbLink as={Link} to={`/place/${place.id}/check-in`}>
-            Check-In
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-      </Breadcrumb>
       <Heading as="h1" size="lg">
         Check-In
       </Heading>
+
+      <FormControl>
+        <FormLabel>Place</FormLabel>
+        <HStack>
+          <Input type="text" value={"Tenoch"} disabled sx={{ _disabled: {} }} />
+          <Button size="sm" as={Link} to={`/place/${place.id}`}>
+            View
+          </Button>
+        </HStack>
+      </FormControl>
 
       <FormControl>
         <FormLabel>Date</FormLabel>
