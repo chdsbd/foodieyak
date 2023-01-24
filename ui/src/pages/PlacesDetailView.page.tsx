@@ -28,6 +28,7 @@ import { DelayedLoader } from "../components/DelayedLoader"
 import { EmptyStateText } from "../components/EmptyStateText"
 import { Page } from "../components/Page"
 import { PlaceInfoPanel } from "../components/PlaceInfoPanel"
+import { Downvote, Upvote } from "../components/Ratings"
 import { useCheckins, useMenuItems, usePlace, useUser } from "../hooks"
 
 export function PlacesDetailView() {
@@ -73,19 +74,6 @@ export function PlacesDetailView() {
 
   return (
     <Page>
-      <Breadcrumb alignSelf={"start"}>
-        <BreadcrumbItem>
-          <BreadcrumbLink as={Link} to="/">
-            Home
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-
-        <BreadcrumbItem isCurrentPage>
-          <BreadcrumbLink as={Link} to={`/place/${place.id}`}>
-            {place.name}
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-      </Breadcrumb>
       <HStack w="100%" alignItems={"stretch"}>
         <PlaceInfoPanel place={place} />
         <Spacer />
@@ -128,20 +116,14 @@ export function PlacesDetailView() {
                     <Text fontSize={"lg"}>{m.name}</Text>
                     <Spacer />
                     <ButtonGroup>
-                      <Button
-                        colorScheme={
-                          (ratingForUser(m) ?? 0) > 0 ? "green" : undefined
-                        }
-                      >
-                        ↑{countsByMenuItem[m.id]?.positive}
-                      </Button>
-                      <Button
-                        colorScheme={
-                          (ratingForUser(m) ?? 0) < 0 ? "red" : undefined
-                        }
-                      >
-                        ↓{countsByMenuItem[m.id]?.negative}
-                      </Button>
+                      <Upvote
+                        count={countsByMenuItem[m.id]?.positive}
+                        showColor={(ratingForUser(m) ?? 0) > 0}
+                      />
+                      <Downvote
+                        count={countsByMenuItem[m.id]?.negative}
+                        showColor={(ratingForUser(m) ?? 0) < 0}
+                      />
                     </ButtonGroup>
                   </HStack>
                 </Card>

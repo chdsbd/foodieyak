@@ -1,14 +1,15 @@
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
   Button,
+  ButtonGroup,
+  Card,
+  CardBody,
+  CardHeader,
   Heading,
   HStack,
   Spacer,
+  Text,
   VStack,
 } from "@chakra-ui/react"
-import { ThumbsDown, ThumbsUp } from "react-feather"
 import { Link, useParams } from "react-router-dom"
 
 import { PlaceMenuItem } from "../api-schemas"
@@ -16,8 +17,10 @@ import { CheckInCommentCard } from "../components/CheckInCommentCard"
 import { DelayedLoader } from "../components/DelayedLoader"
 import { EmptyStateText } from "../components/EmptyStateText"
 import { Page } from "../components/Page"
-import { formatHumanDate } from "../date"
+import { Downvote, Upvote } from "../components/Ratings"
+import { formatHumanDateTime } from "../date"
 import { useCheckIn, useMenuItems, usePlace } from "../hooks"
+import { UserIdToName } from "./FriendsListView.page"
 
 export function CheckInDetailView() {
   const { placeId, checkInId }: { placeId: string; checkInId: string } =
@@ -43,31 +46,20 @@ export function CheckInDetailView() {
 
   return (
     <Page>
-      <Breadcrumb alignSelf={"start"}>
-        <BreadcrumbItem>
-          <BreadcrumbLink as={Link} to="/">
-            Home
-          </BreadcrumbLink>
-        </BreadcrumbItem>
+      <Text
+        as={Link}
+        to={`/place/${place.id}`}
+        fontSize="md"
+        marginTop={0}
+        margin={0}
+        fontWeight={500}
+        style={{ marginTop: 0 }}
+      >
+        {place.name}
+      </Text>
 
-        <BreadcrumbItem>
-          <BreadcrumbLink as={Link} to={`/place/${place.id}`}>
-            Tenoch
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-
-        <BreadcrumbItem isCurrentPage>
-          <BreadcrumbLink
-            as={Link}
-            to={`/place/${place.id}/check-in/${checkIn.id}`}
-          >
-            Check-In — {formatHumanDate(checkIn.createdAt)}
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-      </Breadcrumb>
-
-      <HStack w="full">
-        <Heading as="h1" size="lg" alignSelf={"start"}>
+      <HStack w="full" style={{ marginTop: 0 }}>
+        <Heading as="h1" size="md">
           Check-In
         </Heading>
         <Spacer />
@@ -80,35 +72,31 @@ export function CheckInDetailView() {
         </VStack>
       </HStack>
 
-      {/* <Heading as="h2" size="md">
-        Created
-      </Heading>
-      <Text alignSelf={"start"}>
-        {formatHumanDateTime(checkIn.createdAt)} by{" "}
-        <UserIdToName userId={checkIn.createdById} />
-      </Text>
-      <Heading as="h2" size="md">
-        Comment
-      </Heading>
-      <Text alignSelf={"start"}>{checkIn.comment}</Text> */}
       <CheckInCommentCard checkIn={checkIn} />
 
-      <Heading as="h2" size="md" alignSelf={"start"}>
+      <Heading as="h2" size="md">
         Menu Items
       </Heading>
+
       {checkIn.ratings.length === 0 && (
         <EmptyStateText>No Ratings</EmptyStateText>
       )}
       {checkIn.ratings.map((m) => (
-        <HStack key={m.menuItemId} width="100%">
-          <div>{menuItemMap[m.menuItemId]?.name}</div>
-          <Spacer />
-
-          {m.rating > 0 ? (
-            <ThumbsUp fill="lightgreen" />
-          ) : (
-            <ThumbsDown fill="orange" />
-          )}
+        <HStack
+          key={m.menuItemId}
+          w="full"
+          as={Link}
+          to={`/place/${place.id}/menu/${m.menuItemId}`}
+        >
+          <Card w="full" size="sm">
+            <HStack as={CardBody} w="full">
+              <Text>{menuItemMap[m.menuItemId]?.name}</Text>
+              <Spacer />
+              <ButtonGroup>
+                {m.rating > 0 ? <Upvote /> : <Downvote />}
+              </ButtonGroup>
+            </HStack>
+          </Card>
         </HStack>
       ))}
     </Page>
