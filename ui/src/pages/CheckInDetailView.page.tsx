@@ -3,7 +3,6 @@ import {
   ButtonGroup,
   Card,
   CardBody,
-  CardHeader,
   Heading,
   HStack,
   Spacer,
@@ -18,9 +17,7 @@ import { DelayedLoader } from "../components/DelayedLoader"
 import { EmptyStateText } from "../components/EmptyStateText"
 import { Page } from "../components/Page"
 import { Downvote, Upvote } from "../components/Ratings"
-import { formatHumanDateTime } from "../date"
 import { useCheckIn, useMenuItems, usePlace } from "../hooks"
-import { UserIdToName } from "./FriendsListView.page"
 
 export function CheckInDetailView() {
   const { placeId, checkInId }: { placeId: string; checkInId: string } =
