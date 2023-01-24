@@ -35,7 +35,9 @@ function getConfig() {
 const config = getConfig()
 
 const app = initializeApp(config)
+// eslint-disable-next-line no-console
 console.log("VITE_PROJECT", import.meta.env.VITE_PROJECT)
+// eslint-disable-next-line no-console
 console.log("projectId", config.projectId)
 
 export const db = getFirestore(app)
