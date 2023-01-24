@@ -23,10 +23,11 @@ const stageFirebaseConfig = {
 }
 
 function getEnvironment(): "staging" | "production" {
-  if (
-    window.location.hostname.includes("localhost") ||
-    window.location.hostname.includes("staging")
-  ) {
+  const hostname = window.location.hostname
+  if (hostname.includes("foodieyak-ef36d")) {
+    return "production"
+  }
+  if (hostname.includes("localhost") || hostname.includes("staging")) {
     return "staging"
   }
   return "production"

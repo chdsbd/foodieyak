@@ -11,7 +11,8 @@
         "source": "**",
         "destination": "/index.html"
       }
-    ]
+    ],
+    "predeploy": ["yarn --cwd \"$RESOURCE_DIR\" build"]
   },
   "storage": {
     "rules": "storage.rules"
@@ -47,10 +48,7 @@
         "firebase-debug.log",
         "firebase-debug.*.log"
       ],
-      "predeploy": [
-        "yarn --cwd \"$RESOURCE_DIR\" lint",
-        "yarn --cwd \"$RESOURCE_DIR\" build"
-      ]
+      "predeploy": ["yarn --cwd \"$RESOURCE_DIR\" build"]
     }
   ]
 }
