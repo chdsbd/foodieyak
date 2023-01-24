@@ -1,7 +1,4 @@
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
   Button,
   ButtonGroup,
   Divider,
@@ -9,6 +6,7 @@ import {
   FormHelperText,
   FormLabel,
   Heading,
+  HStack,
   Input,
   Spacer,
   Textarea,
@@ -23,7 +21,7 @@ import { Link, useHistory, useParams } from "react-router-dom"
 import * as api from "../api"
 import { DelayedLoader } from "../components/DelayedLoader"
 import { Page } from "../components/Page"
-import { formatHumanDate, toISODateString } from "../date"
+import { toISODateString } from "../date"
 import { useCheckIn, useMenuItems, usePlace, useUser } from "../hooks"
 import {
   MenuItem,
@@ -85,39 +83,24 @@ export function CheckInEditView() {
 
   return (
     <Page>
-      <Breadcrumb alignSelf={"start"}>
-        <BreadcrumbItem>
-          <BreadcrumbLink as={Link} to="/">
-            Home
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-
-        <BreadcrumbItem>
-          <BreadcrumbLink as={Link} to={`/place/${place.id}`}>
-            Tenoch
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-
-        <BreadcrumbItem>
-          <BreadcrumbLink
-            as={Link}
-            to={`/place/${place.id}/check-in/${checkInId}`}
-          >
-            Check-In — {formatHumanDate(checkIn.createdAt)}
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbItem isCurrentPage>
-          <BreadcrumbLink
-            as={Link}
-            to={`/place/${place.id}/check-in/${checkInId}/edit`}
-          >
-            Edit
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-      </Breadcrumb>
       <Heading as="h1" size="lg">
         Check-In
       </Heading>
+
+      <FormControl>
+        <FormLabel>Place</FormLabel>
+        <HStack>
+          <Input
+            type="text"
+            value={place.name}
+            disabled
+            sx={{ _disabled: {}, _hover: {} }}
+          />
+          <Button size="sm" as={Link} to={`/place/${place.id}`}>
+            View
+          </Button>
+        </HStack>
+      </FormControl>
 
       <FormControl>
         <FormLabel>Date</FormLabel>
@@ -187,7 +170,13 @@ export function CheckInEditView() {
       })}
 
       <ButtonGroup w="full">
-        <Button variant={"outline"}>Cancel</Button>
+        <Button
+          variant={"outline"}
+          as={Link}
+          to={`/place/${place.id}/check-in/${checkInId}`}
+        >
+          Cancel
+        </Button>
         <Spacer />
         <Button
           loadingText="Saving changes"
