@@ -1,8 +1,5 @@
 import {
   Box,
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
   Card,
   CardBody,
   Heading,
@@ -11,13 +8,13 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react"
-import { ThumbsDown, ThumbsUp } from "react-feather"
 import { Link, useParams } from "react-router-dom"
 
 import { calculateCheckinCountsByMenuItem } from "../api-transforms"
 import { DelayedLoader } from "../components/DelayedLoader"
 import { EmptyStateText } from "../components/EmptyStateText"
 import { Page } from "../components/Page"
+import { Downvote, Upvote } from "../components/Ratings"
 import { formatHumanDate } from "../date"
 import { useCheckins, useMenuItem, usePlace, useUser } from "../hooks"
 import { notUndefined } from "../type-guards"
@@ -68,64 +65,27 @@ export function MenuItemDetailView() {
 
   return (
     <Page>
-      <Breadcrumb alignSelf={"start"}>
-        <BreadcrumbItem>
-          <BreadcrumbLink as={Link} to="/">
-            Home
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-
-        <BreadcrumbItem>
-          <BreadcrumbLink as={Link} to={`/place/${place.id}`}>
-            Tenoch
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-
-        <BreadcrumbItem isCurrentPage>
-          <BreadcrumbLink
+      <VStack alignItems="start" spacing={2}>
+        <VStack alignItems="start" spacing={0}>
+          <Text
             as={Link}
-            to={`/place/${place.id}/menu/${menuItem.id}`}
+            to={`/place/${place.id}`}
+            fontSize="md"
+            fontWeight={500}
           >
+            {place.name}
+          </Text>
+          <Heading alignSelf={"start"} as="h1" size="lg">
             {menuItem.name}
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-      </Breadcrumb>
+          </Heading>
+        </VStack>
+        <HStack>
+          <Upvote count={checkinCountsByMenuItem?.positive ?? 0} />
+          <Downvote count={checkinCountsByMenuItem?.positive ?? 0} />
+        </HStack>
+      </VStack>
 
-      <Heading alignSelf={"start"} as="h1" size="lg">
-        Menu Item
-      </Heading>
-
-      <Text fontSize="xl">{menuItem.name}</Text>
-
-      <Heading as="h2" size="md">
-        Ratings
-      </Heading>
-      <HStack>
-        <Card size="sm">
-          <CardBody>
-            <HStack>
-              <ThumbsUp fill={"lightgreen"} />
-              <Text fontWeight="bold">
-                {checkinCountsByMenuItem?.positive ?? 0}
-              </Text>
-            </HStack>
-          </CardBody>
-        </Card>
-
-        <Card size="sm">
-          <CardBody>
-            <HStack>
-              <ThumbsDown fill={"orange"} />
-              <Text fontWeight="bold">
-                {checkinCountsByMenuItem?.negative ?? 0}
-              </Text>
-            </HStack>
-          </CardBody>
-        </Card>
-      </HStack>
-      <Heading as="h2" size="md">
-        Related Check-Ins
-      </Heading>
+      <Text fontWeight={500}>Check-Ins</Text>
       {checkInsForMenuItem.length === 0 && (
         <EmptyStateText>No Check-Ins for menu item.</EmptyStateText>
       )}
@@ -149,11 +109,7 @@ export function MenuItemDetailView() {
                 </HStack>
                 <Spacer />
                 <Box padding="4">
-                  {m.rating > 0 ? (
-                    <ThumbsUp fill={"lightgreen"} />
-                  ) : (
-                    <ThumbsDown fill={"orange"} />
-                  )}
+                  {m.rating > 0 ? <Upvote /> : <Downvote />}
                 </Box>
               </HStack>
             </CardBody>

@@ -16,7 +16,7 @@ export function PlacesListView() {
     <Page
       action={
         <Link to="/place/create">
-          <Button>Add Place</Button>
+          <Button size="sm">Add Place</Button>
         </Link>
       }
     >

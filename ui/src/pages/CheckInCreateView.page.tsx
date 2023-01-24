@@ -1,7 +1,4 @@
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
   Button,
   ButtonGroup,
   Card,
@@ -9,6 +6,7 @@ import {
   FormControl,
   FormLabel,
   Heading,
+  HStack,
   Input,
   Select,
   Spacer,
@@ -21,13 +19,13 @@ import { FirebaseError } from "firebase/app"
 import produce from "immer"
 import { groupBy } from "lodash-es"
 import { useState } from "react"
-import { ThumbsDown, ThumbsUp } from "react-feather"
 import { Link, useHistory, useParams } from "react-router-dom"
 
 import * as api from "../api"
 import { Place } from "../api-schemas"
 import { DelayedLoader } from "../components/DelayedLoader"
 import { Page } from "../components/Page"
+import { Downvote, Upvote } from "../components/Ratings"
 import { useMenuItems, usePlace, useUser } from "../hooks"
 
 function toISODateString(date: Date | string | number): string {
@@ -106,28 +104,27 @@ export function MenuItem(props: {
   onRemove: () => void
 }) {
   return (
-    <Card w="100%">
+    <Card w="100%" size="sm">
       <CardBody>
         <VStack w="100%">
           <FormControl>
             <FormLabel>{props.menuItemName}</FormLabel>
             <ButtonGroup w="100%">
-              <Button
+              <Upvote
+                showColor={props.rating > 0}
                 onClick={() => {
                   props.setRating(1)
                 }}
-              >
-                <ThumbsUp fill={props.rating > 0 ? "lightgreen" : "none"} />
-              </Button>
-              <Button
+              />
+              <Downvote
+                showColor={props.rating < 0}
                 onClick={() => {
                   props.setRating(-1)
                 }}
-              >
-                <ThumbsDown fill={props.rating < 0 ? "orange" : "none"} />
-              </Button>
+              />
               <Spacer />
               <Button
+                size="sm"
                 onClick={() => {
                   props.onRemove()
                 }}
@@ -173,28 +170,19 @@ export function CheckInCreateView() {
 
   return (
     <Page>
-      <Breadcrumb alignSelf={"start"}>
-        <BreadcrumbItem>
-          <BreadcrumbLink as={Link} to="/">
-            Home
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-
-        <BreadcrumbItem>
-          <BreadcrumbLink as={Link} to={`/place/${place.id}`}>
-            Tenoch
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-
-        <BreadcrumbItem isCurrentPage>
-          <BreadcrumbLink as={Link} to={`/place/${place.id}/check-in`}>
-            Check-In
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-      </Breadcrumb>
       <Heading as="h1" size="lg">
         Check-In
       </Heading>
+
+      <FormControl>
+        <FormLabel>Place</FormLabel>
+        <HStack>
+          <Input type="text" value={"Tenoch"} disabled sx={{ _disabled: {} }} />
+          <Button size="sm" as={Link} to={`/place/${place.id}`}>
+            View
+          </Button>
+        </HStack>
+      </FormControl>
 
       <FormControl>
         <FormLabel>Date</FormLabel>

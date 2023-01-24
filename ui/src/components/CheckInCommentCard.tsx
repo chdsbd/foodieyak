@@ -1,11 +1,4 @@
-import {
-  Card,
-  CardBody,
-  CardFooter,
-  CardHeader,
-  HStack,
-  Text,
-} from "@chakra-ui/react"
+import { Card, CardBody, Text, VStack } from "@chakra-ui/react"
 
 import { PlaceCheckIn } from "../api-schemas"
 import { formatHumanDateTime } from "../date"
@@ -15,36 +8,30 @@ function Rating(props: { ratings: PlaceCheckIn["ratings"] }) {
   const positive = props.ratings.filter((x) => x.rating > 0).length
   const negative = props.ratings.filter((x) => x.rating < 0).length
   return (
-    <div>
+    <Text as={"div"} fontSize="sm">
       {positive > 0 && <>{positive}↑ </>}
       {negative > 0 && <>{negative}↓</>}
-    </div>
+    </Text>
   )
 }
 
 export function CheckInCommentCard({ checkIn: c }: { checkIn: PlaceCheckIn }) {
   return (
-    <Card w="100%" size="sm">
-      <CardHeader paddingBottom="0">
-        <HStack w="100%" alignItems={"start"}>
-          <Text fontWeight={"bold"}>
+    <VStack alignItems="start" as={Card} width="full" size="sm">
+      <VStack as={CardBody} alignItems="start" spacing={0}>
+        <Text>
+          <Text as="span" fontWeight={"bold"}>
             <UserIdToName userId={c.createdById} />
           </Text>
-          <Text color={"rgb(108, 117, 125)"}>
+          {"   "}
+          <Text as="span" fontSize="sm">
             {formatHumanDateTime(c.createdAt)}
           </Text>
-        </HStack>
-      </CardHeader>
-      {c.comment && (
-        <CardBody>
-          <Text>{c.comment}</Text>
-        </CardBody>
-      )}
-      {c.ratings.length > 0 && (
-        <CardFooter color="rgb(108, 117, 125)">
-          <Rating ratings={c.ratings} />
-        </CardFooter>
-      )}
-    </Card>
+        </Text>
+
+        {c.comment && <Text>{c.comment}</Text>}
+        {c.ratings.length > 0 && <Rating ratings={c.ratings} />}
+      </VStack>
+    </VStack>
   )
 }
