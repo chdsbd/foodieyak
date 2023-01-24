@@ -1,10 +1,10 @@
 // Import the functions you need from the SDKs you need
-import { FirebaseError, initializeApp } from "firebase/app"
+import { FirebaseError, FirebaseOptions, initializeApp } from "firebase/app"
 import { enableIndexedDbPersistence, getFirestore } from "firebase/firestore"
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
-const prodFirebaseConfig = {
+const prodFirebaseConfig: FirebaseOptions = {
   apiKey: "AIzaSyCjtXB9vYR7qNm3EW6pLomMEVWVP4OhvtI",
   authDomain: "foodieyak-ef36d.firebaseapp.com",
   projectId: "foodieyak-ef36d",
@@ -13,7 +13,7 @@ const prodFirebaseConfig = {
   appId: "1:886799226153:web:cd7693aec808276c741338",
 }
 
-const stageFirebaseConfig = {
+const stageFirebaseConfig: FirebaseOptions = {
   apiKey: "AIzaSyANGQOnH9oQPFSfuYHKzRchXn6IedoXQlU",
   authDomain: "foodieyak-staging.firebaseapp.com",
   projectId: "foodieyak-staging",
@@ -22,25 +22,21 @@ const stageFirebaseConfig = {
   appId: "1:227275725965:web:7d4a3c7f08bf07c3c916c4",
 }
 
-function getEnvironment(): "staging" | "production" {
-  const hostname = window.location.hostname
-  if (hostname.includes("foodieyak-ef36d")) {
-    return "production"
+function getConfig() {
+  if (
+    import.meta.env.VITE_PROJECT == null ||
+    import.meta.env.VITE_PROJECT === "foodieyak-staging"
+  ) {
+    return stageFirebaseConfig
   }
-  if (hostname.includes("localhost") || hostname.includes("staging")) {
-    return "staging"
-  }
-  return "production"
+  return prodFirebaseConfig
 }
 
-const environment = getEnvironment()
+const config = getConfig()
 
-// eslint-disable-next-line no-console
-console.info(`environment: ${environment}`)
-
-const app = initializeApp(
-  getEnvironment() === "production" ? prodFirebaseConfig : stageFirebaseConfig,
-)
+const app = initializeApp(config)
+console.log("VITE_PROJECT", import.meta.env.VITE_PROJECT)
+console.log("projectId", config.projectId)
 
 export const db = getFirestore(app)
 
