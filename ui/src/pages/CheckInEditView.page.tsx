@@ -1,7 +1,4 @@
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
   Button,
   ButtonGroup,
   Divider,
@@ -24,7 +21,7 @@ import { Link, useHistory, useParams } from "react-router-dom"
 import * as api from "../api"
 import { DelayedLoader } from "../components/DelayedLoader"
 import { Page } from "../components/Page"
-import { formatHumanDate, toISODateString } from "../date"
+import { toISODateString } from "../date"
 import { useCheckIn, useMenuItems, usePlace, useUser } from "../hooks"
 import {
   MenuItem,
