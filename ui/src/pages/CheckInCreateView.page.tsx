@@ -177,7 +177,12 @@ export function CheckInCreateView() {
       <FormControl>
         <FormLabel>Place</FormLabel>
         <HStack>
-          <Input type="text" value={"Tenoch"} disabled sx={{ _disabled: {} }} />
+          <Input
+            type="text"
+            value={place.name}
+            disabled
+            sx={{ _disabled: {}, _hover: {} }}
+          />
           <Button size="sm" as={Link} to={`/place/${place.id}`}>
             View
           </Button>
