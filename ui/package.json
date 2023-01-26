@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vite",
     "json-schema": "./node_modules/.bin/esbuild src/bin/json-schema.ts --platform=node --log-level=warning --bundle  --outfile=build/bin/index.js && node build/bin/index.js | tee build/schema.json && echo Created ./build/schema.json",
-    "build": "vite build",
+    "build": "VITE_PROJECT=$GCLOUD_PROJECT vite build",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -1,16 +1,14 @@
-import { HStack } from "@chakra-ui/react"
+import { Heading, Text } from "@chakra-ui/react"
 
 import { Place } from "../api-schemas"
-import { LocationImage } from "./LocationImage"
 
 export function PlaceInfoPanel({ place }: { place: Place }) {
   return (
-    <HStack w="100%">
-      <LocationImage />
-      <div>
-        <div>{place.name}</div>
-        <div>{place.location}</div>
-      </div>
-    </HStack>
+    <div>
+      <Heading as="h1" size="lg">
+        {place.name}
+      </Heading>
+      <Text fontWeight={"bold"}>{place.location}</Text>
+    </div>
   )
 }

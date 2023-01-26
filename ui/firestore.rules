@@ -1,30 +1,127 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /places/{place} {
-      function isValidPlace() {
-        return request.resource.data.keys().hasOnly(
-        ['createdById', 'viewerIds', 'name', 'location', ]) 
-        && request.resource.data.name is string
-        && request.resource.data.name.size() >= 1
-        && request.resource.data.location is string
-        && request.resource.data.createdById is string
-        && request.resource.data.createdById == request.auth.uid
-        && request.resource.data.viewerIds is list
-      }
-      allow read: if request.auth != null && request.auth.uid in resource.data.viewerIds
-      allow create: if request.auth != null && isValidPlace()
-      allow update: if request.auth != null && (request.resource.data.diff(resource.data).affectedKeys()
-        .hasOnly(['name', 'location']))
-      allow delete: if false
+    function isValidNewDoc(request) {
+      let data = request.resource.data; 
+      let hasRequiredKeys = data.keys().hasAll(
+          ['createdById','createdAt','lastModifiedById','lastModifiedAt']);
+      return hasRequiredKeys
+            && data.createdById is string
+            && data.createdAt is timestamp
+            && data.createdById == request.auth.uid
+            && (data.lastModifiedById == null || data.lastModifiedById is string)
+            && (data.lastModifiedAt == null || data.lastModifiedAt is timestamp)
+
     }
+
+    // only allow lastModified edits. Disallow createdBy edits.
+    function isValidDocUpdate(request) {
+      let data = request.resource.data; 
+			
+      let hasCreationKeys = data.diff(resource.data).affectedKeys().hasAny(
+          ['createdById','createdAt']);
+      return !hasCreationKeys && data.keys().hasAll(['lastModifiedById','lastModifiedAt'])
+            && (data.lastModifiedById == null || data.lastModifiedById is string)
+            && (data.lastModifiedAt == null || data.lastModifiedAt is timestamp)
+    }
+    match /places/{place} {
+    function placeData() {
+        return get(/databases/$(database)/documents/places/$(place))
+      }
+    	function canViewPlace(request, resource) {
+      	return request.auth.uid in resource.data.viewerIds
+      }
+      function isValidPlace() {
+      	let data = request.resource.data;
+        return isValidNewDoc(request)
+        && data.keys().hasAll(
+        ['viewerIds', 'name', 'location', 'checkInCount','menuItemCount' ]) 
+        && data.name is string && data.name.size() >= 1
+        && data.location is string
+        && data.checkInCount == 0
+        && data.menuItemCount == 0
+        && data.viewerIds is list
+      }
+      function isValidPlaceUpdate() {
+      	let data = request.resource.data;
+        return isValidDocUpdate(request)
+        && data.diff(resource.data).affectedKeys().hasAny(
+        ['name', 'location'])
+        &&  data.name is string && data.name.size() >= 1
+        && data.location is string
+      }
+      function placeHasCheckins() {
+      	let data = resource.data;
+      	return "checkInCount" in data.keys() && data.checkInCount > 0
+      }
+      
+      
+    	allow read: if canViewPlace(request, resource)
+      allow create: if isValidPlace()
+      allow update: if canViewPlace(request, resource) && isValidPlaceUpdate()
+      allow delete: if canViewPlace(request, resource) && !placeHasCheckins()
+      
+      
+      
+      match /menuitems/{menuitem} {
+      	function isValidNewMenuItem() {
+        	let data = request.resource.data;
+          return isValidNewDoc(request) && data.keys().hasAll(
+          ['name']) 
+          && data.name is string
+        }
+
+      	allow read: if canViewPlace(request, placeData())
+        allow create: if canViewPlace(request, placeData()) && isValidNewMenuItem()
+      }
+      match /checkins/{checkin} {
+      	function isValidNewCheckin() {
+        	let data = request.resource.data;
+          return isValidNewDoc(request) && data.keys().hasAll(
+          ['ratings', 'comment']) 
+          && data.ratings is list
+          && data.comment is string
+          && data.comment.size() > 0
+        }
+      	allow read: if canViewPlace(request, placeData())
+        allow create: if canViewPlace(request, placeData())
+        	&& isValidNewCheckin()
+        allow update: if canViewPlace(request, placeData())
+        	&& isValidNewCheckin()
+        	&& request.resource.data.createdById == request.auth.uid
+        allow delete: if canViewPlace(request, placeData())
+        	&& resource.data.createdById == request.auth.uid
+      }
+    }
+
      match /users/{user} {
-      allow read: if request.auth != null
+			allow read: if request.auth != null
       allow create, update, delete: if false
     }
     
     match /users/{user}/friends/{friend} {
-      allow read, create, update, delete: if request.auth != null && (user == request.auth.uid || friend == request.auth.uid)
+      function isValidNewFriend() {
+          let data = request.resource.data;
+          return isValidNewDoc(request) && data.keys().hasAll(
+          ['accepted', 'acceptedAt']) 
+          && data.accepted == false
+          && data.acceptedAt == null
+      }
+    	function isFriend() {
+      	return user == request.auth.uid || friend == request.auth.uid
+      }
+    	allow read, delete: if isFriend()
+      allow create: if isFriend() && isValidNewFriend()
+      
+      function isValidFriendUpdate() {
+      	let data = request.resource.data;
+        	// only allow the receiving friend to accept the invite.
+      		return isValidNewFriend() || (data.createdById != request.auth.uid
+          && data.diff(resource.data).affectedKeys().hasAll(['accepted', 'acceptedAt'])
+          && data.accepted == true
+          && data.acceptedAt is timestamp)
+      }
+      allow update: if isFriend() && isValidFriendUpdate()
     }
   }
 }

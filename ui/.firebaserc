@@ -1,5 +1,9 @@
 {
   "projects": {
-    "default": "foodieyak-ef36d"
-  }
+    "default": "foodieyak-staging",
+    "staging": "foodieyak-staging",
+    "production": "foodieyak-ef36d"
+  },
+  "targets": {},
+  "etags": {}
 }

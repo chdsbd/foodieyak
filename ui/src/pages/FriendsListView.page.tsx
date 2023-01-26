@@ -1,7 +1,4 @@
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
   Button,
   Heading,
   HStack,
@@ -61,19 +58,6 @@ export function FriendsListView() {
   const acceptedFriends = friends.filter((f) => f.accepted)
   return (
     <Page>
-      <Breadcrumb alignSelf={"start"}>
-        <BreadcrumbItem>
-          <BreadcrumbLink as={Link} to="/">
-            Home
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbItem isCurrentPage>
-          <BreadcrumbLink as={Link} to="/friends">
-            Friends
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-      </Breadcrumb>
-
       {invites.length > 0 && (
         <>
           <Heading as="h2" size="md" alignSelf={"start"}>
@@ -158,7 +142,7 @@ export function FriendsListView() {
       )}
 
       <HStack w="100%" alignItems={"center"}>
-        <Heading as="h2" size="md">
+        <Heading as="h1" size="lg">
           Friends
         </Heading>
         <Spacer />

@@ -12,6 +12,14 @@ jobs:
       - name: install and build
         run: yarn install && yarn build
         working-directory: "./ui"
+      # staging deploy.
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_FOODIEYAK_STAGING }}'
+          projectId: foodieyak-staging
+          entryPoint: "./ui"
+      # production deploy.
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'

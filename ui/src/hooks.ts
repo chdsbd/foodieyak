@@ -22,20 +22,20 @@ import {
 import { db } from "./db"
 
 function useQuery<T>(
-  query: Query<DocumentData> | false,
+  query: Query<DocumentData> | null,
   schema: z.ZodType<T>,
 ): T[] | "loading"
 function useQuery<T>(
-  query: DocumentReference<DocumentData> | false,
+  query: DocumentReference<DocumentData> | null,
   schema: z.ZodType<T>,
 ): T | "loading"
 function useQuery<T>(
-  query: Query<DocumentData> | DocumentReference<DocumentData> | false,
+  query: Query<DocumentData> | DocumentReference<DocumentData> | null,
   schema: z.ZodType<T>,
 ): T | T[] | "loading" {
   const [state, setState] = useState<T | "loading">("loading")
   useEffect(() => {
-    if (query === false) {
+    if (query == null) {
       return
     }
     if (query.type === "document") {
@@ -134,17 +134,23 @@ export function useCheckIn(placeId: string, checkInId: string) {
 
 export function usePlaces(userId: string | undefined) {
   const q = useMemo(() => {
+    if (!userId) {
+      return null
+    }
     return query(
       collection(db, "places"),
-      where("viewerIds", "array-contains", userId ?? ""),
+      where("viewerIds", "array-contains", userId),
     )
   }, [userId])
-  return useQuery(!!userId && q, PlaceSchema)
+  return useQuery(q, PlaceSchema)
 }
 
 export function useFriends(userId: string | null) {
   const q = useMemo(() => {
-    return query(collection(db, "users", userId ?? "", "friends"))
+    if (!userId) {
+      return null
+    }
+    return query(collection(db, "users", userId, "friends"))
   }, [userId])
-  return useQuery(!!userId && q, FriendSchema)
+  return useQuery(q, FriendSchema)
 }
