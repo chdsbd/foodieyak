@@ -14,7 +14,12 @@ import { Link } from "react-router-dom"
 function NavigationMoreMenu() {
   return (
     <Menu>
-      <MenuButton as={Button} size="sm" rightIcon={<ChevronDownIcon />}>
+      <MenuButton
+        as={Button}
+        variant="outline"
+        size="sm"
+        rightIcon={<ChevronDownIcon />}
+      >
         More
       </MenuButton>
       <MenuList>

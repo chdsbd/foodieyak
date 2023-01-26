@@ -142,7 +142,7 @@ export function FriendsListView() {
       )}
 
       <HStack w="100%" alignItems={"center"}>
-        <Heading as="h2" size="md">
+        <Heading as="h1" size="lg">
           Friends
         </Heading>
         <Spacer />

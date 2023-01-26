@@ -2,6 +2,7 @@ import {
   Button,
   FormControl,
   FormLabel,
+  Heading,
   Input,
   useToast,
   VStack,
@@ -25,6 +26,9 @@ export function PlacesCreateView() {
 
   return (
     <Page>
+      <Heading as="h1" size="lg">
+        Place
+      </Heading>
       <VStack
         as="form"
         width="100%"

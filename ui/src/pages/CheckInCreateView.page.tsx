@@ -183,7 +183,12 @@ export function CheckInCreateView() {
             disabled
             sx={{ _disabled: {}, _hover: {} }}
           />
-          <Button size="sm" as={Link} to={`/place/${place.id}`}>
+          <Button
+            size="sm"
+            as={Link}
+            variant="outline"
+            to={`/place/${place.id}`}
+          >
             View
           </Button>
         </HStack>
