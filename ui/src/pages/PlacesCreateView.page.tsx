@@ -1,7 +1,4 @@
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
   Button,
   FormControl,
   FormLabel,
@@ -11,7 +8,7 @@ import {
 } from "@chakra-ui/react"
 import { FirebaseError } from "firebase/app"
 import { useState } from "react"
-import { Link, useHistory } from "react-router-dom"
+import { useHistory } from "react-router-dom"
 
 import * as api from "../api"
 import { Page } from "../components/Page"
@@ -28,20 +25,6 @@ export function PlacesCreateView() {
 
   return (
     <Page>
-      <Breadcrumb alignSelf={"start"}>
-        <BreadcrumbItem>
-          <BreadcrumbLink as={Link} to="/">
-            Home
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-
-        <BreadcrumbItem isCurrentPage>
-          <BreadcrumbLink as={Link} to="/place/create">
-            Place
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-      </Breadcrumb>
-
       <VStack
         as="form"
         width="100%"

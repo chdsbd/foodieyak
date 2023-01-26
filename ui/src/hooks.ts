@@ -144,7 +144,10 @@ export function usePlaces(userId: string | undefined) {
 
 export function useFriends(userId: string | null) {
   const q = useMemo(() => {
-    return query(collection(db, "users", userId ?? "", "friends"))
+    if (!userId) {
+      return null
+    }
+    return query(collection(db, "users", userId, "friends"))
   }, [userId])
-  return useQuery(!!userId && q, FriendSchema)
+  return useQuery(q ?? false, FriendSchema)
 }

@@ -1,7 +1,4 @@
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
   Button,
   Card,
   CardBody,
@@ -17,7 +14,7 @@ import {
 } from "@chakra-ui/react"
 import { FirebaseError } from "firebase/app"
 import { useState } from "react"
-import { Link, useHistory } from "react-router-dom"
+import { useHistory } from "react-router-dom"
 
 import * as api from "../api"
 import { User } from "../api-schemas"
@@ -44,24 +41,6 @@ export function FriendsCreateView() {
   }
   return (
     <Page>
-      <Breadcrumb alignSelf={"start"}>
-        <BreadcrumbItem>
-          <BreadcrumbLink as={Link} to="/">
-            Home
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbItem>
-          <BreadcrumbLink as={Link} to="/friends">
-            Friends
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-
-        <BreadcrumbItem isCurrentPage>
-          <BreadcrumbLink as={Link} to="/friends/add">
-            Add
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-      </Breadcrumb>
       <VStack
         width="100%"
         as="form"
