@@ -34,9 +34,12 @@ export function PlacesListView() {
             />
           )}
 
-          {places.filter((x) =>
-            x.name.toLowerCase().includes(search.toLowerCase().trim()),
-          ).length === 0 && <EmptyStateText>No matching places</EmptyStateText>}
+          {places.length > 0 &&
+            places.filter((x) =>
+              x.name.toLowerCase().includes(search.toLowerCase().trim()),
+            ).length === 0 && (
+              <EmptyStateText>No matching places</EmptyStateText>
+            )}
 
           <VStack w="full">
             {places
