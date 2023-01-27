@@ -6,34 +6,22 @@ import {
   Divider,
   FormControl,
   FormErrorMessage,
-  FormHelperText,
   FormLabel,
   Heading,
   HStack,
   Input,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  Select,
   Spacer,
-  Text,
   Textarea,
   useToast,
   VStack,
 } from "@chakra-ui/react"
-import { format, parseISO } from "date-fns"
 import { FirebaseError } from "firebase/app"
 import produce from "immer"
 import { groupBy } from "lodash-es"
-import React, { useState } from "react"
+import { useState } from "react"
 import { Link, useHistory, useParams } from "react-router-dom"
 
 import * as api from "../../api"
-import { Place } from "../../api-schemas"
 import { DelayedLoader } from "../../components/DelayedLoader"
 import { EmptyStateText } from "../../components/EmptyStateText"
 import { Page } from "../../components/Page"
@@ -42,72 +30,6 @@ import { ReadonlyInput } from "../../components/ReadonlyInput"
 import { toISODateString } from "../../date"
 import { useMenuItems, usePlace, useUser } from "../../hooks"
 import { SelectMenuItemModal } from "./SelectMenuItemModal"
-
-export function MenuItemCreator(props: {
-  place: Place
-  selectedMenuItemIds: string[]
-  onSelect: (_: string) => void
-}) {
-  const user = useUser()
-  const menuItems = useMenuItems(props.place.id)
-  const toast = useToast()
-  const [selectValue, setSelectValue] = useState<string>("")
-  if (user.data == null || menuItems === "loading") {
-    return (
-      <Page>
-        <DelayedLoader />
-      </Page>
-    )
-  }
-
-  return (
-    <VStack w="100%">
-      <FormControl>
-        <Select
-          value={selectValue}
-          onChange={(e) => {
-            if (e.target.value === "new") {
-              const res = prompt("Menu Item Name?")
-              if (res) {
-                api.menuItems
-                  .create({
-                    placeId: props.place.id,
-                    name: res,
-                    userId: user.data.uid,
-                  })
-                  .then((menuItemId) => {
-                    props.onSelect(menuItemId)
-                  })
-                  .catch((e: FirebaseError) => {
-                    toast({
-                      title: "Problem creating menu item",
-                      description: `${e.code}: ${e.message}`,
-                      status: "error",
-                    })
-                  })
-              }
-            } else {
-              props.onSelect(e.target.value)
-            }
-            setSelectValue("")
-          }}
-        >
-          <option value="" selected disabled>
-            Select a menu item to rate
-          </option>
-          <option value="new">Create new menu item...</option>
-          {menuItems
-            .filter((x) => !props.selectedMenuItemIds.includes(x.id))
-            .map((mi) => (
-              <option key={mi.id} value={mi.id}>
-                {mi.name}
-              </option>
-            ))}
-        </Select>
-      </FormControl>
-    </VStack>
-  )
-}
 
 export function MenuItem(props: {
   menuItemName: string
