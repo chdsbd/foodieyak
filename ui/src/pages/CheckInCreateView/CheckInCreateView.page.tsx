@@ -241,6 +241,8 @@ export function CheckInCreateView() {
 
       <SelectMenuItemModal
         isOpen={isOpen}
+        placeId={placeId}
+        userId={user.data?.uid ?? ""}
         onClose={() => {
           setIsOpen(false)
         }}

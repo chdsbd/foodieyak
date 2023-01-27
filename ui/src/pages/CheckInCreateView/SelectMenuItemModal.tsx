@@ -16,12 +16,15 @@ import {
   ModalOverlay,
   Spacer,
   Text,
+  useToast,
   VStack,
 } from "@chakra-ui/react"
 import { orderBy } from "lodash-es"
 import React, { useEffect, useState } from "react"
 
 import { PlaceMenuItem } from "../../api-schemas"
+import * as api from "../../api"
+import { FirebaseError } from "firebase/app"
 
 export function SelectMenuItemModal({
   isOpen,
@@ -30,15 +33,21 @@ export function SelectMenuItemModal({
   onSelect,
   onRemove,
   selectedMenuItemIds,
+  userId,
+  placeId,
 }: {
   isOpen: boolean
   onClose: () => void
+  userId: string
+  placeId: string
   menuItems: PlaceMenuItem[]
   onSelect: (_: string) => void
   onRemove: (_: string) => void
   selectedMenuItemIds: string[]
 }) {
   const [search, setSearch] = useState("")
+  const toast = useToast()
+  const [isCreating, setIsCreating] = useState(false)
   useEffect(() => {
     setSearch("")
   }, [isOpen])
@@ -46,6 +55,30 @@ export function SelectMenuItemModal({
   const selectedMenuItems = menuItems.filter((x) =>
     selectedMenuItemIds.includes(x.id),
   )
+
+  function onCreateAndSelect() {
+    setIsCreating(true)
+    api.menuItems
+      .create({
+        placeId,
+        name: search.trim(),
+        userId,
+      })
+      .then((menuItemId) => {
+        onSelect(menuItemId)
+        setSearch("")
+        setIsCreating(false)
+      })
+      .catch((e: FirebaseError) => {
+        toast({
+          title: "Problem creating menu item",
+          description: `${e.code}: ${e.message}`,
+          status: "error",
+        })
+        setIsCreating(false)
+      })
+  }
+
   return (
     <Modal
       isOpen={isOpen}
@@ -78,7 +111,14 @@ export function SelectMenuItemModal({
                     <HStack as={CardBody} w="full">
                       <Text>{search}</Text>
                       <Spacer />
-                      <Button size="sm">Create & Select</Button>
+                      <Button
+                        size="sm"
+                        loadingText="Creating..."
+                        isLoading={isCreating}
+                        onClick={onCreateAndSelect}
+                      >
+                        Create & Select
+                      </Button>
                     </HStack>
                   </Card>
                 )}
@@ -110,7 +150,7 @@ export function SelectMenuItemModal({
                   )
                 })}
               {/* <Divider /> */}
-              {selectedMenuItems.length > 0 && (
+              {/* {selectedMenuItems.length > 0 && (
                 <Heading as="h2" size="sm" alignSelf={"start"}>
                   Selected Menu Items
                 </Heading>
@@ -136,7 +176,7 @@ export function SelectMenuItemModal({
                     </Card>
                   </React.Fragment>
                 )
-              })}
+              })} */}
             </VStack>
           </VStack>
         </ModalBody>
