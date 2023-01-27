@@ -21,6 +21,7 @@ import { Link, useHistory, useParams } from "react-router-dom"
 import * as api from "../api"
 import { DelayedLoader } from "../components/DelayedLoader"
 import { Page } from "../components/Page"
+import { ReadonlyInput } from "../components/ReadonlyInput"
 import { toISODateString } from "../date"
 import { useCheckIn, useMenuItems, usePlace, useUser } from "../hooks"
 import {
@@ -90,12 +91,7 @@ export function CheckInEditView() {
       <FormControl>
         <FormLabel>Place</FormLabel>
         <HStack>
-          <Input
-            type="text"
-            value={place.name}
-            disabled
-            sx={{ _disabled: {}, _hover: {} }}
-          />
+          <ReadonlyInput value={place.name} />
           <Button size="sm" as={Link} to={`/place/${place.id}`}>
             View
           </Button>

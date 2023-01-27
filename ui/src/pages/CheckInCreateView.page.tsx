@@ -26,6 +26,7 @@ import { Place } from "../api-schemas"
 import { DelayedLoader } from "../components/DelayedLoader"
 import { Page } from "../components/Page"
 import { Downvote, Upvote } from "../components/Ratings"
+import { ReadonlyInput } from "../components/ReadonlyInput"
 import { useMenuItems, usePlace, useUser } from "../hooks"
 
 function toISODateString(date: Date | string | number): string {
@@ -180,12 +181,7 @@ export function CheckInCreateView() {
       <FormControl>
         <FormLabel>Place</FormLabel>
         <HStack>
-          <Input
-            type="text"
-            value={place.name}
-            disabled
-            sx={{ _disabled: {}, _hover: {} }}
-          />
+          <ReadonlyInput value={place.name} />
           <Button
             size="sm"
             as={Link}
