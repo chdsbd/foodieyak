@@ -3,13 +3,24 @@ import {
   ButtonGroup,
   Card,
   CardBody,
+  Divider,
   FormControl,
+  FormErrorMessage,
+  FormHelperText,
   FormLabel,
   Heading,
   HStack,
   Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   Select,
   Spacer,
+  Text,
   Textarea,
   useToast,
   VStack,
@@ -18,22 +29,18 @@ import { format, parseISO } from "date-fns"
 import { FirebaseError } from "firebase/app"
 import produce from "immer"
 import { groupBy } from "lodash-es"
-import { useState } from "react"
+import React, { useState } from "react"
 import { Link, useHistory, useParams } from "react-router-dom"
 
-import * as api from "../api"
-import { Place } from "../api-schemas"
-import { DelayedLoader } from "../components/DelayedLoader"
-import { Page } from "../components/Page"
-import { Downvote, Upvote } from "../components/Ratings"
-import { ReadonlyInput } from "../components/ReadonlyInput"
-import { useMenuItems, usePlace, useUser } from "../hooks"
-
-function toISODateString(date: Date | string | number): string {
-  // Note(sbdchd): parseISO("2019-11-09") !== new Date("2019-11-09")
-  const dateObj = typeof date === "string" ? parseISO(date) : date
-  return format(dateObj, "yyyy-MM-dd")
-}
+import * as api from "../../api"
+import { Place } from "../../api-schemas"
+import { DelayedLoader } from "../../components/DelayedLoader"
+import { Page } from "../../components/Page"
+import { Downvote, Upvote } from "../../components/Ratings"
+import { ReadonlyInput } from "../../components/ReadonlyInput"
+import { toISODateString } from "../../date"
+import { useMenuItems, usePlace, useUser } from "../../hooks"
+import { SelectMenuItemModal } from "./SelectMenuItemModal"
 
 export function MenuItemCreator(props: {
   place: Place
@@ -129,6 +136,7 @@ export function MenuItem(props: {
               <Spacer />
               <Button
                 size="sm"
+                variant={"outline"}
                 onClick={() => {
                   props.onRemove()
                 }}
@@ -157,8 +165,10 @@ export function CheckInCreateView() {
   const history = useHistory()
   const toast = useToast()
 
+  const [isOpen, setIsOpen] = useState(false)
   const [date, setDate] = useState<string>(toISODateString(new Date()))
   const [comment, setComment] = useState<string>("")
+  const [showHelperText, setShowHelperText] = useState(false)
 
   const [menuItemRatings, setMenutItemRatings] = useState<MenuItemRating[]>([])
 
@@ -214,14 +224,27 @@ export function CheckInCreateView() {
         />
       </FormControl>
 
-      <Heading as="h2" size="md" alignSelf={"start"}>
-        Menu Items
+      <Heading as="h2" size="md" alignSelf={"start"} w="full">
+        <HStack w="full">
+          <span>Menu Items</span>
+          <Spacer />
+          <Button
+            size="sm"
+            onClick={() => {
+              setIsOpen(true)
+            }}
+          >
+            Add Menu Item
+          </Button>
+        </HStack>
       </Heading>
 
-      {/* TODO(chdsbd): Replace with modal for creating new menu items. This is glitchy adn we need a loading state.*/}
-      <MenuItemCreator
-        place={place}
-        selectedMenuItemIds={menuItemRatings.map((x) => x.menuItemId)}
+      <SelectMenuItemModal
+        isOpen={isOpen}
+        onClose={() => {
+          setIsOpen(false)
+        }}
+        menuItems={menuItems}
         onSelect={(menuItemId) => {
           setMenutItemRatings(
             produce((s) => {
@@ -234,6 +257,14 @@ export function CheckInCreateView() {
             }),
           )
         }}
+        onRemove={(menuItemId) => {
+          setMenutItemRatings(
+            produce((s) => {
+              return s.filter((x) => x.menuItemId !== menuItemId)
+            }),
+          )
+        }}
+        selectedMenuItemIds={menuItemRatings.map((x) => x.menuItemId)}
       />
       {menuItemRatings.map((mir) => {
         return (
@@ -261,34 +292,46 @@ export function CheckInCreateView() {
         )
       })}
 
-      <Button
-        width="100%"
-        onClick={() => {
-          if (user.data == null) {
-            return
-          }
-          api.checkin
-            .create({
-              userId: user.data.uid,
-              date: new Date(date),
-              placeId: place.id,
-              comment,
-              reviews: menuItemRatings,
-            })
-            .then((checkInId) => {
-              history.push(`/place/${place.id}/check-in/${checkInId}`)
-            })
-            .catch((e: FirebaseError) => {
-              toast({
-                title: "Problem creating check-in",
-                description: `${e.code}: ${e.message}`,
-                status: "error",
+      <Spacer padding={"2"} />
+      <FormControl isInvalid={menuItemRatings.length === 0 && showHelperText}>
+        <Button
+          width="100%"
+          onClick={() => {
+            if (user.data == null) {
+              return
+            }
+            if (menuItemRatings.length === 0) {
+              setShowHelperText(true)
+              return
+            }
+            api.checkin
+              .create({
+                userId: user.data.uid,
+                date: new Date(date),
+                placeId: place.id,
+                comment,
+                reviews: menuItemRatings,
               })
-            })
-        }}
-      >
-        Create Check-In
-      </Button>
+              .then((checkInId) => {
+                history.push(`/place/${place.id}/check-in/${checkInId}`)
+              })
+              .catch((e: FirebaseError) => {
+                toast({
+                  title: "Problem creating check-in",
+                  description: `${e.code}: ${e.message}`,
+                  status: "error",
+                })
+              })
+          }}
+        >
+          Create Check-In
+        </Button>
+        {showHelperText && (
+          <FormErrorMessage>
+            Review at least one menu item to save check-in.
+          </FormErrorMessage>
+        )}
+      </FormControl>
     </Page>
   )
 }

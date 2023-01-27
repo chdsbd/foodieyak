@@ -28,7 +28,7 @@ import {
   MenuItem,
   MenuItemCreator,
   MenuItemRating,
-} from "./CheckInCreateView.page"
+} from "./CheckInCreateView/CheckInCreateView.page"
 
 export function CheckInEditView() {
   const { placeId, checkInId }: { placeId: string; checkInId: string } =
