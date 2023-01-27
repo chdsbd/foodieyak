@@ -92,7 +92,7 @@ export function MenuItemCreator(props: {
             .filter((x) => !props.selectedMenuItemIds.includes(x.id))
             .map((mi) => (
               <option key={mi.id} value={mi.id}>
-                {mi.name} — {mi.createdById}
+                {mi.name}
               </option>
             ))}
         </Select>
