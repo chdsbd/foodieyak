@@ -86,11 +86,11 @@ export function SelectMenuItemModal({
       onClose={onClose}
     >
       <ModalOverlay />
-      <ModalContent top="0">
+      <ModalContent top="0" height="-webkit-fill-available">
         <ModalHeader paddingBottom={"0"}>Menu Item</ModalHeader>
         <ModalCloseButton />
-        <ModalBody overflow={"hidden"}>
-          <VStack w="full" h="100%">
+        <ModalBody overflow="scroll">
+          <VStack w="full" overflow="hidden">
             <FormControl>
               <Input
                 type="search"
@@ -101,7 +101,7 @@ export function SelectMenuItemModal({
                 }}
               />
             </FormControl>
-            <VStack w="full" overflow={"scroll"}>
+            <VStack w="full" overflowY={"scroll"}>
               {search.trim() !== "" &&
                 menuItems.filter(
                   (x) =>
