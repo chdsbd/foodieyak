@@ -31,6 +31,7 @@ export function FriendsCreateView() {
   const [lookupResults, setLookupResults] = useState<User[] | "initial">(
     "initial",
   )
+  const [isLoading, setIsLoading] = useState(false)
   const [invitingId, setInvitingId] = useState<string | null>(null)
   if (user.data == null) {
     return (
@@ -46,12 +47,15 @@ export function FriendsCreateView() {
         as="form"
         onSubmit={(e) => {
           e.preventDefault()
+          setIsLoading(true)
           api
             .friendLookup({ email })
             .then((res) => {
               setLookupResults(res)
+              setIsLoading(false)
             })
             .catch(() => {
+              setIsLoading(false)
               // TODO:
             })
         }}
@@ -68,7 +72,9 @@ export function FriendsCreateView() {
           <FormHelperText>Search for a user by email.</FormHelperText>
         </FormControl>
         <HStack width="100%" justify={"end"}>
-          <Button type="submit">Lookup Friend</Button>
+          <Button type="submit" isLoading={isLoading}>
+            Lookup Friend
+          </Button>
         </HStack>
         {lookupResults !== "initial" && (
           <>
