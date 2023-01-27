@@ -86,6 +86,8 @@ export function SelectMenuItemModal({
       isOpen={isOpen}
       size={isMobileViewportWidth ? "full" : "lg"}
       onClose={onClose}
+      //  NOTE(chdsbd): This seems like a hack. There must be a better way to fix scroll for
+      scrollBehavior={isMobileViewportWidth ? "inside" : "inside"}
     >
       <ModalOverlay />
       <ModalContent top="0" height="-webkit-fill-available">
