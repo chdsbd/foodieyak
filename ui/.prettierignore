@@ -1,6 +1,5 @@
 build/
 dist/
-public/
 node_modules/
 coverage/
 .venv/

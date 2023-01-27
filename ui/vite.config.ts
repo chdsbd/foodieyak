@@ -5,7 +5,7 @@ import react from "@vitejs/plugin-react-swc"
 export default defineConfig({
   plugins: [react()],
   build: {
-    outDir: "public",
+    outDir: "dist",
     sourcemap: true,
     // ignore
     chunkSizeWarningLimit: 1_000_000,
