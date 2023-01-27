@@ -79,78 +79,80 @@ export function SelectMenuItemModal({
       })
   }
 
+  const isMobileViewportWidth = window.innerWidth < 500
+
   return (
     <Modal
       isOpen={isOpen}
-      size={window.innerWidth < 500 ? "full" : "lg"}
+      size={isMobileViewportWidth ? "full" : "lg"}
       onClose={onClose}
     >
       <ModalOverlay />
       <ModalContent top="0" height="-webkit-fill-available">
         <ModalHeader paddingBottom={"0"}>Menu Item</ModalHeader>
         <ModalCloseButton />
-        <ModalBody overflow="scroll">
-          <VStack w="full" overflow="hidden">
-            <FormControl>
-              <Input
-                type="search"
-                placeholder="Search for menu items..."
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value)
-                }}
-              />
-            </FormControl>
-            <VStack w="full" overflowY={"scroll"}>
-              {search.trim() !== "" &&
-                menuItems.filter(
-                  (x) =>
-                    x.name.toLowerCase().trim() === search.trim().toLowerCase(),
-                ).length === 0 && (
-                  <Card size="sm" w="full">
-                    <HStack as={CardBody} w="full">
-                      <Text>{search}</Text>
-                      <Spacer />
-                      <Button
-                        size="sm"
-                        loadingText="Creating..."
-                        isLoading={isCreating}
-                        onClick={onCreateAndSelect}
-                      >
-                        Create & Select
-                      </Button>
-                    </HStack>
-                  </Card>
-                )}
-              {menuItems
-                .filter((x) =>
-                  x.name.toLowerCase().includes(search.toLowerCase()),
+
+        <VStack as={ModalBody} w="full" overflow="hidden">
+          <FormControl>
+            <Input
+              type="search"
+              placeholder="Search for menu items..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value)
+              }}
+            />
+          </FormControl>
+          <VStack w="full" overflowY={"scroll"}>
+            {search.trim() !== "" &&
+              menuItems.filter(
+                (x) =>
+                  x.name.toLowerCase().trim() === search.trim().toLowerCase(),
+              ).length === 0 && (
+                <Card size="sm" w="full">
+                  <HStack as={CardBody} w="full">
+                    <Text>{search}</Text>
+                    <Spacer />
+                    <Button
+                      size="sm"
+                      loadingText="Creating..."
+                      isLoading={isCreating}
+                      onClick={onCreateAndSelect}
+                    >
+                      Create & Select
+                    </Button>
+                  </HStack>
+                </Card>
+              )}
+            {menuItems
+              .filter((x) =>
+                x.name.toLowerCase().includes(search.toLowerCase()),
+              )
+              .filter((x) => !selectedMenuItemIds.includes(x.id))
+              .map((mir) => {
+                return (
+                  <React.Fragment key={mir.id}>
+                    <Card size="sm" w="full">
+                      <HStack as={CardBody} w="full">
+                        <Text>{mir.name}</Text>
+                        <Spacer />
+                        {
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              onSelect(mir.id)
+                            }}
+                          >
+                            Select
+                          </Button>
+                        }
+                      </HStack>
+                    </Card>
+                  </React.Fragment>
                 )
-                .filter((x) => !selectedMenuItemIds.includes(x.id))
-                .map((mir) => {
-                  return (
-                    <React.Fragment key={mir.id}>
-                      <Card size="sm" w="full">
-                        <HStack as={CardBody} w="full">
-                          <Text>{mir.name}</Text>
-                          <Spacer />
-                          {
-                            <Button
-                              size="sm"
-                              onClick={() => {
-                                onSelect(mir.id)
-                              }}
-                            >
-                              Select
-                            </Button>
-                          }
-                        </HStack>
-                      </Card>
-                    </React.Fragment>
-                  )
-                })}
-              {/* <Divider /> */}
-              {/* {selectedMenuItems.length > 0 && (
+              })}
+            {/* <Divider /> */}
+            {/* {selectedMenuItems.length > 0 && (
                 <Heading as="h2" size="sm" alignSelf={"start"}>
                   Selected Menu Items
                 </Heading>
@@ -177,9 +179,9 @@ export function SelectMenuItemModal({
                   </React.Fragment>
                 )
               })} */}
-            </VStack>
           </VStack>
-        </ModalBody>
+        </VStack>
+
         <ModalFooter paddingTop="0">
           <Button w="full" onClick={onClose}>
             Done
