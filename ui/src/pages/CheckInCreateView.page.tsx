@@ -36,6 +36,7 @@ function toISODateString(date: Date | string | number): string {
 
 export function MenuItemCreator(props: {
   place: Place
+  selectedMenuItemIds: string[]
   onSelect: (_: string) => void
 }) {
   const user = useUser()
@@ -86,11 +87,13 @@ export function MenuItemCreator(props: {
             Select a menu item to rate
           </option>
           <option value="new">Create new menu item...</option>
-          {menuItems.map((mi) => (
-            <option key={mi.id} value={mi.id}>
-              {mi.name} — {mi.createdById}
-            </option>
-          ))}
+          {menuItems
+            .filter((x) => !props.selectedMenuItemIds.includes(x.id))
+            .map((mi) => (
+              <option key={mi.id} value={mi.id}>
+                {mi.name} — {mi.createdById}
+              </option>
+            ))}
         </Select>
       </FormControl>
     </VStack>
@@ -222,6 +225,7 @@ export function CheckInCreateView() {
       {/* TODO(chdsbd): Replace with modal for creating new menu items. This is glitchy adn we need a loading state.*/}
       <MenuItemCreator
         place={place}
+        selectedMenuItemIds={menuItemRatings.map((x) => x.menuItemId)}
         onSelect={(menuItemId) => {
           setMenutItemRatings(
             produce((s) => {
