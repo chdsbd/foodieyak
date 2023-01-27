@@ -19,17 +19,17 @@ import {
   useToast,
   VStack,
 } from "@chakra-ui/react"
+import { FirebaseError } from "firebase/app"
 import { orderBy } from "lodash-es"
 import React, { useEffect, useState } from "react"
 
-import { PlaceMenuItem } from "../../api-schemas"
 import * as api from "../../api"
-import { FirebaseError } from "firebase/app"
+import { PlaceMenuItem } from "../../api-schemas"
 
 export function SelectMenuItemModal({
   isOpen,
   onClose,
-  menuItems: menuItemsRaw,
+  menuItems,
   onSelect,
   onRemove,
   selectedMenuItemIds,
@@ -51,10 +51,6 @@ export function SelectMenuItemModal({
   useEffect(() => {
     setSearch("")
   }, [isOpen])
-  const menuItems = orderBy(menuItemsRaw, (x) => x.name, ["asc"])
-  const selectedMenuItems = menuItems.filter((x) =>
-    selectedMenuItemIds.includes(x.id),
-  )
 
   function onCreateAndSelect() {
     setIsCreating(true)
@@ -129,24 +125,48 @@ export function SelectMenuItemModal({
               .filter((x) =>
                 x.name.toLowerCase().includes(search.toLowerCase()),
               )
-              .filter((x) => !selectedMenuItemIds.includes(x.id))
               .map((mir) => {
                 return (
                   <React.Fragment key={mir.id}>
-                    <Card size="sm" w="full">
+                    <Card
+                      size="sm"
+                      w="full"
+                      variant={"outline"}
+                      //   colorScheme="purple"
+                      //   borderColor={"purple"}
+                      borderWidth={1}
+                      borderColor={
+                        selectedMenuItemIds.includes(mir.id)
+                          ? "rgb(107, 70, 193)"
+                          : undefined
+                      }
+                    >
                       <HStack as={CardBody} w="full">
                         <Text>{mir.name}</Text>
                         <Spacer />
-                        {
+                        {!selectedMenuItemIds.includes(mir.id) ? (
                           <Button
                             size="sm"
+                            variant="outline"
+                            // colorScheme="purple"
                             onClick={() => {
                               onSelect(mir.id)
                             }}
                           >
                             Select
                           </Button>
-                        }
+                        ) : (
+                          <Button
+                            size="sm"
+                            // colorScheme="orange"
+                            variant="outline"
+                            onClick={() => {
+                              onRemove(mir.id)
+                            }}
+                          >
+                            Remove
+                          </Button>
+                        )}
                       </HStack>
                     </Card>
                   </React.Fragment>

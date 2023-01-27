@@ -5,6 +5,7 @@ import {
   DocumentData,
   DocumentReference,
   onSnapshot,
+  orderBy,
   Query,
   query,
   where,
@@ -108,7 +109,10 @@ export function usePlace(placeId: string): Place | "loading" {
 
 export function useMenuItems(placeId: string) {
   const q = useMemo(() => {
-    return collection(db, "places", placeId, "menuitems")
+    return query(
+      collection(db, "places", placeId, "menuitems"),
+      orderBy("name"),
+    )
   }, [placeId])
   return useQuery(q, PlaceMenuItemSchema)
 }
@@ -120,7 +124,10 @@ export function useMenuItem(placeId: string, menuItemId: string) {
 }
 export function useCheckins(placeId: string) {
   const q = useMemo(() => {
-    return query(collection(db, "places", placeId, "checkins"))
+    return query(
+      collection(db, "places", placeId, "checkins"),
+      orderBy("createdAt", "desc"),
+    )
   }, [placeId])
   return useQuery(q, PlaceCheckInSchema)
 }

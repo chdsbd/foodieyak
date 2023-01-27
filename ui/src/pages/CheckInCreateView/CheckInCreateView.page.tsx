@@ -35,6 +35,7 @@ import { Link, useHistory, useParams } from "react-router-dom"
 import * as api from "../../api"
 import { Place } from "../../api-schemas"
 import { DelayedLoader } from "../../components/DelayedLoader"
+import { EmptyStateText } from "../../components/EmptyStateText"
 import { Page } from "../../components/Page"
 import { Downvote, Upvote } from "../../components/Ratings"
 import { ReadonlyInput } from "../../components/ReadonlyInput"
@@ -169,6 +170,7 @@ export function CheckInCreateView() {
   const [date, setDate] = useState<string>(toISODateString(new Date()))
   const [comment, setComment] = useState<string>("")
   const [showHelperText, setShowHelperText] = useState(false)
+  const [isCreating, setCreatingCheckin] = useState(false)
 
   const [menuItemRatings, setMenutItemRatings] = useState<MenuItemRating[]>([])
 
@@ -268,6 +270,13 @@ export function CheckInCreateView() {
         }}
         selectedMenuItemIds={menuItemRatings.map((x) => x.menuItemId)}
       />
+
+      {menuItemRatings.length === 0 && (
+        <>
+          <Spacer paddingY={"0.5"} />
+          <EmptyStateText>Add a menu item to review.</EmptyStateText>
+        </>
+      )}
       {menuItemRatings.map((mir) => {
         return (
           <MenuItem
@@ -294,10 +303,12 @@ export function CheckInCreateView() {
         )
       })}
 
-      <Spacer padding={"2"} />
+      <Divider paddingY="1" />
       <FormControl isInvalid={menuItemRatings.length === 0 && showHelperText}>
         <Button
           width="100%"
+          loadingText="Creating check-in"
+          isLoading={isCreating}
           onClick={() => {
             if (user.data == null) {
               return
@@ -306,6 +317,7 @@ export function CheckInCreateView() {
               setShowHelperText(true)
               return
             }
+            setCreatingCheckin(true)
             api.checkin
               .create({
                 userId: user.data.uid,
@@ -315,9 +327,11 @@ export function CheckInCreateView() {
                 reviews: menuItemRatings,
               })
               .then((checkInId) => {
+                setCreatingCheckin(false)
                 history.push(`/place/${place.id}/check-in/${checkInId}`)
               })
               .catch((e: FirebaseError) => {
+                setCreatingCheckin(false)
                 toast({
                   title: "Problem creating check-in",
                   description: `${e.code}: ${e.message}`,
