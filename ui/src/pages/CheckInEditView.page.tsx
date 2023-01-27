@@ -130,6 +130,7 @@ export function CheckInEditView() {
       {/* TODO(chdsbd): Replace with modal for creating new menu items. This is glitchy adn we need a loading state.*/}
       <MenuItemCreator
         place={place}
+        selectedMenuItemIds={menuItemRatings.map((x) => x.menuItemId)}
         onSelect={(menuItemId) => {
           setMenutItemRatings(
             produce((s) => {
