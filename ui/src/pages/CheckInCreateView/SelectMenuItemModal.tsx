@@ -4,6 +4,7 @@ import {
   CardBody,
   Divider,
   FormControl,
+  FormHelperText,
   Heading,
   HStack,
   Input,
@@ -99,6 +100,9 @@ export function SelectMenuItemModal({
                 setSearch(e.target.value)
               }}
             />
+            <FormHelperText>
+              {selectedMenuItemIds.length} selected menu items
+            </FormHelperText>
           </FormControl>
           <VStack w="full" overflowY={"scroll"}>
             {search.trim() !== "" &&
