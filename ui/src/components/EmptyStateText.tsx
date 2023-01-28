@@ -1,12 +1,18 @@
-import { Heading, HStack } from "@chakra-ui/react"
+import { Box, Text } from "@chakra-ui/react"
 import React from "react"
 
 export function EmptyStateText({ children }: { children: React.ReactNode }) {
   return (
-    <HStack w="100%" justifyContent={"center"}>
-      <Heading size="md" fontWeight="semibold" textColor={"GrayText"}>
+    <Box w="full">
+      <Text
+        fontSize="xl"
+        textColor={"GrayText"}
+        textAlign="center"
+        w="full"
+        marginBottom={4}
+      >
         {children}
-      </Heading>
-    </HStack>
+      </Text>
+    </Box>
   )
 }
