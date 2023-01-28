@@ -67,7 +67,7 @@ export function PlacesListView() {
                             <Text>{place.location}</Text>
                             <Spacer />
                             {place.lastVisitedAt != null && (
-                              <Text color={"gray.600"} fontSize="sm">
+                              <Text fontSize="sm">
                                 Visited on{" "}
                                 {formatHumanDate(place.lastVisitedAt)}
                               </Text>
