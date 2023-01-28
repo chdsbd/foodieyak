@@ -15,6 +15,7 @@ import {
   useToast,
   VStack,
 } from "@chakra-ui/react"
+import { parseISO } from "date-fns"
 import { FirebaseError } from "firebase/app"
 import produce from "immer"
 import { groupBy } from "lodash-es"
@@ -243,7 +244,7 @@ export function CheckInCreateView() {
             api.checkin
               .create({
                 userId: user.data.uid,
-                date: new Date(date),
+                date: parseISO(date),
                 placeId: place.id,
                 comment,
                 reviews: menuItemRatings,
