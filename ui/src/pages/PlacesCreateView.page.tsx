@@ -14,6 +14,7 @@ import { useHistory } from "react-router-dom"
 import * as api from "../api"
 import { Page } from "../components/Page"
 import { useFriends, useUser } from "../hooks"
+import { pathPlaceDetail } from "../paths"
 
 export function PlacesCreateView() {
   const [name, setName] = useState("")
@@ -46,7 +47,7 @@ export function PlacesCreateView() {
               friendIds: friends !== "loading" ? friends.map((f) => f.id) : [],
             })
             .then((docId) => {
-              history.push(`/place/${docId}`)
+              history.push(pathPlaceDetail({ placeId: docId }))
               setSaving(false)
             })
             .catch((error: FirebaseError) => {

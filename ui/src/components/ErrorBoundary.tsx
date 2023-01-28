@@ -2,6 +2,8 @@ import { Button, Heading, HStack, Link, VStack } from "@chakra-ui/react"
 import * as Sentry from "@sentry/browser"
 import { Component } from "react"
 
+import { pathPlaceList } from "../paths"
+
 const ErrorReportButton = () => (
   <Button
     onClick={() => {
@@ -34,7 +36,7 @@ export class ErrorBoundary extends Component<
             <Heading>Something went wrong</Heading>
             <div>
               Try to navigate{" "}
-              <Link href="/" textDecoration="underline">
+              <Link href={pathPlaceList({})} textDecoration="underline">
                 home
               </Link>
               .

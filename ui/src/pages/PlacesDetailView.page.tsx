@@ -28,6 +28,12 @@ import { Page } from "../components/Page"
 import { PlaceInfoPanel } from "../components/PlaceInfoPanel"
 import { Downvote, Upvote } from "../components/Ratings"
 import { useCheckins, useMenuItems, usePlace, useUser } from "../hooks"
+import {
+  pathCheckinCreate,
+  pathCheckinDetail,
+  pathMenuItemDetail,
+  pathPlaceEdit,
+} from "../paths"
 
 function tabToIndex(tab: string | null): number {
   if (tab === "checkins") {
@@ -116,14 +122,14 @@ export function PlacesDetailView() {
         <PlaceInfoPanel place={place} />
         <Spacer />
         <VStack alignItems={"start"}>
-          <Link to={`/place/${placeId}/edit`}>
+          <Link to={pathPlaceEdit({ placeId })}>
             <Button size="sm" variant={"outline"}>
               Edit
             </Button>
           </Link>
         </VStack>
       </HStack>
-      <Link style={{ width: "100%" }} to={`/place/${place.id}/check-in`}>
+      <Link style={{ width: "100%" }} to={pathCheckinCreate({ placeId })}>
         <Button width="100%">Add a Check-In</Button>
       </Link>
       <Tabs width="100%" index={tabIndex} onChange={handleTabChange}>
@@ -147,7 +153,7 @@ export function PlacesDetailView() {
                 key={m.id}
                 w="full"
                 as={Link}
-                to={`/place/${place.id}/menu/${m.id}`}
+                to={pathMenuItemDetail({ placeId, menuItemId: m.id })}
               >
                 <Card w="full" size="sm">
                   <HStack as={CardBody} w="full">
@@ -182,7 +188,7 @@ export function PlacesDetailView() {
                 key={c.id}
                 w="full"
                 as={Link}
-                to={`/place/${place.id}/check-in/${c.id}`}
+                to={pathCheckinDetail({ placeId, checkInId: c.id })}
               >
                 <CheckInCommentCard checkIn={c} />
               </HStack>

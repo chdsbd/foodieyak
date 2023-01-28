@@ -15,6 +15,7 @@ import { EmptyStateText } from "../components/EmptyStateText"
 import { Page } from "../components/Page"
 import { formatHumanDate } from "../date"
 import { usePlaces, useUser } from "../hooks"
+import { pathPlaceCreate, pathPlaceDetail } from "../paths"
 
 export function PlacesListView() {
   const user = useUser()
@@ -23,7 +24,7 @@ export function PlacesListView() {
   return (
     <Page
       action={
-        <Link to="/place/create">
+        <Link to={pathPlaceCreate({})}>
           <Button size="sm">Add Place</Button>
         </Link>
       }
@@ -56,7 +57,11 @@ export function PlacesListView() {
               )
               .map((place) => (
                 <React.Fragment key={place.id}>
-                  <HStack as={Link} to={`/place/${place.id}`} w="full">
+                  <HStack
+                    as={Link}
+                    to={pathPlaceDetail({ placeId: place.id })}
+                    w="full"
+                  >
                     <Card w="full" size="sm">
                       <CardBody>
                         <div>
@@ -68,8 +73,7 @@ export function PlacesListView() {
                             <Spacer />
                             {place.lastVisitedAt != null && (
                               <Text fontSize="sm">
-                                Visited on{" "}
-                                {formatHumanDate(place.lastVisitedAt)}
+                                visited {formatHumanDate(place.lastVisitedAt)}
                               </Text>
                             )}
                           </HStack>

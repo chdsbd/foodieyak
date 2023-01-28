@@ -17,6 +17,7 @@ import { EmptyStateText } from "../components/EmptyStateText"
 import { Page } from "../components/Page"
 import { formatHumanDateTime } from "../date"
 import { useFriends, useUser } from "../hooks"
+import { pathFriendsCreate } from "../paths"
 
 // HACK(chdsbd): This is horrible.
 const userIdcache: Record<string, string | undefined> = {}
@@ -181,7 +182,7 @@ export function FriendsListView() {
           Friends
         </Heading>
         <Spacer />
-        <Link to="/friends/add">
+        <Link to={pathFriendsCreate({})}>
           <Button size="sm">Invite Friend</Button>
         </Link>
       </HStack>

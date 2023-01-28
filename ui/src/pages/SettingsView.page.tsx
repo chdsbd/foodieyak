@@ -17,6 +17,7 @@ import { useHistory } from "react-router-dom"
 
 import { Page } from "../components/Page"
 import { useUser } from "../hooks"
+import { pathLogin } from "../paths"
 
 export function SettingsView() {
   const toast = useToast()
@@ -29,7 +30,7 @@ export function SettingsView() {
     setIsLoading(true)
     signOut(auth)
       .then(() => {
-        history.push({ pathname: "/login" })
+        history.push({ pathname: pathLogin({}) })
       })
       .catch((error: FirebaseError) => {
         toast({
