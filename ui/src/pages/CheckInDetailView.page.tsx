@@ -17,11 +17,12 @@ import { DelayedLoader } from "../components/DelayedLoader"
 import { EmptyStateText } from "../components/EmptyStateText"
 import { Page } from "../components/Page"
 import { Downvote, Upvote } from "../components/Ratings"
-import { useCheckIn, useMenuItems, usePlace } from "../hooks"
+import { useCheckIn, useMenuItems, usePlace, useUser } from "../hooks"
 
 export function CheckInDetailView() {
   const { placeId, checkInId }: { placeId: string; checkInId: string } =
     useParams()
+  const user = useUser()
   const place = usePlace(placeId)
   const checkIn = useCheckIn(placeId, checkInId)
   const menuItems = useMenuItems(placeId)
@@ -58,13 +59,15 @@ export function CheckInDetailView() {
           </Heading>
         </VStack>
         <Spacer />
-        <VStack alignItems={"start"}>
-          <Link to={`/place/${place.id}/check-in/${checkIn.id}/edit`}>
-            <Button size="sm" variant={"outline"}>
-              Edit
-            </Button>
-          </Link>
-        </VStack>
+        {checkIn.createdById === user.data?.uid && (
+          <VStack alignItems={"start"}>
+            <Link to={`/place/${place.id}/check-in/${checkIn.id}/edit`}>
+              <Button size="sm" variant={"outline"}>
+                Edit
+              </Button>
+            </Link>
+          </VStack>
+        )}
       </HStack>
 
       <CheckInCommentCard checkIn={checkIn} />
