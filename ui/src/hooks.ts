@@ -117,10 +117,11 @@ export function useMenuItems(placeId: string) {
   return useQuery(q, PlaceMenuItemSchema)
 }
 export function useMenuItem(placeId: string, menuItemId: string) {
-  return useQuery(
-    doc(db, "places", placeId, "menuitems", menuItemId),
-    PlaceMenuItemSchema,
-  )
+  const q = useMemo(() => {
+    return doc(db, "places", placeId, "menuitems", menuItemId)
+  }, [placeId, menuItemId])
+
+  return useQuery(q, PlaceMenuItemSchema)
 }
 export function useCheckins(placeId: string) {
   const q = useMemo(() => {
