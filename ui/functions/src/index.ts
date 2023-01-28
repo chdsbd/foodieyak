@@ -161,21 +161,16 @@ export const checkinOnChange = functions.firestore
   .document("/places/{placeId}/checkins/{checkin}")
   .onWrite(async (change, context) => {
     const { placeId } = context.params
+    await updateLastCheckinAt({ placeId })
     if (!change.before.exists && change.after.exists) {
-      await Promise.all([
-        updateSubcollectionCounts({
-          placeId,
-        }),
-        updateLastCheckinAt({ placeId }),
-      ])
+      await updateSubcollectionCounts({
+        placeId,
+      })
     }
     if (!change.after.exists) {
-      await Promise.all([
-        updateSubcollectionCounts({
-          placeId,
-        }),
-        updateLastCheckinAt({ placeId }),
-      ])
+      await updateSubcollectionCounts({
+        placeId,
+      })
     }
     if (change.before.exists && change.after.exists) {
       //  updated
