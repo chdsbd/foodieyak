@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Card,
   CardBody,
   Heading,
@@ -65,20 +66,30 @@ export function MenuItemDetailView() {
 
   return (
     <Page>
-      <VStack alignItems="start" spacing={2}>
-        <VStack alignItems="start" spacing={0}>
-          <Text
-            as={Link}
-            to={`/place/${place.id}`}
-            fontSize="md"
-            fontWeight={500}
-          >
-            {place.name}
-          </Text>
-          <Heading alignSelf={"start"} as="h1" size="lg">
-            {menuItem.name}
-          </Heading>
-        </VStack>
+      <VStack alignItems="start" spacing={2} w="full">
+        <HStack w="full">
+          <VStack alignItems="start" spacing={0}>
+            <Text
+              as={Link}
+              to={`/place/${place.id}`}
+              fontSize="md"
+              fontWeight={500}
+            >
+              {place.name}
+            </Text>
+            <Heading alignSelf={"start"} as="h1" size="lg">
+              {menuItem.name}
+            </Heading>
+          </VStack>
+          <Spacer />
+          <Box alignSelf={"start"}>
+            <Link to={`/place/${place.id}/menu/${menuItemId}/edit`}>
+              <Button size="sm" variant={"outline"}>
+                Edit
+              </Button>
+            </Link>
+          </Box>
+        </HStack>
         <HStack>
           <Upvote count={checkinCountsByMenuItem?.positive ?? 0} />
           <Downvote count={checkinCountsByMenuItem?.positive ?? 0} />

@@ -241,6 +241,7 @@ export function CheckInEditView() {
         <Button
           variant={"outline"}
           colorScheme={"red"}
+          size="sm"
           isLoading={isDeleting}
           isDisabled={isCheckInAuthor}
           loadingText="Removing Check-In"

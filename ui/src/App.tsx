@@ -18,6 +18,7 @@ import { CheckInEditView } from "./pages/CheckInEditView.page"
 import { FriendsCreateView } from "./pages/FriendsCreateView.page"
 import { FriendsListView } from "./pages/FriendsListView.page"
 import { MenuItemDetailView } from "./pages/MenuItemDetailView.page"
+import { MenuItemEditView } from "./pages/MenuItemEditView.page"
 import { NoMatch } from "./pages/NoMatchView.page"
 import { PlacesCreateView } from "./pages/PlacesCreateView.page"
 import { PlacesDetailView } from "./pages/PlacesDetailView.page"
@@ -54,6 +55,11 @@ const routes: (
     authed: true,
     path: "/place/:placeId/check-in/:checkInId",
     element: <CheckInDetailView />,
+  },
+  {
+    authed: true,
+    path: "/place/:placeId/menu/:menuItemId/edit",
+    element: <MenuItemEditView />,
   },
   {
     authed: true,
