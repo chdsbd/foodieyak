@@ -135,6 +135,22 @@ export const menuItems = {
     )
     return res.id
   },
+  async update(params: {
+    name: string
+    userId: string
+    placeId: string
+    menuItemId: string
+  }) {
+    const menuItem: Omit<PlaceMenuItem, "id" | "createdAt" | "createdById"> = {
+      lastModifiedAt: Timestamp.now(),
+      lastModifiedById: params.userId,
+      name: params.name,
+    }
+    await updateDoc(
+      doc(db, "places", params.placeId, "menuitems", params.menuItemId),
+      menuItem,
+    )
+  },
 }
 
 export async function friendLookup({

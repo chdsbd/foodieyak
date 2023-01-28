@@ -14,10 +14,11 @@ import {
   Text,
   Textarea,
   Tooltip,
+  useToast,
   VStack,
 } from "@chakra-ui/react"
 import { useEffect, useState } from "react"
-import { Link, useParams } from "react-router-dom"
+import { Link, useHistory, useParams } from "react-router-dom"
 
 import { calculateCheckinCountsByMenuItem } from "../api-transforms"
 import { DelayedLoader } from "../components/DelayedLoader"
@@ -29,7 +30,8 @@ import { formatHumanDate, toISODateString } from "../date"
 import { useCheckins, useMenuItem, usePlace, useUser } from "../hooks"
 import { notUndefined } from "../type-guards"
 import { UserIdToName } from "./FriendsListView.page"
-
+import * as api from "../api"
+import { FirebaseError } from "firebase/app"
 export function MenuItemEditView() {
   const {
     placeId,
@@ -43,6 +45,10 @@ export function MenuItemEditView() {
   const checkIns = useCheckins(placeId)
   const currentUser = useUser()
   const [name, setName] = useState("")
+  const [isSaving, setSaving] = useState(false)
+  const [isDeleting, setDeleting] = useState(false)
+  const toast = useToast()
+  const history = useHistory()
 
   useEffect(() => {
     if (menuItem === "loading") {
@@ -102,7 +108,35 @@ export function MenuItemEditView() {
           <Button variant={"outline"}>Cancel</Button>
         </Link>
         <Spacer />
-        <Button type="submit" isLoading={false} loadingText="Saving place...">
+        <Button
+          isLoading={isSaving}
+          loadingText="Saving changes"
+          onClick={() => {
+            if (currentUser.data == null) {
+              return
+            }
+            setSaving(true)
+            api.menuItems
+              .update({
+                name,
+                userId: currentUser.data.uid,
+                menuItemId,
+                placeId,
+              })
+              .then(() => {
+                history.push(`/place/${place.id}/menu/${menuItemId}`)
+                setSaving(false)
+              })
+              .catch((e: FirebaseError) => {
+                toast({
+                  title: "Problem updating menu item",
+                  description: `${e.code}: ${e.message}`,
+                  status: "error",
+                })
+                setSaving(false)
+              })
+          }}
+        >
           Save Menu Item
         </Button>
       </ButtonGroup>
@@ -120,7 +154,7 @@ export function MenuItemEditView() {
           variant="outline"
           size="sm"
           disabled={checkInCountForMenuItem > 0}
-          isLoading={false}
+          isLoading={isDeleting}
           loadingText="Deleting..."
         >
           Delete Menu Item
