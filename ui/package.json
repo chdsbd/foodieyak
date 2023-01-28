@@ -27,6 +27,7 @@
     "react-dom": "^18.2.0",
     "react-feather": "^2.0.10",
     "react-router-dom": "v5",
+    "use-debounce": "^9.0.3",
     "zod": "^3.20.2",
     "zod-to-json-schema": "^3.20.2",
     "zod-to-ts": "^1.1.2"

@@ -16,7 +16,8 @@ import {
 import { Timestamp } from "firebase/firestore"
 import first from "lodash-es/first"
 import orderBy from "lodash-es/orderBy"
-import { Link, useParams } from "react-router-dom"
+import { Link, useHistory, useLocation, useParams } from "react-router-dom"
+import { useThrottledCallback } from "use-debounce"
 
 import { CheckInRating, PlaceMenuItem } from "../api-schemas"
 import { calculateCheckinCountsByMenuItem } from "../api-transforms"
@@ -28,12 +29,52 @@ import { PlaceInfoPanel } from "../components/PlaceInfoPanel"
 import { Downvote, Upvote } from "../components/Ratings"
 import { useCheckins, useMenuItems, usePlace, useUser } from "../hooks"
 
+function tabToIndex(tab: string | null): number {
+  if (tab === "checkins") {
+    return 1
+  }
+  return 0
+}
+
+function indexToTab(index: number) {
+  if (index === 1) {
+    return "checkins"
+  }
+  return null
+}
+
+const TAB_URL_PARAM = "tab"
+
 export function PlacesDetailView() {
   const { placeId }: { placeId: string } = useParams()
+  const search = useLocation().search
+  const searchParams = new URLSearchParams(search)
+  const tabIndex = tabToIndex(searchParams.get(TAB_URL_PARAM))
+
+  const history = useHistory()
+
   const place = usePlace(placeId)
   const menuitems = useMenuItems(placeId)
   const checkins = useCheckins(placeId)
   const user = useUser()
+
+  // Hack to work around Chakra calling the onChange callback twice
+  const handleTabChange = useThrottledCallback(
+    (index: number) => {
+      const updatedParams = new URLSearchParams(searchParams)
+      const paramValue = indexToTab(index)
+      if (paramValue == null) {
+        updatedParams.delete(TAB_URL_PARAM)
+      } else {
+        updatedParams.set(TAB_URL_PARAM, paramValue)
+      }
+      const newSearch = updatedParams.toString()
+      history.push({ search: newSearch })
+    },
+    200,
+    { leading: true, trailing: false },
+  )
+
   if (
     user.data == null ||
     place === "loading" ||
@@ -85,7 +126,7 @@ export function PlacesDetailView() {
       <Link style={{ width: "100%" }} to={`/place/${place.id}/check-in`}>
         <Button width="100%">Add a Check-In</Button>
       </Link>
-      <Tabs width="100%">
+      <Tabs width="100%" index={tabIndex} onChange={handleTabChange}>
         <TabList>
           <Tab>Menu</Tab>
           <Tab>Check-Ins</Tab>
