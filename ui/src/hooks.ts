@@ -147,6 +147,7 @@ export function usePlaces(userId: string | undefined) {
     return query(
       collection(db, "places"),
       where("viewerIds", "array-contains", userId),
+      orderBy("name", "asc"),
     )
   }, [userId])
   return useQuery(q, PlaceSchema)
@@ -157,7 +158,10 @@ export function useFriends(userId: string | null) {
     if (!userId) {
       return null
     }
-    return query(collection(db, "users", userId, "friends"))
+    return query(
+      collection(db, "users", userId, "friends"),
+      orderBy("email", "asc"),
+    )
   }, [userId])
   return useQuery(q, FriendSchema)
 }
