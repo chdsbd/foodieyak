@@ -1,7 +1,7 @@
 import { Card, CardBody, Text, VStack } from "@chakra-ui/react"
 
 import { PlaceCheckIn } from "../api-schemas"
-import { formatHumanDateTime } from "../date"
+import { formatHumanDate } from "../date"
 import { UserIdToName } from "../pages/FriendsListView.page"
 
 function Rating(props: { ratings: PlaceCheckIn["ratings"] }) {
@@ -25,7 +25,7 @@ export function CheckInCommentCard({ checkIn: c }: { checkIn: PlaceCheckIn }) {
           </Text>
           {"   "}
           <Text as="span" fontSize="sm">
-            {formatHumanDateTime(c.createdAt)}
+            {formatHumanDate(c.createdAt)}
           </Text>
         </Text>
 

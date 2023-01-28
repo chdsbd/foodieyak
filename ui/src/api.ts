@@ -64,7 +64,13 @@ export async function placeDelete(params: { placeId: string }): Promise<void> {
 }
 
 export const checkin = {
-  async create(params: {
+  async create({
+    placeId,
+    date,
+    userId,
+    comment,
+    reviews,
+  }: {
     placeId: string
     date: Date
     userId: string
@@ -72,20 +78,27 @@ export const checkin = {
     reviews: { menuItemId: string; rating: -1 | 1; comment: string }[]
   }) {
     const checkin: Omit<PlaceCheckIn, "id"> = {
-      createdAt: Timestamp.now(),
-      createdById: params.userId,
+      createdAt: Timestamp.fromDate(date),
+      createdById: userId,
       lastModifiedAt: null,
       lastModifiedById: null,
-      comment: params.comment,
-      ratings: params.reviews,
+      comment,
+      ratings: reviews,
     }
     const res = await addDoc(
-      collection(db, "places", params.placeId, "checkins"),
+      collection(db, "places", placeId, "checkins"),
       checkin,
     )
     return res.id
   },
-  async update(params: {
+  async update({
+    placeId,
+    checkInId,
+    date,
+    userId,
+    comment,
+    reviews,
+  }: {
     placeId: string
     checkInId: string
     date: Date
@@ -93,21 +106,17 @@ export const checkin = {
     comment: string
     reviews: { menuItemId: string; rating: -1 | 1; comment: string }[]
   }) {
-    const checkin: Omit<PlaceCheckIn, "id" | "createdAt" | "createdById"> = {
+    const checkin: Omit<PlaceCheckIn, "id" | "createdById"> = {
+      createdAt: Timestamp.fromDate(date),
       lastModifiedAt: Timestamp.now(),
-      lastModifiedById: params.userId,
-      comment: params.comment,
-      ratings: params.reviews,
+      lastModifiedById: userId,
+      comment,
+      ratings: reviews,
     }
-    await updateDoc(
-      doc(db, "places", params.placeId, "checkins", params.checkInId),
-      checkin,
-    )
+    await updateDoc(doc(db, "places", placeId, "checkins", checkInId), checkin)
   },
-  async delete(params: { placeId: string; checkInId: string }) {
-    await deleteDoc(
-      doc(db, "places", params.placeId, "checkins", params.checkInId),
-    )
+  async delete({ placeId, checkInId }: { placeId: string; checkInId: string }) {
+    await deleteDoc(doc(db, "places", placeId, "checkins", checkInId))
   },
 }
 
