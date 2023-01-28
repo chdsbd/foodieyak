@@ -26,9 +26,9 @@ import { toISODateString } from "../date"
 import { useCheckIn, useMenuItems, usePlace, useUser } from "../hooks"
 import {
   MenuItem,
-  MenuItemCreator,
   MenuItemRating,
-} from "./CheckInCreateView.page"
+} from "./CheckInCreateView/CheckInCreateView.page"
+import { SelectMenuItemModal } from "./CheckInCreateView/SelectMenuItemModal"
 
 export function CheckInEditView() {
   const { placeId, checkInId }: { placeId: string; checkInId: string } =
@@ -45,6 +45,7 @@ export function CheckInEditView() {
   const [date, setDate] = useState<string>(toISODateString(new Date()))
   const [comment, setComment] = useState<string>("")
   const [menuItemRatings, setMenutItemRatings] = useState<MenuItemRating[]>([])
+  const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
     if (checkIn !== "loading") {
@@ -118,15 +119,29 @@ export function CheckInEditView() {
           value={comment}
         />
       </FormControl>
-
-      <Heading as="h2" size="md" alignSelf={"start"}>
-        Menu Items
+      <Heading as="h2" size="md" alignSelf={"start"} w="full">
+        <HStack w="full">
+          <span>Menu Items</span>
+          <Spacer />
+          <Button
+            size="sm"
+            onClick={() => {
+              setIsOpen(true)
+            }}
+          >
+            Add Menu Item
+          </Button>
+        </HStack>
       </Heading>
 
-      {/* TODO(chdsbd): Replace with modal for creating new menu items. This is glitchy adn we need a loading state.*/}
-      <MenuItemCreator
-        place={place}
-        selectedMenuItemIds={menuItemRatings.map((x) => x.menuItemId)}
+      <SelectMenuItemModal
+        isOpen={isOpen}
+        placeId={placeId}
+        userId={user.data?.uid ?? ""}
+        onClose={() => {
+          setIsOpen(false)
+        }}
+        menuItems={menuItems}
         onSelect={(menuItemId) => {
           setMenutItemRatings(
             produce((s) => {
@@ -139,6 +154,14 @@ export function CheckInEditView() {
             }),
           )
         }}
+        onRemove={(menuItemId) => {
+          setMenutItemRatings(
+            produce((s) => {
+              return s.filter((x) => x.menuItemId !== menuItemId)
+            }),
+          )
+        }}
+        selectedMenuItemIds={menuItemRatings.map((x) => x.menuItemId)}
       />
       {menuItemRatings.map((mir) => {
         return (
@@ -166,6 +189,7 @@ export function CheckInEditView() {
         )
       })}
 
+      <Spacer paddingY="2" />
       <ButtonGroup w="full">
         <Button
           variant={"outline"}
@@ -209,7 +233,9 @@ export function CheckInEditView() {
           Save Changes
         </Button>
       </ButtonGroup>
+      <Spacer />
       <Divider />
+      <Spacer />
       <FormControl>
         <Button
           variant={"outline"}

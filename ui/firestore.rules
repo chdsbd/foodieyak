@@ -81,7 +81,6 @@ service cloud.firestore {
           ['ratings', 'comment']) 
           && data.ratings is list
           && data.comment is string
-          && data.comment.size() > 0
         }
       	allow read: if canViewPlace(request, placeData())
         allow create: if canViewPlace(request, placeData())

@@ -3,6 +3,11 @@ import {
   FormControl,
   FormLabel,
   Heading,
+  Radio,
+  RadioGroup,
+  Spacer,
+  Stack,
+  useColorMode,
   useToast,
 } from "@chakra-ui/react"
 import { FirebaseError } from "firebase/app"
@@ -15,6 +20,7 @@ import { useUser } from "../hooks"
 
 export function SettingsView() {
   const toast = useToast()
+  const { colorMode, setColorMode } = useColorMode()
   const history = useHistory()
   const [isLoading, setIsLoading] = useState(false)
   const userResult = useUser()
@@ -45,6 +51,21 @@ export function SettingsView() {
         <FormLabel>Email</FormLabel>
         <div>{userResult.data?.email ?? "-"}</div>
       </FormControl>
+      <FormControl>
+        <FormLabel>Color Mode</FormLabel>
+        <RadioGroup
+          onChange={(e) => {
+            setColorMode(e)
+          }}
+          value={colorMode}
+        >
+          <Stack direction="column">
+            <Radio value={"light"}>Light</Radio>
+            <Radio value={"dark"}>Dark</Radio>
+          </Stack>
+        </RadioGroup>
+      </FormControl>
+      <Spacer paddingY="2" />
       <Button onClick={handleLogout} isLoading={isLoading}>
         Logout
       </Button>

@@ -23,11 +23,7 @@ Sentry.init({
 // eslint-disable-next-line no-console
 console.log(db.app.name)
 
-const theme = extendTheme({
-  config: {
-    initialColorMode: "dark",
-  },
-})
+const theme = extendTheme()
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
