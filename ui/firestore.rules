@@ -85,8 +85,9 @@ service cloud.firestore {
       	function isValidNewCheckin() {
         	let data = request.resource.data;
           return isValidNewDoc(request) && data.keys().hasAll(
-          ['ratings', 'comment']) 
+          ['ratings','ratingsMenuItemIds', 'comment']) 
           && data.ratings is list
+          && data.ratingsMenuItemIds is list
           && data.comment is string
         }
       	allow read: if canViewPlace(request, placeData())

@@ -1,9 +1,6 @@
 import {
-  Box,
   Button,
   ButtonGroup,
-  Card,
-  CardBody,
   Divider,
   FormControl,
   FormLabel,
@@ -11,27 +8,19 @@ import {
   HStack,
   Input,
   Spacer,
-  Text,
-  Textarea,
   Tooltip,
   useToast,
-  VStack,
 } from "@chakra-ui/react"
+import { FirebaseError } from "firebase/app"
 import { useEffect, useState } from "react"
 import { Link, useHistory, useParams } from "react-router-dom"
 
-import { calculateCheckinCountsByMenuItem } from "../api-transforms"
-import { DelayedLoader } from "../components/DelayedLoader"
-import { EmptyStateText } from "../components/EmptyStateText"
-import { Page } from "../components/Page"
-import { Downvote, Upvote } from "../components/Ratings"
-import { ReadonlyInput } from "../components/ReadonlyInput"
-import { formatHumanDate, toISODateString } from "../date"
-import { useCheckins, useMenuItem, usePlace, useUser } from "../hooks"
-import { notUndefined } from "../type-guards"
-import { UserIdToName } from "./FriendsListView.page"
 import * as api from "../api"
-import { FirebaseError } from "firebase/app"
+import { DelayedLoader } from "../components/DelayedLoader"
+import { Page } from "../components/Page"
+import { ReadonlyInput } from "../components/ReadonlyInput"
+import { useCheckins, useMenuItem, usePlace, useUser } from "../hooks"
+
 export function MenuItemEditView() {
   const {
     placeId,
@@ -70,8 +59,6 @@ export function MenuItemEditView() {
       </Page>
     )
   }
-
-  const checkInCountForMenuItem = menuItem?.checkInCount ?? 0
 
   return (
     <Page>
@@ -145,17 +132,40 @@ export function MenuItemEditView() {
       <Spacer />
 
       <Tooltip
-        isDisabled={checkInCountForMenuItem === 0}
-        label={`Deletion disabled until all (${checkInCountForMenuItem}) related check-ins have been deleted.`}
+        isDisabled={menuItem.checkInCount === 0}
+        label={`Deletion disabled until all (${menuItem.checkInCount}) related check-ins have been deleted.`}
       >
         <Button
           type="button"
           colorScheme={"red"}
           variant="outline"
           size="sm"
-          disabled={checkInCountForMenuItem > 0}
+          disabled={menuItem.checkInCount > 0}
           isLoading={isDeleting}
           loadingText="Deleting..."
+          onClick={() => {
+            if (currentUser.data == null) {
+              return
+            }
+            setDeleting(true)
+            api.menuItems
+              .delete({
+                menuItemId,
+                placeId,
+              })
+              .then(() => {
+                history.push(`/place/${place.id}`)
+                setDeleting(false)
+              })
+              .catch((e: FirebaseError) => {
+                toast({
+                  title: "Problem deleting menu item",
+                  description: `${e.code}: ${e.message}`,
+                  status: "error",
+                })
+                setDeleting(false)
+              })
+          }}
         >
           Delete Menu Item
         </Button>
