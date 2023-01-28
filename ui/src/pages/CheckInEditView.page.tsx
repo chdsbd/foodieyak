@@ -25,6 +25,7 @@ import { Page } from "../components/Page"
 import { ReadonlyInput } from "../components/ReadonlyInput"
 import { toISODateString } from "../date"
 import { useCheckIn, useMenuItems, usePlace, useUser } from "../hooks"
+import { pathCheckinDetail, pathPlaceDetail } from "../paths"
 import {
   MenuItem,
   MenuItemRating,
@@ -94,7 +95,7 @@ export function CheckInEditView() {
         <FormLabel>Place</FormLabel>
         <HStack>
           <ReadonlyInput value={place.name} />
-          <Button size="sm" as={Link} to={`/place/${place.id}`}>
+          <Button size="sm" as={Link} to={pathPlaceDetail({ placeId })}>
             View
           </Button>
         </HStack>
@@ -195,7 +196,7 @@ export function CheckInEditView() {
         <Button
           variant={"outline"}
           as={Link}
-          to={`/place/${place.id}/check-in/${checkInId}`}
+          to={pathCheckinDetail({ placeId, checkInId })}
         >
           Cancel
         </Button>
@@ -218,7 +219,7 @@ export function CheckInEditView() {
                 checkInId,
               })
               .then(() => {
-                history.push(`/place/${place.id}/check-in/${checkInId}`)
+                history.push(pathCheckinDetail({ placeId, checkInId }))
                 setIsSaving(false)
               })
               .catch((e: FirebaseError) => {
@@ -250,7 +251,7 @@ export function CheckInEditView() {
               api.checkin
                 .delete({ placeId, checkInId })
                 .then(() => {
-                  history.push(`/place/${place.id}`)
+                  history.push(pathPlaceDetail({ placeId }))
                   setIsDeleting(false)
                 })
                 .catch((e: FirebaseError) => {

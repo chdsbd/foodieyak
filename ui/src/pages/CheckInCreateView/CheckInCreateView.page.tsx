@@ -30,6 +30,7 @@ import { Downvote, Upvote } from "../../components/Ratings"
 import { ReadonlyInput } from "../../components/ReadonlyInput"
 import { toISODateString } from "../../date"
 import { useMenuItems, usePlace, useUser } from "../../hooks"
+import { pathCheckinDetail, pathPlaceDetail } from "../../paths"
 import { SelectMenuItemModal } from "./SelectMenuItemModal"
 
 export function MenuItem(props: {
@@ -121,7 +122,7 @@ export function CheckInCreateView() {
             size="sm"
             as={Link}
             variant="outline"
-            to={`/place/${place.id}`}
+            to={pathPlaceDetail({ placeId })}
           >
             View
           </Button>
@@ -251,7 +252,7 @@ export function CheckInCreateView() {
               })
               .then((checkInId) => {
                 setCreatingCheckin(false)
-                history.push(`/place/${place.id}/check-in/${checkInId}`)
+                history.push(pathCheckinDetail({ placeId, checkInId }))
               })
               .catch((e: FirebaseError) => {
                 setCreatingCheckin(false)

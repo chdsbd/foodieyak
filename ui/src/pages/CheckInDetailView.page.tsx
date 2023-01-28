@@ -18,6 +18,7 @@ import { EmptyStateText } from "../components/EmptyStateText"
 import { Page } from "../components/Page"
 import { Downvote, Upvote } from "../components/Ratings"
 import { useCheckIn, useMenuItems, usePlace, useUser } from "../hooks"
+import { pathCheckinEdit, pathMenuItemDetail, pathPlaceDetail } from "../paths"
 
 export function CheckInDetailView() {
   const { placeId, checkInId }: { placeId: string; checkInId: string } =
@@ -48,7 +49,7 @@ export function CheckInDetailView() {
         <VStack spacing={0} alignItems="start">
           <Text
             as={Link}
-            to={`/place/${place.id}`}
+            to={pathPlaceDetail({ placeId })}
             fontSize="md"
             fontWeight={500}
           >
@@ -61,7 +62,7 @@ export function CheckInDetailView() {
         <Spacer />
         {checkIn.createdById === user.data?.uid && (
           <VStack alignItems={"start"}>
-            <Link to={`/place/${place.id}/check-in/${checkIn.id}/edit`}>
+            <Link to={pathCheckinEdit({ placeId, checkInId })}>
               <Button size="sm" variant={"outline"}>
                 Edit
               </Button>
@@ -82,7 +83,7 @@ export function CheckInDetailView() {
           key={m.menuItemId}
           w="full"
           as={Link}
-          to={`/place/${place.id}/menu/${m.menuItemId}`}
+          to={pathMenuItemDetail({ placeId, menuItemId: m.menuItemId })}
         >
           <Card w="full" size="sm">
             <HStack as={CardBody} w="full">

@@ -22,6 +22,7 @@ import { DelayedLoader } from "../components/DelayedLoader"
 import { EmptyStateText } from "../components/EmptyStateText"
 import { Page } from "../components/Page"
 import { useUser } from "../hooks"
+import { pathFriendsList } from "../paths"
 
 export function FriendsCreateView() {
   const toast = useToast()
@@ -109,7 +110,7 @@ export function FriendsCreateView() {
                             isClosable: true,
                           })
                           setInvitingId(null)
-                          history.push("/friends")
+                          history.push(pathFriendsList({}))
                         })
                         .catch((error: FirebaseError) => {
                           const errorCode = error.code

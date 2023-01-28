@@ -24,85 +24,103 @@ import { PlacesDetailView } from "./pages/PlacesDetailView.page"
 import { PlacesEditView } from "./pages/PlacesEditView.page"
 import { PlacesListView } from "./pages/PlacesListView.page"
 import { SettingsView } from "./pages/SettingsView.page"
+import {
+  pathCheckinCreate,
+  pathCheckinDetail,
+  pathCheckinEdit,
+  pathFriendsCreate,
+  pathFriendsList,
+  pathLogin,
+  pathMenuItemDetail,
+  pathPasswordForgot,
+  pathPasswordReset,
+  pathPlaceCreate,
+  pathPlaceDetail,
+  pathPlaceEdit,
+  pathPlaceList,
+  pathPlaceListDeprecated,
+  pathSettingsDetail,
+  pathSignup,
+} from "./paths"
 
 const routes: (
   | { path: string; authed?: true; exact?: true; element: JSX.Element }
   | { path: string; redirect: string }
 )[] = [
   {
-    path: "/signup",
+    path: pathSignup.pattern,
     element: <AuthSignupView />,
   },
   {
-    path: "/login",
+    path: pathLogin.pattern,
     element: <AuthLoginView />,
   },
   {
-    path: "/password-reset",
+    path: pathPasswordReset.pattern,
     element: <AuthPasswordReset />,
   },
   {
-    path: "/forgot-password",
+    path: pathPasswordForgot.pattern,
     element: <AuthForgotPassword />,
   },
   {
     authed: true,
-    path: "/place/:placeId/check-in/:checkInId/edit",
+    path: pathCheckinEdit.pattern,
     element: <CheckInEditView />,
   },
   {
     authed: true,
-    path: "/place/:placeId/check-in/:checkInId",
+    path: pathCheckinDetail.pattern,
     element: <CheckInDetailView />,
   },
   {
     authed: true,
-    path: "/place/:placeId/menu/:menuItemId",
+    path: pathMenuItemDetail.pattern,
     element: <MenuItemDetailView />,
   },
   {
     authed: true,
-    path: "/place/:placeId/check-in",
+    path: pathCheckinCreate.pattern,
     element: <CheckInCreateView />,
   },
   {
     authed: true,
-    path: "/place/create",
+    path: pathPlaceCreate.pattern,
     element: <PlacesCreateView />,
   },
   {
     authed: true,
-    path: "/place/:placeId/edit",
+    path: pathPlaceEdit.pattern,
     element: <PlacesEditView />,
   },
   {
     authed: true,
-    path: "/place/:placeId",
+    path: pathPlaceDetail.pattern,
     element: <PlacesDetailView />,
   },
   {
     authed: true,
-    path: "/place/",
-    redirect: "/place/create",
+    path: pathPlaceListDeprecated.pattern,
+    redirect: pathPlaceCreate({}),
   },
   {
     authed: true,
-    path: "/friends/add",
+    path: pathFriendsCreate.pattern,
     element: <FriendsCreateView />,
   },
   {
     authed: true,
-    path: "/friends",
+    path: pathFriendsList.pattern,
     element: <FriendsListView />,
   },
   {
     authed: true,
-    path: "/settings",
+    path: pathSettingsDetail.pattern,
     element: <SettingsView />,
   },
   {
     authed: true,
-    path: "/",
+    path: pathPlaceList.pattern,
     exact: true,
     element: <PlacesListView />,
   },
@@ -128,7 +146,7 @@ function App() {
                 return <Redirect key={r.path} from={r.path} to={r.redirect} />
               }
               if (r.authed === true && authStatus === "unauthed") {
-                return <Redirect key={r.path} to="/login" />
+                return <Redirect key={r.path} to={pathLogin({})} />
               }
               return (
                 <Route

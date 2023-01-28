@@ -11,6 +11,7 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 
 import { AuthForm } from "../components/AuthForm"
+import { pathLogin } from "../paths"
 
 export function AuthPasswordReset() {
   const [password, setPassword] = useState("")
@@ -48,7 +49,7 @@ export function AuthPasswordReset() {
         />
       </FormControl>
       <HStack width="100%">
-        <Button variant="link" as={Link} to="/login">
+        <Button variant="link" as={Link} to={pathLogin({})}>
           Login →
         </Button>
         <Spacer />
