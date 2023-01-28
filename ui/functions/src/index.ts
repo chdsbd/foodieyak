@@ -2,6 +2,7 @@ import * as functions from "firebase-functions"
 import * as admin from "firebase-admin"
 
 import * as identity from "firebase-functions/lib/common/providers/identity"
+import { first } from "lodash"
 
 admin.initializeApp()
 admin.firestore().settings({ ignoreUndefinedProperties: true })
@@ -131,19 +132,50 @@ async function updateSubcollectionCounts({ placeId }: { placeId: string }) {
   })
 }
 
+/**
+ * Set the lastVisitedAt field on Place
+ */
+async function updateLastCheckinAt({ placeId }: { placeId: string }) {
+  const lastestCheckIns = await admin
+    .firestore()
+    .collection(`/places/${placeId}/checkins`)
+    .orderBy("createdAt", "desc")
+    .limit(1)
+    .get()
+  const lastestCheckIn = first(lastestCheckIns.docs)
+
+  const lastCheckInAt: admin.firestore.Timestamp | undefined =
+    lastestCheckIn?.data().createdAt
+
+  functions.logger.info("checkin", { lastestCheckIn, lastCheckInAt })
+
+  await admin
+    .firestore()
+    .doc(`places/${placeId}`)
+    .update({
+      lastVisitedAt: lastCheckInAt ?? null,
+    })
+}
+
 export const checkinOnChange = functions.firestore
   .document("/places/{placeId}/checkins/{checkin}")
   .onWrite(async (change, context) => {
     const { placeId } = context.params
     if (!change.before.exists && change.after.exists) {
-      await updateSubcollectionCounts({
-        placeId,
-      })
+      await Promise.all([
+        updateSubcollectionCounts({
+          placeId,
+        }),
+        updateLastCheckinAt({ placeId }),
+      ])
     }
     if (!change.after.exists) {
-      await updateSubcollectionCounts({
-        placeId,
-      })
+      await Promise.all([
+        updateSubcollectionCounts({
+          placeId,
+        }),
+        updateLastCheckinAt({ placeId }),
+      ])
     }
     if (change.before.exists && change.after.exists) {
       //  updated
