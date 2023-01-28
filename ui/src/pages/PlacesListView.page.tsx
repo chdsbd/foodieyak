@@ -4,6 +4,7 @@ import {
   CardBody,
   HStack,
   Input,
+  Spacer,
   Text,
   VStack,
 } from "@chakra-ui/react"
@@ -12,6 +13,7 @@ import { Link } from "react-router-dom"
 
 import { EmptyStateText } from "../components/EmptyStateText"
 import { Page } from "../components/Page"
+import { formatHumanDate } from "../date"
 import { usePlaces, useUser } from "../hooks"
 
 export function PlacesListView() {
@@ -61,7 +63,16 @@ export function PlacesListView() {
                           <Text fontSize="xl" fontWeight={"bold"}>
                             {place.name}
                           </Text>
-                          <Text>{place.location}</Text>
+                          <HStack>
+                            <Text>{place.location}</Text>
+                            <Spacer />
+                            {place.lastVisitedAt != null && (
+                              <Text color={"gray.600"} fontSize="sm">
+                                Visited on{" "}
+                                {formatHumanDate(place.lastVisitedAt)}
+                              </Text>
+                            )}
+                          </HStack>
                         </div>
                       </CardBody>
                     </Card>
