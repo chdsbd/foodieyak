@@ -38,6 +38,7 @@ export async function placeCreate(params: {
     viewerIds: [params.userId, ...params.friendIds],
     checkInCount: 0,
     menuItemCount: 0,
+    lastVisitedAt: null,
   }
   const docRef = await addDoc(collection(db, "places"), place)
   return docRef.id
