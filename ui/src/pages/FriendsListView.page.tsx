@@ -28,8 +28,8 @@ export function UserIdToName({ userId }: { userId: string }) {
     api
       .userById({ userId })
       .then((res) => {
-        userIdcache[userId] = res.email
-        setName({ name: res.email })
+        userIdcache[userId] = res.displayName || res.email
+        setName({ name: res.displayName || res.email })
       })
       .catch(() => {
         // TODO:
