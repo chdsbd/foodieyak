@@ -34,25 +34,28 @@ function useQuery<T extends z.ZodType>(
   query: Query<DocumentData> | DocumentReference<DocumentData> | null,
   schema: T,
 ): z.output<T> | z.output<T>[] | "loading" {
-  const [state, setState] = useState<T | "loading">("loading")
+  const [state, setState] = useState<T | T[] | "loading">("loading")
   useEffect(() => {
     if (query == null) {
       return
     }
     if (query.type === "document") {
       return onSnapshot(query, (doc) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const parsed = schema.parse({ id: doc.id, ...doc.data() })
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         setState(parsed)
       })
     } else {
       return onSnapshot(query, (querySnapshot) => {
         const out: T[] = []
         querySnapshot.forEach((doc) => {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           const parsed = schema.parse({ id: doc.id, ...doc.data() })
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           out.push(parsed)
         })
-        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-        setState(out as T)
+        setState(out)
       })
     }
   }, [query, schema])
