@@ -130,6 +130,7 @@ export const menuItems = {
       lastModifiedAt: null,
       lastModifiedById: null,
       name: params.name,
+      checkInCount: 0,
     }
     const res = await addDoc(
       collection(db, "places", params.placeId, "menuitems"),
@@ -143,7 +144,10 @@ export const menuItems = {
     placeId: string
     menuItemId: string
   }) {
-    const menuItem: Omit<PlaceMenuItem, "id" | "createdAt" | "createdById"> = {
+    const menuItem: Omit<
+      PlaceMenuItem,
+      "id" | "createdAt" | "createdById" | "checkInCount"
+    > = {
       lastModifiedAt: Timestamp.now(),
       lastModifiedById: params.userId,
       name: params.name,

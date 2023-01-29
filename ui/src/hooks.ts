@@ -22,18 +22,18 @@ import {
 } from "./api-schemas"
 import { db } from "./db"
 
-function useQuery<T>(
+function useQuery<T extends z.ZodType>(
   query: Query<DocumentData> | null,
-  schema: z.ZodType<T>,
-): T[] | "loading"
-function useQuery<T>(
+  schema: T,
+): z.output<T>[] | "loading"
+function useQuery<T extends z.ZodType>(
   query: DocumentReference<DocumentData> | null,
-  schema: z.ZodType<T>,
-): T | "loading"
-function useQuery<T>(
+  schema: T,
+): z.output<T> | "loading"
+function useQuery<T extends z.ZodType>(
   query: Query<DocumentData> | DocumentReference<DocumentData> | null,
-  schema: z.ZodType<T>,
-): T | T[] | "loading" {
+  schema: T,
+): z.output<T> | z.output<T>[] | "loading" {
   const [state, setState] = useState<T | "loading">("loading")
   useEffect(() => {
     if (query == null) {
