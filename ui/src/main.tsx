@@ -13,9 +13,12 @@ Sentry.init({
   dsn: "https://a2e76d2f6b1c435897d9018b9f332cf5@o64108.ingest.sentry.io/4504528386916352",
   integrations: [new BrowserTracing()],
   tracesSampleRate: 1.0,
-  beforeSend: (event) => {
+  beforeSend: (event, hint) => {
     // eslint-disable-next-line no-console
-    console.error(event.event_id, event.exception?.values?.[0].value)
+    console.error(
+      event.event_id,
+      hint.originalException || hint.syntheticException,
+    )
     return event
   },
 })

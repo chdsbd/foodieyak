@@ -26,7 +26,6 @@ export const PlaceSchema = BaseSchema.extend({
   viewerIds: z.array(z.string()),
   menuItemCount: z.number(),
   checkInCount: z.number().default(0),
-  lastVisitedAt: z.nullable(TimestampSchema).default(null),
 })
 export type Place = z.infer<typeof PlaceSchema>
 

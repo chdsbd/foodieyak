@@ -6,17 +6,21 @@ import {
   doc,
   getDoc,
   getDocs,
+  limit,
+  orderBy,
   query,
   Timestamp,
   updateDoc,
   where,
   writeBatch,
 } from "firebase/firestore"
+import { first } from "lodash-es"
 
 import {
   Friend,
   Place,
   PlaceCheckIn,
+  PlaceCheckInSchema,
   PlaceMenuItem,
   User,
   UserSchema,
@@ -39,7 +43,6 @@ export async function placeCreate(params: {
     viewerIds: [params.userId, ...params.friendIds],
     checkInCount: 0,
     menuItemCount: 0,
-    lastVisitedAt: null,
   }
   const docRef = await addDoc(collection(db, "places"), place)
   return docRef.id
@@ -121,6 +124,26 @@ export const checkin = {
   },
   async delete({ placeId, checkInId }: { placeId: string; checkInId: string }) {
     await deleteDoc(doc(db, "places", placeId, "checkins", checkInId))
+  },
+  async getLastestForUserId({
+    placeId,
+    userId,
+  }: {
+    placeId: string
+    userId: string
+  }) {
+    const q = query(
+      collection(db, "places", placeId, "checkins"),
+      where("createdById", "==", userId),
+      orderBy("createdAt", "desc"),
+      limit(1),
+    )
+    const res = await getDocs(q)
+    const latestDoc = first(res.docs)
+    if (latestDoc == null) {
+      return null
+    }
+    return PlaceCheckInSchema.parse({ id: latestDoc.id, ...latestDoc.data() })
   },
 }
 
