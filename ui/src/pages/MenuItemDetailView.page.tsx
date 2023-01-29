@@ -18,7 +18,7 @@ import { Page } from "../components/Page"
 import { Downvote, Upvote } from "../components/Ratings"
 import { formatHumanDate } from "../date"
 import { useCheckins, useMenuItem, usePlace, useUser } from "../hooks"
-import { pathCheckinDetail, pathPlaceDetail } from "../paths"
+import { pathCheckinDetail, pathMenuItemEdit, pathPlaceDetail } from "../paths"
 import { notUndefined } from "../type-guards"
 import { UserIdToName } from "./FriendsListView.page"
 
@@ -84,7 +84,7 @@ export function MenuItemDetailView() {
           </VStack>
           <Spacer />
           <Box alignSelf={"start"}>
-            <Link to={pathMenuItemEdit({ placeId })}>
+            <Link to={pathMenuItemEdit({ menuItemId, placeId })}>
               <Button size="sm" variant={"outline"}>
                 Edit
               </Button>

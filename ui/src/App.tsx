@@ -33,6 +33,7 @@ import {
   pathFriendsList,
   pathLogin,
   pathMenuItemDetail,
+  pathMenuItemEdit,
   pathPasswordForgot,
   pathPasswordReset,
   pathPlaceCreate,

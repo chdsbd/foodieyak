@@ -20,6 +20,7 @@ import { DelayedLoader } from "../components/DelayedLoader"
 import { Page } from "../components/Page"
 import { ReadonlyInput } from "../components/ReadonlyInput"
 import { useCheckins, useMenuItem, usePlace, useUser } from "../hooks"
+import { pathPlaceDetail } from "../paths"
 
 export function MenuItemEditView() {
   const {
@@ -73,7 +74,7 @@ export function MenuItemEditView() {
             size="sm"
             as={Link}
             variant="outline"
-            to={`/place/${place.id}`}
+            to={pathPlaceDetail({ placeId: place.id })}
           >
             View
           </Button>
