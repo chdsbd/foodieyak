@@ -38,6 +38,7 @@ export async function placeCreate(params: {
     viewerIds: [params.userId, ...params.friendIds],
     checkInCount: 0,
     menuItemCount: 0,
+    lastVisitedAt: null,
   }
   const docRef = await addDoc(collection(db, "places"), place)
   return docRef.id
@@ -84,6 +85,7 @@ export const checkin = {
       lastModifiedById: null,
       comment,
       ratings: reviews,
+      ratingsMenuItemIds: reviews.map((x) => x.menuItemId),
     }
     const res = await addDoc(
       collection(db, "places", placeId, "checkins"),
@@ -112,6 +114,7 @@ export const checkin = {
       lastModifiedById: userId,
       comment,
       ratings: reviews,
+      ratingsMenuItemIds: reviews.map((x) => x.menuItemId),
     }
     await updateDoc(doc(db, "places", placeId, "checkins", checkInId), checkin)
   },
@@ -128,12 +131,37 @@ export const menuItems = {
       lastModifiedAt: null,
       lastModifiedById: null,
       name: params.name,
+      checkInCount: 0,
     }
     const res = await addDoc(
       collection(db, "places", params.placeId, "menuitems"),
       menuItem,
     )
     return res.id
+  },
+  async update(params: {
+    name: string
+    userId: string
+    placeId: string
+    menuItemId: string
+  }) {
+    const menuItem: Omit<
+      PlaceMenuItem,
+      "id" | "createdAt" | "createdById" | "checkInCount"
+    > = {
+      lastModifiedAt: Timestamp.now(),
+      lastModifiedById: params.userId,
+      name: params.name,
+    }
+    await updateDoc(
+      doc(db, "places", params.placeId, "menuitems", params.menuItemId),
+      menuItem,
+    )
+  },
+  async delete(params: { placeId: string; menuItemId: string }) {
+    await deleteDoc(
+      doc(db, "places", params.placeId, "menuitems", params.menuItemId),
+    )
   },
 }
 

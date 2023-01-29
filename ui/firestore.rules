@@ -70,16 +70,24 @@ service cloud.firestore {
           ['name']) 
           && data.name is string
         }
+      	function isValidUpdateMenuItem() {
+        	let data = request.resource.data;
+          return isValidDocUpdate(request) 
+          	&& data.diff(resource.data).affectedKeys().hasAny(['name'])
+          	&& data.name is string
+        }
 
       	allow read: if canViewPlace(request, placeData())
         allow create: if canViewPlace(request, placeData()) && isValidNewMenuItem()
+        allow update: if canViewPlace(request, placeData()) && isValidUpdateMenuItem()
       }
       match /checkins/{checkin} {
       	function isValidNewCheckin() {
         	let data = request.resource.data;
           return isValidNewDoc(request) && data.keys().hasAll(
-          ['ratings', 'comment']) 
+          ['ratings','ratingsMenuItemIds', 'comment']) 
           && data.ratings is list
+          && data.ratingsMenuItemIds is list
           && data.comment is string
         }
       	allow read: if canViewPlace(request, placeData())

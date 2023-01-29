@@ -22,37 +22,40 @@ import {
 } from "./api-schemas"
 import { db } from "./db"
 
-function useQuery<T>(
+function useQuery<T extends z.ZodType>(
   query: Query<DocumentData> | null,
-  schema: z.ZodType<T>,
-): T[] | "loading"
-function useQuery<T>(
+  schema: T,
+): z.output<T>[] | "loading"
+function useQuery<T extends z.ZodType>(
   query: DocumentReference<DocumentData> | null,
-  schema: z.ZodType<T>,
-): T | "loading"
-function useQuery<T>(
+  schema: T,
+): z.output<T> | "loading"
+function useQuery<T extends z.ZodType>(
   query: Query<DocumentData> | DocumentReference<DocumentData> | null,
-  schema: z.ZodType<T>,
-): T | T[] | "loading" {
-  const [state, setState] = useState<T | "loading">("loading")
+  schema: T,
+): z.output<T> | z.output<T>[] | "loading" {
+  const [state, setState] = useState<T | T[] | "loading">("loading")
   useEffect(() => {
     if (query == null) {
       return
     }
     if (query.type === "document") {
       return onSnapshot(query, (doc) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const parsed = schema.parse({ id: doc.id, ...doc.data() })
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         setState(parsed)
       })
     } else {
       return onSnapshot(query, (querySnapshot) => {
         const out: T[] = []
         querySnapshot.forEach((doc) => {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           const parsed = schema.parse({ id: doc.id, ...doc.data() })
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           out.push(parsed)
         })
-        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-        setState(out as T)
+        setState(out)
       })
     }
   }, [query, schema])
@@ -117,10 +120,11 @@ export function useMenuItems(placeId: string) {
   return useQuery(q, PlaceMenuItemSchema)
 }
 export function useMenuItem(placeId: string, menuItemId: string) {
-  return useQuery(
-    doc(db, "places", placeId, "menuitems", menuItemId),
-    PlaceMenuItemSchema,
-  )
+  const q = useMemo(() => {
+    return doc(db, "places", placeId, "menuitems", menuItemId)
+  }, [placeId, menuItemId])
+
+  return useQuery(q, PlaceMenuItemSchema)
 }
 export function useCheckins(placeId: string) {
   const q = useMemo(() => {

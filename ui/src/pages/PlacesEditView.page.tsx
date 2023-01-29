@@ -1,8 +1,10 @@
 import {
   Button,
   ButtonGroup,
+  Divider,
   FormControl,
   FormLabel,
+  Heading,
   Input,
   Spacer,
   Tooltip,
@@ -11,7 +13,7 @@ import {
 } from "@chakra-ui/react"
 import { FirebaseError } from "firebase/app"
 import { useEffect, useState } from "react"
-import { useHistory, useParams } from "react-router-dom"
+import { Link, useHistory, useParams } from "react-router-dom"
 
 import * as api from "../api"
 import { Page } from "../components/Page"
@@ -47,6 +49,10 @@ export function PlacesEditView() {
 
   return (
     <Page>
+      <Heading as="h1" size="lg">
+        Place
+      </Heading>
+
       <VStack
         as="form"
         width="100%"
@@ -101,45 +107,9 @@ export function PlacesEditView() {
         </FormControl>
         <Spacer />
         <ButtonGroup w="100%">
-          <Tooltip
-            isDisabled={(place.checkInCount ?? 0) === 0}
-            label={`Deletion disabled until all (${place.checkInCount}) check-Ins have been deleted.`}
-          >
-            <Button
-              // size="lg"
-              type="button"
-              colorScheme={"red"}
-              variant="outline"
-              disabled={(place.checkInCount ?? 0) > 0}
-              isLoading={deleting}
-              loadingText="Deleting..."
-              onClick={() => {
-                if (!confirm("Delete place?")) {
-                  return
-                }
-                setDeleting(true)
-                api
-                  .placeDelete({ placeId })
-                  .then(() => {
-                    history.push(pathPlaceList({}))
-                    setDeleting(false)
-                  })
-                  .catch((error: FirebaseError) => {
-                    const errorCode = error.code
-                    const errorMessage = error.message
-                    toast({
-                      title: "Problem deleting place",
-                      description: `${errorCode}: ${errorMessage}`,
-                      status: "error",
-                      isClosable: true,
-                    })
-                    setDeleting(false)
-                  })
-              }}
-            >
-              Delete Place
-            </Button>
-          </Tooltip>
+          <Link to={pathPlaceDetail({ placeId })}>
+            <Button variant={"outline"}>Cancel</Button>
+          </Link>
           <Spacer />
           <Button
             type="submit"
@@ -150,6 +120,48 @@ export function PlacesEditView() {
           </Button>
         </ButtonGroup>
       </VStack>
+      <Spacer />
+      <Divider />
+      <Spacer />
+      <Tooltip
+        isDisabled={(place.checkInCount ?? 0) === 0}
+        label={`Deletion disabled until all (${place.checkInCount}) check-ins have been deleted.`}
+      >
+        <Button
+          size="sm"
+          type="button"
+          colorScheme={"red"}
+          variant="outline"
+          disabled={(place.checkInCount ?? 0) > 0}
+          isLoading={deleting}
+          loadingText="Deleting..."
+          onClick={() => {
+            if (!confirm("Delete place?")) {
+              return
+            }
+            setDeleting(true)
+            api
+              .placeDelete({ placeId })
+              .then(() => {
+                history.push(pathPlaceList({}))
+                setDeleting(false)
+              })
+              .catch((error: FirebaseError) => {
+                const errorCode = error.code
+                const errorMessage = error.message
+                toast({
+                  title: "Problem deleting place",
+                  description: `${errorCode}: ${errorMessage}`,
+                  status: "error",
+                  isClosable: true,
+                })
+                setDeleting(false)
+              })
+          }}
+        >
+          Delete Place
+        </Button>
+      </Tooltip>
     </Page>
   )
 }

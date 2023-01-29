@@ -2,7 +2,7 @@ import * as functions from "firebase-functions"
 import * as admin from "firebase-admin"
 
 import * as identity from "firebase-functions/lib/common/providers/identity"
-import { first } from "lodash"
+import { uniq, first } from "lodash"
 
 admin.initializeApp()
 admin.firestore().settings({ ignoreUndefinedProperties: true })
@@ -157,6 +157,56 @@ async function updateLastCheckinAt({ placeId }: { placeId: string }) {
     })
 }
 
+/** Update MenuItem document with the number of checkins referencing it. */
+async function updateUsageCountForMenuItem({
+  placeId,
+  menuItemId,
+}: {
+  placeId: string
+  menuItemId: string
+}) {
+  const checkInCount = (
+    await admin
+      .firestore()
+      .collection(`/places/${placeId}/checkins`)
+      .where("ratingsMenuItemIds", "array-contains", menuItemId)
+      .count()
+      .get()
+  ).data().count
+
+  functions.logger.info("checkInsWithRatingIds", { checkInCount })
+
+  await admin
+    .firestore()
+    .doc(`places/${placeId}/menuitems/${menuItemId}`)
+    .update({
+      checkInCount,
+    })
+}
+
+async function updateMenuItemsForCheckIn({
+  placeId,
+  change,
+}: {
+  placeId: string
+  change: functions.Change<functions.firestore.DocumentSnapshot>
+}) {
+  const menuItemIds: string[] = uniq([
+    ...(change.before.data()?.ratingsMenuItemIds ?? []),
+    ...(change.after.data()?.ratingsMenuItemIds ?? []),
+  ])
+  functions.logger.info("menuItemIds", {
+    menuItemIds,
+    menuItemIdsLength: menuItemIds.length,
+  })
+
+  await Promise.all(
+    menuItemIds.map((menuItemId) =>
+      updateUsageCountForMenuItem({ placeId, menuItemId }),
+    ),
+  )
+}
+
 export const checkinOnChange = functions.firestore
   .document("/places/{placeId}/checkins/{checkin}")
   .onWrite(async (change, context) => {
@@ -175,6 +225,7 @@ export const checkinOnChange = functions.firestore
     if (change.before.exists && change.after.exists) {
       //  updated
     }
+    await updateMenuItemsForCheckIn({ change, placeId })
   })
 export const menuitemOnChange = functions.firestore
   .document("/places/{placeId}/menuitems/{menuItemId}")
