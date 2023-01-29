@@ -91,8 +91,8 @@ export function MenuItemDetailView() {
           </Box>
         </HStack>
         <HStack>
-          <Upvote count={checkinCountsByMenuItem?.positive ?? 0} />
-          <Downvote count={checkinCountsByMenuItem?.positive ?? 0} />
+          <div>↑ {checkinCountsByMenuItem?.positive ?? 0}</div>
+          <div>↓ {checkinCountsByMenuItem?.negative ?? 0}</div>
         </HStack>
       </VStack>
 
