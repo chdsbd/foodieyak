@@ -14,6 +14,7 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 
 import { AuthForm } from "../components/AuthForm"
+import { pathLogin } from "../paths"
 
 export function AuthForgotPassword() {
   const [isLoading, setIsLoading] = useState(false)
@@ -64,7 +65,7 @@ export function AuthForgotPassword() {
         />
       </FormControl>
       <HStack width="100%">
-        <Button variant="link" as={Link} to="/login">
+        <Button variant="link" as={Link} to={pathLogin({})}>
           Login →
         </Button>
         <Spacer />

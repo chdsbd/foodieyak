@@ -16,6 +16,7 @@ import { useState } from "react"
 import { Link, useHistory } from "react-router-dom"
 
 import { AuthForm } from "../components/AuthForm"
+import { pathLogin, pathPasswordForgot, pathPlaceList } from "../paths"
 
 export function AuthSignupView() {
   const toast = useToast()
@@ -45,7 +46,7 @@ export function AuthSignupView() {
           isClosable: true,
         })
         history.push({
-          pathname: "/",
+          pathname: pathPlaceList({}),
         })
       })
       .catch((error: FirebaseError) => {
@@ -68,7 +69,7 @@ export function AuthSignupView() {
     >
       <Tabs index={1} size="lg" width="100%">
         <TabList>
-          <Tab as={Link} to="/login" fontWeight={500}>
+          <Tab as={Link} to={pathLogin({})} fontWeight={500}>
             Login
           </Tab>
           <Tab fontWeight={600}>Signup</Tab>
@@ -106,7 +107,7 @@ export function AuthSignupView() {
         />
       </FormControl>
       <HStack width="100%">
-        <Button variant="link" as={Link} to="/forgot-password">
+        <Button variant="link" as={Link} to={pathPasswordForgot({})}>
           Forgot Password →
         </Button>
         <Spacer />

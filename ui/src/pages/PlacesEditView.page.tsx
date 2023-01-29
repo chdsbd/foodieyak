@@ -18,6 +18,7 @@ import { Link, useHistory, useParams } from "react-router-dom"
 import * as api from "../api"
 import { Page } from "../components/Page"
 import { usePlace, useUser } from "../hooks"
+import { pathPlaceDetail, pathPlaceList } from "../paths"
 
 export function PlacesEditView() {
   const { placeId }: { placeId: string } = useParams()
@@ -69,7 +70,7 @@ export function PlacesEditView() {
               userId: user.data.uid,
             })
             .then(() => {
-              history.push(`/place/${placeId}`)
+              history.push(pathPlaceDetail({ placeId }))
               setSaving(false)
             })
             .catch((error: FirebaseError) => {
@@ -106,7 +107,7 @@ export function PlacesEditView() {
         </FormControl>
         <Spacer />
         <ButtonGroup w="100%">
-          <Link to={`/place/${placeId}`}>
+          <Link to={pathPlaceDetail({ placeId })}>
             <Button variant={"outline"}>Cancel</Button>
           </Link>
           <Spacer />
@@ -142,7 +143,7 @@ export function PlacesEditView() {
             api
               .placeDelete({ placeId })
               .then(() => {
-                history.push(`/`)
+                history.push(pathPlaceList({}))
                 setDeleting(false)
               })
               .catch((error: FirebaseError) => {

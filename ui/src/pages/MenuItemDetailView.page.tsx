@@ -18,6 +18,7 @@ import { Page } from "../components/Page"
 import { Downvote, Upvote } from "../components/Ratings"
 import { formatHumanDate } from "../date"
 import { useCheckins, useMenuItem, usePlace, useUser } from "../hooks"
+import { pathCheckinDetail, pathPlaceDetail } from "../paths"
 import { notUndefined } from "../type-guards"
 import { UserIdToName } from "./FriendsListView.page"
 
@@ -71,7 +72,7 @@ export function MenuItemDetailView() {
           <VStack alignItems="start" spacing={0}>
             <Text
               as={Link}
-              to={`/place/${place.id}`}
+              to={pathPlaceDetail({ placeId })}
               fontSize="md"
               fontWeight={500}
             >
@@ -83,7 +84,7 @@ export function MenuItemDetailView() {
           </VStack>
           <Spacer />
           <Box alignSelf={"start"}>
-            <Link to={`/place/${place.id}/menu/${menuItemId}/edit`}>
+            <Link to={pathMenuItemEdit({ placeId })}>
               <Button size="sm" variant={"outline"}>
                 Edit
               </Button>
@@ -105,7 +106,7 @@ export function MenuItemDetailView() {
           key={m.id}
           width="100%"
           as={Link}
-          to={`/place/${place.id}/check-in/${m.id}`}
+          to={pathCheckinDetail({ checkInId: m.id, placeId })}
         >
           <Card size="sm" w="full">
             <CardBody>

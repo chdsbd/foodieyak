@@ -7069,6 +7069,11 @@ stack-trace@0.0.x:
   resolved "https://registry.yarnpkg.com/stack-trace/-/stack-trace-0.0.10.tgz#547c70b347e8d32b4e108ea1a2a159e5fdde19c0"
   integrity sha512-KGzahc7puUKkzyMt+IqAep+TVNbKP+k2Lmwhub39m1AsTSkaDutx56aDCo+HLDzf/D26BIHTJWNiTG1KAJiQCg==
 
+static-path@^0.0.4:
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/static-path/-/static-path-0.0.4.tgz#dd30a5117212164c62e2c3e1e61754f9081bf9f1"
+  integrity sha512-RAe93sPAKMDDuXuyU4UKJ+Sm84XJXk3JH21jlPu3bhs30o9Z3abRF6AE8qZCjCWPlJQrHIy4NfxO5CeYOThLFg==
+
 statuses@2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/statuses/-/statuses-2.0.1.tgz#55cb000ccf1d48728bd23c685a063998cf1a1b63"

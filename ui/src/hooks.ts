@@ -162,10 +162,7 @@ export function useFriends(userId: string | null) {
     if (!userId) {
       return null
     }
-    return query(
-      collection(db, "users", userId, "friends"),
-      orderBy("email", "asc"),
-    )
+    return query(collection(db, "users", userId, "friends"))
   }, [userId])
   return useQuery(q, FriendSchema)
 }
