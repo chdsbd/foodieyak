@@ -1,3 +1,4 @@
+import { getAuth, updateProfile } from "firebase/auth"
 import {
   addDoc,
   collection,
@@ -162,6 +163,25 @@ export const menuItems = {
     await deleteDoc(
       doc(db, "places", params.placeId, "menuitems", params.menuItemId),
     )
+  },
+}
+
+export const user = {
+  async updateProfile({
+    displayName,
+  }: {
+    displayName: string | null | undefined
+  }) {
+    const auth = getAuth()
+    if (!auth.currentUser) {
+      return
+    }
+    await updateProfile(auth.currentUser, {
+      displayName: displayName || null,
+    })
+    await updateDoc(doc(db, "users", auth.currentUser.uid), {
+      displayName: displayName || null,
+    })
   },
 }
 
