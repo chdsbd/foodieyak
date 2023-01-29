@@ -96,7 +96,7 @@ export function PlacesListView() {
                             {place.name}
                           </Text>
                           <HStack>
-                            <Text>{place.location}</Text>
+                            <Text>{place.location || " "}</Text>
                             <Spacer />
                             <LastVisitedOn
                               placeId={place.id}
