@@ -8,14 +8,41 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react"
-import React, { useState } from "react"
+import * as Sentry from "@sentry/browser"
+import React, { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 
+import * as api from "../api"
+import { PlaceCheckIn } from "../api-schemas"
 import { EmptyStateText } from "../components/EmptyStateText"
 import { Page } from "../components/Page"
 import { formatHumanDate } from "../date"
 import { usePlaces, useUser } from "../hooks"
 import { pathPlaceCreate, pathPlaceDetail } from "../paths"
+
+function LastVisitedOn({
+  placeId,
+  userId,
+}: {
+  placeId: string
+  userId: string
+}) {
+  const [state, setState] = useState<PlaceCheckIn | null>(null)
+  useEffect(() => {
+    api.checkin
+      .getLastestForUserId({ placeId, userId })
+      .then((res) => {
+        setState(res)
+      })
+      .catch((e) => {
+        Sentry.captureException(e)
+      })
+  }, [placeId, userId])
+  if (state == null) {
+    return null
+  }
+  return <Text fontSize="sm">visited {formatHumanDate(state.createdAt)}</Text>
+}
 
 export function PlacesListView() {
   const user = useUser()
@@ -29,7 +56,7 @@ export function PlacesListView() {
         </Link>
       }
     >
-      {places !== "loading" && (
+      {user.data != null && places !== "loading" && (
         <>
           {places.length === 0 && <EmptyStateText>No Places</EmptyStateText>}
           {places.length > 0 && (
@@ -71,11 +98,10 @@ export function PlacesListView() {
                           <HStack>
                             <Text>{place.location}</Text>
                             <Spacer />
-                            {place.lastVisitedAt != null && (
-                              <Text fontSize="sm">
-                                visited {formatHumanDate(place.lastVisitedAt)}
-                              </Text>
-                            )}
+                            <LastVisitedOn
+                              placeId={place.id}
+                              userId={user.data.uid}
+                            />
                           </HStack>
                         </div>
                       </CardBody>
