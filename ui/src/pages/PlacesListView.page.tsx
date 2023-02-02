@@ -17,7 +17,7 @@ import { PlaceCheckIn } from "../api-schemas"
 import { EmptyStateText } from "../components/EmptyStateText"
 import { Page } from "../components/Page"
 import { formatHumanDate } from "../date"
-import { usePlaces, usePlaces2, useUser } from "../hooks"
+import { useLastVisitedOn, usePlaces, usePlaces2, useUser } from "../hooks"
 import { pathPlaceCreate, pathPlaceDetail } from "../paths"
 
 function LastVisitedOn({
@@ -27,21 +27,27 @@ function LastVisitedOn({
   placeId: string
   userId: string
 }) {
-  const [state, setState] = useState<PlaceCheckIn | null>(null)
-  useEffect(() => {
-    api.checkin
-      .getLastestForUserId({ placeId, userId })
-      .then((res) => {
-        setState(res)
-      })
-      .catch((e) => {
-        Sentry.captureException(e)
-      })
-  }, [placeId, userId])
-  if (state == null) {
+  const lastVisitedAt = useLastVisitedOn(placeId, userId)
+  // const [state, setState] = useState<PlaceCheckIn | null>(null)
+
+  // useEffect(() => {
+  //   api.checkin
+  //     .getLastestForUserId({ placeId, userId })
+  //     .then((res) => {
+  //       setState(res)
+  //     })
+  //     .catch((e) => {
+  //       Sentry.captureException(e)
+  //     })
+  // }, [placeId, userId])
+  // if (state == null) {
+  //   return null
+  // }
+
+  if (lastVisitedAt === "loading" || lastVisitedAt == null) {
     return null
   }
-  return <Text fontSize="sm">{formatHumanDate(state.createdAt)}</Text>
+  return <Text fontSize="sm">{formatHumanDate(lastVisitedAt)}</Text>
 }
 
 let hit = false

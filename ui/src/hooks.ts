@@ -9,6 +9,7 @@ import {
   doc,
   DocumentData,
   DocumentReference,
+  limit,
   onSnapshot,
   orderBy,
   Query,
@@ -217,4 +218,28 @@ export function useFriends(userId: string | null) {
     return query(collection(db, "users", userId, "friends"))
   }, [userId])
   return useQuery(q, FriendSchema)
+}
+
+export function useLastVisitedOn(placeId: string, userId: string) {
+  const { status, data, error } = useFirestoreCollectionData(
+    query(
+      collection(db, "places", placeId, "checkins"),
+      where("createdById", "==", userId),
+      orderBy("createdAt", "desc"),
+      limit(1),
+    ),
+    {
+      idField: "id", // this field will be added to the object created from each document
+    },
+  )
+  if (status === "error") {
+    throw error
+  }
+  if (status === "loading") {
+    return "loading"
+  }
+  if (data.length === 0) {
+    return null
+  }
+  return PlaceCheckInSchema.parse(data[0]).createdAt
 }
