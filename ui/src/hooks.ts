@@ -53,6 +53,7 @@ function useQuery<T extends z.ZodType>(
         setState(parsed)
       })
     } else {
+      const start = performance.now()
       return onSnapshot(query, (querySnapshot) => {
         const out: T[] = []
         querySnapshot.forEach((doc) => {
@@ -61,6 +62,8 @@ function useQuery<T extends z.ZodType>(
           // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           out.push(parsed)
         })
+        console.log(query?._query?._t?.ft)
+        console.log(`query-time`, performance.now() - start)
         setState(out)
       })
     }
@@ -177,6 +180,7 @@ export function useCheckIn(placeId: string, checkInId: string) {
 
 export function usePlaces(userId: string | undefined) {
   const q = useMemo(() => {
+    console.log("hasUserId", { userId })
     if (!userId) {
       return null
     }
@@ -187,6 +191,22 @@ export function usePlaces(userId: string | undefined) {
     )
   }, [userId])
   return useQuery(q, PlaceSchema)
+}
+export function usePlaces2(userId: string) {
+  const { status, data } = useFirestoreCollectionData(
+    query(
+      collection(db, "places"),
+      where("viewerIds", "array-contains", userId),
+      orderBy("name", "asc"),
+    ),
+    {
+      idField: "id", // this field will be added to the object created from each document
+    },
+  )
+  if (status !== "success") {
+    return "loading"
+  }
+  return data.map((x) => PlaceSchema.parse(x))
 }
 
 export function useFriends(userId: string | null) {

@@ -32,7 +32,7 @@ function getConfig() {
   return prodFirebaseConfig
 }
 
-const config = getConfig()
+export const config = getConfig()
 
 const app = initializeApp(config)
 // eslint-disable-next-line no-console

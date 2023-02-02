@@ -1,10 +1,12 @@
 import { Container } from "@chakra-ui/react"
+import { getFirestore } from "firebase/firestore"
 import {
   BrowserRouter as Router,
   Redirect,
   Route,
   Switch,
 } from "react-router-dom"
+import { FirestoreProvider, useFirebaseApp } from "reactfire"
 
 import { ErrorBoundary } from "./components/ErrorBoundary"
 import { useIsAuthed } from "./hooks"
@@ -138,6 +140,7 @@ const routes: (
 ]
 
 function App() {
+  const firestoreInstance = getFirestore(useFirebaseApp())
   const authStatus = useIsAuthed()
   if (authStatus === "loading") {
     // don't have auth data so we dont' know what to show
@@ -145,28 +148,30 @@ function App() {
   }
   return (
     <ErrorBoundary>
-      <Container padding={2}>
-        <Router>
-          <Switch>
-            {routes.map((r) => {
-              if ("redirect" in r) {
-                return <Redirect key={r.path} from={r.path} to={r.redirect} />
-              }
-              if (r.authed === true && authStatus === "unauthed") {
-                return <Redirect key={r.path} to={pathLogin({})} />
-              }
-              return (
-                <Route
-                  key={r.path}
-                  path={r.path}
-                  children={r.element}
-                  exact={r.exact}
-                />
-              )
-            })}
-          </Switch>
-        </Router>
-      </Container>
+      <FirestoreProvider sdk={firestoreInstance}>
+        <Container padding={2}>
+          <Router>
+            <Switch>
+              {routes.map((r) => {
+                if ("redirect" in r) {
+                  return <Redirect key={r.path} from={r.path} to={r.redirect} />
+                }
+                if (r.authed === true && authStatus === "unauthed") {
+                  return <Redirect key={r.path} to={pathLogin({})} />
+                }
+                return (
+                  <Route
+                    key={r.path}
+                    path={r.path}
+                    children={r.element}
+                    exact={r.exact}
+                  />
+                )
+              })}
+            </Switch>
+          </Router>
+        </Container>
+      </FirestoreProvider>
     </ErrorBoundary>
   )
 }
