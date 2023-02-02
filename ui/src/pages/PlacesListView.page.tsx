@@ -28,25 +28,11 @@ function LastVisitedOn({
   userId: string
 }) {
   const lastVisitedAt = useLastVisitedOn(placeId, userId)
-  // const [state, setState] = useState<PlaceCheckIn | null>(null)
-
-  // useEffect(() => {
-  //   api.checkin
-  //     .getLastestForUserId({ placeId, userId })
-  //     .then((res) => {
-  //       setState(res)
-  //     })
-  //     .catch((e) => {
-  //       Sentry.captureException(e)
-  //     })
-  // }, [placeId, userId])
-  // if (state == null) {
-  //   return null
-  // }
 
   if (lastVisitedAt === "loading" || lastVisitedAt == null) {
     return null
   }
+
   return <Text fontSize="sm">{formatHumanDate(lastVisitedAt)}</Text>
 }
 
