@@ -9,6 +9,7 @@ import {
   doc,
   DocumentData,
   DocumentReference,
+  limit,
   onSnapshot,
   orderBy,
   Query,
@@ -16,6 +17,7 @@ import {
   where,
 } from "firebase/firestore"
 import { useEffect, useMemo, useState } from "react"
+import { useFirestoreCollectionData } from "reactfire"
 import { z } from "zod"
 
 import {
@@ -174,18 +176,21 @@ export function useCheckIn(placeId: string, checkInId: string) {
   return useQuery(q, PlaceCheckInSchema)
 }
 
-export function usePlaces(userId: string | undefined) {
-  const q = useMemo(() => {
-    if (!userId) {
-      return null
-    }
-    return query(
+export function usePlaces(userId: string) {
+  const { status, data } = useFirestoreCollectionData(
+    query(
       collection(db, "places"),
       where("viewerIds", "array-contains", userId),
       orderBy("name", "asc"),
-    )
-  }, [userId])
-  return useQuery(q, PlaceSchema)
+    ),
+    {
+      idField: "id",
+    },
+  )
+  if (status !== "success") {
+    return "loading"
+  }
+  return data.map((x) => PlaceSchema.parse(x))
 }
 
 export function useFriends(userId: string | null) {
@@ -196,4 +201,28 @@ export function useFriends(userId: string | null) {
     return query(collection(db, "users", userId, "friends"))
   }, [userId])
   return useQuery(q, FriendSchema)
+}
+
+export function useLastVisitedOn(placeId: string, userId: string) {
+  const { status, data, error } = useFirestoreCollectionData(
+    query(
+      collection(db, "places", placeId, "checkins"),
+      where("createdById", "==", userId),
+      orderBy("createdAt", "desc"),
+      limit(1),
+    ),
+    {
+      idField: "id",
+    },
+  )
+  if (status === "error") {
+    throw error
+  }
+  if (status === "loading") {
+    return "loading"
+  }
+  if (data.length === 0) {
+    return null
+  }
+  return PlaceCheckInSchema.parse(data[0]).createdAt
 }

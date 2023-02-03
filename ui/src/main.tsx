@@ -3,10 +3,11 @@ import * as Sentry from "@sentry/browser"
 import { BrowserTracing } from "@sentry/tracing"
 import React from "react"
 import ReactDOM from "react-dom/client"
+import { FirebaseAppProvider } from "reactfire"
 
 import App from "./App"
 // todo: rework how we initialize this
-import { db } from "./db"
+import { config, db } from "./db"
 
 Sentry.init({
   // TODO: move to env var
@@ -32,7 +33,9 @@ const theme = extendTheme()
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <ChakraProvider theme={theme}>
-      <App />
+      <FirebaseAppProvider firebaseConfig={config}>
+        <App />
+      </FirebaseAppProvider>
     </ChakraProvider>
   </React.StrictMode>,
 )
