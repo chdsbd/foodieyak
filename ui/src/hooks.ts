@@ -1,4 +1,9 @@
-import { getAuth, onAuthStateChanged, User } from "firebase/auth"
+import {
+  getAuth,
+  onAuthStateChanged,
+  onIdTokenChanged,
+  User,
+} from "firebase/auth"
 import {
   collection,
   doc,
@@ -65,14 +70,16 @@ function useQuery<T extends z.ZodType>(
 
 export function useIsAuthed(): "authed" | "unauthed" | "loading" {
   const [state, setState] = useState<"authed" | "unauthed" | "loading">(
-    "loading",
+    localStorage.getItem("isAuthenticated") != null ? "authed" : "loading",
   )
   useEffect(() => {
     const auth = getAuth()
-    return onAuthStateChanged(auth, (user) => {
+    return onIdTokenChanged(auth, (user) => {
       if (user) {
+        localStorage.setItem("isAuthenticated", "1")
         setState("authed")
       } else {
+        localStorage.removeItem("isAuthenticated")
         setState("unauthed")
       }
     })
@@ -80,22 +87,46 @@ export function useIsAuthed(): "authed" | "unauthed" | "loading" {
   return state
 }
 
+type FyUser = Pick<User, "uid" | "email" | "displayName" | "photoURL">
+
+const FyUserSchema = z.object({
+  uid: z.string(),
+  email: z.string(),
+  displayName: z.string().default(""),
+  photoURL: z.string().default(""),
+})
+
 type QueryResult =
-  | { data: User; isLoading: false; isSuccess: true }
+  | {
+      data: FyUser
+      isLoading: false
+      isSuccess: true
+    }
   | { data: undefined; isLoading: true; isSuccess: false }
 
 export function useUser(): QueryResult {
-  const [state, setState] = useState<QueryResult>({
-    data: undefined,
-    isLoading: true,
-    isSuccess: false,
+  const [state, setState] = useState<QueryResult>((): QueryResult => {
+    const cached = localStorage.getItem("userAuthDataCache")
+    if (cached) {
+      const res = FyUserSchema.safeParse(JSON.parse(cached))
+      if (res.success) {
+        return {
+          data: res.data,
+          isLoading: false,
+          isSuccess: true,
+        }
+      }
+    }
+    return { data: undefined, isLoading: true, isSuccess: false }
   })
   useEffect(() => {
     const auth = getAuth()
     return onAuthStateChanged(auth, (user) => {
       if (user) {
+        localStorage.setItem("userAuthDataCache", JSON.stringify(user))
         setState({ data: user, isLoading: false, isSuccess: true })
       } else {
+        localStorage.removeItem("userAuthDataCache")
         setState({ data: undefined, isLoading: true, isSuccess: false })
       }
     })
