@@ -34,7 +34,6 @@ function LastVisitedOn({
 }
 
 function PlacesList({ userId }: { userId: string }) {
-  // const places = usePlaces(userId)
   const places = usePlaces(userId)
   const [search, setSearch] = useState("")
 

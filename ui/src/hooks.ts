@@ -184,7 +184,7 @@ export function usePlaces(userId: string) {
       orderBy("name", "asc"),
     ),
     {
-      idField: "id", // this field will be added to the object created from each document
+      idField: "id",
     },
   )
   if (status !== "success") {
@@ -212,7 +212,7 @@ export function useLastVisitedOn(placeId: string, userId: string) {
       limit(1),
     ),
     {
-      idField: "id", // this field will be added to the object created from each document
+      idField: "id",
     },
   )
   if (status === "error") {
