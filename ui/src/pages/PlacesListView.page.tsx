@@ -8,16 +8,13 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react"
-import * as Sentry from "@sentry/browser"
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import { Link } from "react-router-dom"
 
-import * as api from "../api"
-import { PlaceCheckIn } from "../api-schemas"
 import { EmptyStateText } from "../components/EmptyStateText"
 import { Page } from "../components/Page"
 import { formatHumanDate } from "../date"
-import { useLastVisitedOn, usePlaces, usePlaces2, useUser } from "../hooks"
+import { useLastVisitedOn, usePlaces, useUser } from "../hooks"
 import { pathPlaceCreate, pathPlaceDetail } from "../paths"
 
 function LastVisitedOn({
@@ -36,21 +33,13 @@ function LastVisitedOn({
   return <Text fontSize="sm">{formatHumanDate(lastVisitedAt)}</Text>
 }
 
-let hit = false
-
 function PlacesList({ userId }: { userId: string }) {
-  const [start, _] = useState(() => performance.now())
-
   // const places = usePlaces(userId)
-  const places = usePlaces2(userId)
+  const places = usePlaces(userId)
   const [search, setSearch] = useState("")
 
   if (places === "loading") {
     return null
-  }
-  if (!hit) {
-    console.log("finished", performance.now() - start)
-    hit = true
   }
 
   return (
