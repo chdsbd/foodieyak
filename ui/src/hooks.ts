@@ -16,7 +16,6 @@ import {
   where,
 } from "firebase/firestore"
 import { useEffect, useMemo, useState } from "react"
-import { useFirestore, useFirestoreCollectionData } from "reactfire"
 import { z } from "zod"
 
 import {
