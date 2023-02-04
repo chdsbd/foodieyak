@@ -36,7 +36,7 @@ export const PlaceMenuItemSchema = BaseSchema.extend({
 export type PlaceMenuItem = z.infer<typeof PlaceMenuItemSchema>
 
 export const PlaceCheckInSchema = BaseSchema.extend({
-  checkedInAt: z.nullable(TimestampSchema).default(null),
+  checkedInAt: z.nullable(TimestampSchema),
   comment: z.string(),
   ratingsMenuItemIds: z.array(z.string()).default([]),
   ratings: z.array(
