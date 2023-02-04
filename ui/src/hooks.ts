@@ -1,9 +1,15 @@
-import { getAuth, onAuthStateChanged, User } from "firebase/auth"
+import {
+  getAuth,
+  onAuthStateChanged,
+  onIdTokenChanged,
+  User,
+} from "firebase/auth"
 import {
   collection,
   doc,
   DocumentData,
   DocumentReference,
+  limit,
   onSnapshot,
   orderBy,
   Query,
@@ -11,6 +17,7 @@ import {
   where,
 } from "firebase/firestore"
 import { useEffect, useMemo, useState } from "react"
+import { useFirestoreCollectionData } from "reactfire"
 import { z } from "zod"
 
 import {
@@ -65,14 +72,16 @@ function useQuery<T extends z.ZodType>(
 
 export function useIsAuthed(): "authed" | "unauthed" | "loading" {
   const [state, setState] = useState<"authed" | "unauthed" | "loading">(
-    "loading",
+    localStorage.getItem("isAuthenticated") != null ? "authed" : "loading",
   )
   useEffect(() => {
     const auth = getAuth()
-    return onAuthStateChanged(auth, (user) => {
+    return onIdTokenChanged(auth, (user) => {
       if (user) {
+        localStorage.setItem("isAuthenticated", "1")
         setState("authed")
       } else {
+        localStorage.removeItem("isAuthenticated")
         setState("unauthed")
       }
     })
@@ -80,22 +89,46 @@ export function useIsAuthed(): "authed" | "unauthed" | "loading" {
   return state
 }
 
+type FyUser = Pick<User, "uid" | "email" | "displayName" | "photoURL">
+
+const FyUserSchema = z.object({
+  uid: z.string(),
+  email: z.string(),
+  displayName: z.string().default(""),
+  photoURL: z.string().default(""),
+})
+
 type QueryResult =
-  | { data: User; isLoading: false; isSuccess: true }
+  | {
+      data: FyUser
+      isLoading: false
+      isSuccess: true
+    }
   | { data: undefined; isLoading: true; isSuccess: false }
 
 export function useUser(): QueryResult {
-  const [state, setState] = useState<QueryResult>({
-    data: undefined,
-    isLoading: true,
-    isSuccess: false,
+  const [state, setState] = useState<QueryResult>((): QueryResult => {
+    const cached = localStorage.getItem("userAuthDataCache")
+    if (cached) {
+      const res = FyUserSchema.safeParse(JSON.parse(cached))
+      if (res.success) {
+        return {
+          data: res.data,
+          isLoading: false,
+          isSuccess: true,
+        }
+      }
+    }
+    return { data: undefined, isLoading: true, isSuccess: false }
   })
   useEffect(() => {
     const auth = getAuth()
     return onAuthStateChanged(auth, (user) => {
       if (user) {
+        localStorage.setItem("userAuthDataCache", JSON.stringify(user))
         setState({ data: user, isLoading: false, isSuccess: true })
       } else {
+        localStorage.removeItem("userAuthDataCache")
         setState({ data: undefined, isLoading: true, isSuccess: false })
       }
     })
@@ -143,18 +176,21 @@ export function useCheckIn(placeId: string, checkInId: string) {
   return useQuery(q, PlaceCheckInSchema)
 }
 
-export function usePlaces(userId: string | undefined) {
-  const q = useMemo(() => {
-    if (!userId) {
-      return null
-    }
-    return query(
+export function usePlaces(userId: string) {
+  const { status, data } = useFirestoreCollectionData(
+    query(
       collection(db, "places"),
       where("viewerIds", "array-contains", userId),
       orderBy("name", "asc"),
-    )
-  }, [userId])
-  return useQuery(q, PlaceSchema)
+    ),
+    {
+      idField: "id",
+    },
+  )
+  if (status !== "success") {
+    return "loading"
+  }
+  return data.map((x) => PlaceSchema.parse(x))
 }
 
 export function useFriends(userId: string | null) {
@@ -165,4 +201,28 @@ export function useFriends(userId: string | null) {
     return query(collection(db, "users", userId, "friends"))
   }, [userId])
   return useQuery(q, FriendSchema)
+}
+
+export function useLastVisitedOn(placeId: string, userId: string) {
+  const { status, data, error } = useFirestoreCollectionData(
+    query(
+      collection(db, "places", placeId, "checkins"),
+      where("createdById", "==", userId),
+      orderBy("createdAt", "desc"),
+      limit(1),
+    ),
+    {
+      idField: "id",
+    },
+  )
+  if (status === "error") {
+    throw error
+  }
+  if (status === "loading") {
+    return "loading"
+  }
+  if (data.length === 0) {
+    return null
+  }
+  return PlaceCheckInSchema.parse(data[0]).createdAt
 }
