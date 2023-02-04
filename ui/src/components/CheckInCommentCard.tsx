@@ -24,9 +24,11 @@ export function CheckInCommentCard({ checkIn: c }: { checkIn: PlaceCheckIn }) {
             <UserIdToName userId={c.createdById} />
           </Text>
           {"   "}
-          <Text as="span" fontSize="sm">
-            {c.checkedInAt != null ? formatHumanDate(c.checkedInAt) : "-"}
-          </Text>
+          {c.checkedInAt != null && (
+            <Text as="span" fontSize="sm">
+              {formatHumanDate(c.checkedInAt)}
+            </Text>
+          )}
         </Text>
 
         {c.comment && <Text>{c.comment}</Text>}
