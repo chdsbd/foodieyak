@@ -77,9 +77,15 @@ service cloud.firestore {
           	&& data.name is string
         }
 
+        function isValidDeleteMenuItem() {
+            // ensure no Checkins reference the MenuItem
+            return resource.data.checkInCount == 0
+        }
+
       	allow read: if canViewPlace(request, placeData())
         allow create: if canViewPlace(request, placeData()) && isValidNewMenuItem()
         allow update: if canViewPlace(request, placeData()) && isValidUpdateMenuItem()
+        allow delete: if canViewPlace(request, placeData()) && isValidDeleteMenuItem()
       }
       match /checkins/{checkin} {
       	function isValidNewCheckin() {
