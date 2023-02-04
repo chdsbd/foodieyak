@@ -265,7 +265,7 @@ export function CheckInCreateView() {
             api.checkin
               .create({
                 userId: user.data.uid,
-                date: parseISO(date),
+                date: isDateEnabled ? parseISO(date) : null,
                 placeId: place.id,
                 comment,
                 reviews: menuItemRatings,
