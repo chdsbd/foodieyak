@@ -13,14 +13,15 @@ export function calculateCheckinCountsByMenuItem(
 ): CountsByMenuItem {
   const checkinRatings: Record<
     PlaceMenuItem["id"],
-    { userId: string; rating: number; createdAt: Timestamp }[] | undefined
+    | { userId: string; rating: number; checkedInAt: Timestamp | null }[]
+    | undefined
   > = {}
   for (const checkin of checkins) {
     for (const rating of checkin.ratings) {
       checkinRatings[rating.menuItemId] =
         checkinRatings[rating.menuItemId] || []
       checkinRatings[rating.menuItemId]?.push({
-        createdAt: checkin.createdAt,
+        checkedInAt: checkin.checkedInAt,
         rating: rating.rating,
         userId: checkin.createdById,
       })
@@ -33,7 +34,7 @@ export function calculateCheckinCountsByMenuItem(
   > = {}
   Object.entries(checkinRatings).forEach(([entry, checkinRatingArr]) => {
     const ratings = uniqBy(
-      orderBy(checkinRatingArr, (x) => x.createdAt, ["desc"]),
+      orderBy(checkinRatingArr, (x) => x.checkedInAt, ["desc"]),
       (x) => x.userId,
     ).map((x) => x.rating)
     const groupedResult = countBy(ratings, (x) => x)

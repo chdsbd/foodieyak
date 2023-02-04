@@ -139,13 +139,13 @@ async function updateLastCheckinAt({ placeId }: { placeId: string }) {
   const lastestCheckIns = await admin
     .firestore()
     .collection(`/places/${placeId}/checkins`)
-    .orderBy("createdAt", "desc")
+    .orderBy("checkedInAt", "desc")
     .limit(1)
     .get()
   const lastestCheckIn = first(lastestCheckIns.docs)
 
-  const lastCheckInAt: admin.firestore.Timestamp | undefined =
-    lastestCheckIn?.data().createdAt
+  const lastCheckInAt: admin.firestore.Timestamp | undefined | null =
+    lastestCheckIn?.data().checkedInAt
 
   functions.logger.info("checkin", { lastestCheckIn, lastCheckInAt })
 

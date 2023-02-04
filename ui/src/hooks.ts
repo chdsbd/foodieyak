@@ -163,7 +163,7 @@ export function useCheckins(placeId: string) {
   const q = useMemo(() => {
     return query(
       collection(db, "places", placeId, "checkins"),
-      orderBy("createdAt", "desc"),
+      orderBy("checkedInAt", "desc"),
     )
   }, [placeId])
   return useQuery(q, PlaceCheckInSchema)
@@ -208,7 +208,7 @@ export function useLastVisitedOn(placeId: string, userId: string) {
     query(
       collection(db, "places", placeId, "checkins"),
       where("createdById", "==", userId),
-      orderBy("createdAt", "desc"),
+      orderBy("checkedInAt", "desc"),
       limit(1),
     ),
     {
@@ -224,5 +224,5 @@ export function useLastVisitedOn(placeId: string, userId: string) {
   if (data.length === 0) {
     return null
   }
-  return PlaceCheckInSchema.parse(data[0]).createdAt
+  return PlaceCheckInSchema.parse(data[0]).checkedInAt
 }
