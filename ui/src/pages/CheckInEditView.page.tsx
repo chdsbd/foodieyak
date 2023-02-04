@@ -17,10 +17,11 @@ import parseISO from "date-fns/parseISO"
 import { FirebaseError } from "firebase/app"
 import produce from "immer"
 import { groupBy } from "lodash-es"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Link, useHistory, useParams } from "react-router-dom"
 
 import * as api from "../api"
+import { Place, PlaceCheckIn, PlaceMenuItem } from "../api-schemas"
 import { DelayedLoader } from "../components/DelayedLoader"
 import { Page } from "../components/Page"
 import { ReadonlyInput } from "../components/ReadonlyInput"
@@ -37,48 +38,8 @@ export function CheckInEditView() {
   const { placeId, checkInId }: { placeId: string; checkInId: string } =
     useParams()
   const place = usePlace(placeId)
-  const user = useUser()
   const menuItems = useMenuItems(placeId)
   const checkIn = useCheckIn(placeId, checkInId)
-  const history = useHistory()
-  const toast = useToast()
-  const [isSaving, setIsSaving] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
-
-  const [date, setDate] = useState<string>(toISODateString(new Date()))
-  const [comment, setComment] = useState<string>("")
-  const [menuItemRatings, setMenutItemRatings] = useState<MenuItemRating[]>([])
-  const [isOpen, setIsOpen] = useState(false)
-  const [isDateEnabled, setIsDateEnabled] = useState(false)
-
-  useEffect(() => {
-    if (checkIn !== "loading") {
-      setComment(checkIn.comment)
-    }
-    // @ts-expect-error this will work.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [checkIn?.comment])
-
-  const checkedInAt = checkIn !== "loading" ? checkIn.checkedInAt : checkIn
-  useEffect(() => {
-    if (checkedInAt !== "loading") {
-      if (checkedInAt == null) {
-        setDate(toISODateString(new Date()))
-        setIsDateEnabled(false)
-      } else {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const createdAt: Date = checkedInAt.toDate()
-        setDate(toISODateString(createdAt))
-      }
-    }
-  }, [checkedInAt])
-  useEffect(() => {
-    if (checkIn !== "loading") {
-      setMenutItemRatings(checkIn.ratings)
-    }
-    // @ts-expect-error this will work.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [checkIn?.ratings])
 
   if (place === "loading" || menuItems === "loading" || checkIn === "loading") {
     return (
@@ -87,6 +48,44 @@ export function CheckInEditView() {
       </Page>
     )
   }
+
+  return (
+    <CheckInEditForm checkIn={checkIn} menuItems={menuItems} place={place} />
+  )
+}
+
+function CheckInEditForm({
+  checkIn,
+  menuItems,
+  place,
+}: {
+  checkIn: PlaceCheckIn
+  menuItems: PlaceMenuItem[]
+  place: Place
+}) {
+  const history = useHistory()
+  const toast = useToast()
+  const [isSaving, setIsSaving] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const user = useUser()
+
+  const [date, setDate] = useState<string>(() => {
+    const checkedInAt = checkIn.checkedInAt
+    if (checkedInAt == null) {
+      setIsDateEnabled(false)
+      return toISODateString(new Date())
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const createdAt: Date = checkedInAt.toDate()
+      return toISODateString(createdAt)
+    }
+  })
+  const [comment, setComment] = useState<string>(checkIn.comment)
+  const [menuItemRatings, setMenutItemRatings] = useState<MenuItemRating[]>(
+    checkIn.ratings,
+  )
+  const [isOpen, setIsOpen] = useState(false)
+  const [isDateEnabled, setIsDateEnabled] = useState(false)
 
   const isCheckInAuthor = checkIn.createdById !== user.data?.uid
 
@@ -102,7 +101,11 @@ export function CheckInEditView() {
         <FormLabel>Place</FormLabel>
         <HStack>
           <ReadonlyInput value={place.name} />
-          <Button size="sm" as={Link} to={pathPlaceDetail({ placeId })}>
+          <Button
+            size="sm"
+            as={Link}
+            to={pathPlaceDetail({ placeId: place.id })}
+          >
             View
           </Button>
         </HStack>
@@ -163,7 +166,7 @@ export function CheckInEditView() {
 
       <SelectMenuItemModal
         isOpen={isOpen}
-        placeId={placeId}
+        placeId={place.id}
         userId={user.data?.uid ?? ""}
         onClose={() => {
           setIsOpen(false)
@@ -221,7 +224,7 @@ export function CheckInEditView() {
         <Button
           variant={"outline"}
           as={Link}
-          to={pathCheckinDetail({ placeId, checkInId })}
+          to={pathCheckinDetail({ placeId: place.id, checkInId: checkIn.id })}
         >
           Cancel
         </Button>
@@ -241,10 +244,15 @@ export function CheckInEditView() {
                 placeId: place.id,
                 comment,
                 reviews: menuItemRatings,
-                checkInId,
+                checkInId: checkIn.id,
               })
               .then(() => {
-                history.push(pathCheckinDetail({ placeId, checkInId }))
+                history.push(
+                  pathCheckinDetail({
+                    placeId: place.id,
+                    checkInId: checkIn.id,
+                  }),
+                )
                 setIsSaving(false)
               })
               .catch((e: FirebaseError) => {
@@ -275,9 +283,9 @@ export function CheckInEditView() {
             if (confirm("Are you sure you want to remove this check-in?")) {
               setIsDeleting(true)
               api.checkin
-                .delete({ placeId, checkInId })
+                .delete({ placeId: place.id, checkInId: checkIn.id })
                 .then(() => {
-                  history.push(pathPlaceDetail({ placeId }))
+                  history.push(pathPlaceDetail({ placeId: place.id }))
                   setIsDeleting(false)
                 })
                 .catch((e: FirebaseError) => {
