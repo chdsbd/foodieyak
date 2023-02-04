@@ -9,6 +9,7 @@ import {
   HStack,
   Input,
   Spacer,
+  Switch,
   Textarea,
   useToast,
 } from "@chakra-ui/react"
@@ -44,10 +45,11 @@ export function CheckInEditView() {
   const [isSaving, setIsSaving] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
-  const [date, setDate] = useState<string | null>(toISODateString(new Date()))
+  const [date, setDate] = useState<string>(toISODateString(new Date()))
   const [comment, setComment] = useState<string>("")
   const [menuItemRatings, setMenutItemRatings] = useState<MenuItemRating[]>([])
   const [isOpen, setIsOpen] = useState(false)
+  const [isDateEnabled, setIsDateEnabled] = useState(false)
 
   useEffect(() => {
     if (checkIn !== "loading") {
@@ -61,7 +63,8 @@ export function CheckInEditView() {
   useEffect(() => {
     if (checkedInAt !== "loading") {
       if (checkedInAt == null) {
-        setDate(null)
+        setDate(toISODateString(new Date()))
+        setIsDateEnabled(false)
       } else {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const createdAt: Date = checkedInAt.toDate()
@@ -106,18 +109,32 @@ export function CheckInEditView() {
       </FormControl>
 
       <FormControl>
-        <FormLabel>Date</FormLabel>
-        {date != null ? (
-          <Input
-            type="date"
+        <HStack alignItems={"center"} justify="space-between">
+          <FormLabel htmlFor="is-date-enabled" sx={{ userSelect: "none" }}>
+            Date
+          </FormLabel>
+          <Switch
+            id="is-date-enabled"
+            isChecked={isDateEnabled}
+            marginBottom={2}
             onChange={(e) => {
-              setDate(e.target.value)
+              setIsDateEnabled(e.target.checked)
             }}
-            value={toISODateString(date)}
           />
-        ) : (
-          <Input type="text" disabled value={"-"} />
-        )}
+        </HStack>
+        <HStack>
+          {isDateEnabled ? (
+            <Input
+              type="date"
+              onChange={(e) => {
+                setDate(e.target.value)
+              }}
+              value={toISODateString(date)}
+            />
+          ) : (
+            <Input type="text" disabled value={"-"} />
+          )}
+        </HStack>
       </FormControl>
       <FormControl>
         <FormLabel>Comment</FormLabel>
@@ -220,7 +237,7 @@ export function CheckInEditView() {
             api.checkin
               .update({
                 userId: user.data.uid,
-                date: date != null ? parseISO(date) : null,
+                date: isDateEnabled ? parseISO(date) : null,
                 placeId: place.id,
                 comment,
                 reviews: menuItemRatings,

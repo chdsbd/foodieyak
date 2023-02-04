@@ -144,7 +144,7 @@ async function updateLastCheckinAt({ placeId }: { placeId: string }) {
     .get()
   const lastestCheckIn = first(lastestCheckIns.docs)
 
-  const lastCheckInAt: admin.firestore.Timestamp | undefined =
+  const lastCheckInAt: admin.firestore.Timestamp | undefined | null =
     lastestCheckIn?.data().checkedInAt
 
   functions.logger.info("checkin", { lastestCheckIn, lastCheckInAt })
