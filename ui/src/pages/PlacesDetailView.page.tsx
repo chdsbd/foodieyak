@@ -99,11 +99,14 @@ export function PlacesDetailView() {
       return 0
     }
 
-    const checkinRatings: { rating: CheckInRating; createdAt: Timestamp }[] = []
+    const checkinRatings: {
+      rating: CheckInRating
+      createdAt: Timestamp | null
+    }[] = []
     for (const checkin of checkins) {
       for (const rating of checkin.ratings) {
         if (rating.menuItemId === m.id) {
-          checkinRatings.push({ rating, createdAt: checkin.createdAt })
+          checkinRatings.push({ rating, createdAt: checkin.checkedInAt })
         }
       }
     }

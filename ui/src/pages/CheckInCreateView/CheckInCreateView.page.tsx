@@ -11,6 +11,7 @@ import {
   HStack,
   Input,
   Spacer,
+  Switch,
   Textarea,
   useToast,
   VStack,
@@ -92,6 +93,7 @@ export function CheckInCreateView() {
 
   const [isOpen, setIsOpen] = useState(false)
   const [date, setDate] = useState<string>(toISODateString(new Date()))
+  const [isDateEnabled, setIsDateEnabled] = useState(true)
   const [comment, setComment] = useState<string>("")
   const [showHelperText, setShowHelperText] = useState(false)
   const [isCreating, setCreatingCheckin] = useState(false)
@@ -130,14 +132,32 @@ export function CheckInCreateView() {
       </FormControl>
 
       <FormControl>
-        <FormLabel>Date</FormLabel>
-        <Input
-          type="date"
-          onChange={(e) => {
-            setDate(e.target.value)
-          }}
-          value={toISODateString(date)}
-        />
+        <HStack alignItems={"center"} justify="space-between">
+          <FormLabel htmlFor="is-date-enabled" sx={{ userSelect: "none" }}>
+            Date
+          </FormLabel>
+          <Switch
+            id="is-date-enabled"
+            isChecked={isDateEnabled}
+            marginBottom={2}
+            onChange={(e) => {
+              setIsDateEnabled(e.target.checked)
+            }}
+          />
+        </HStack>
+        <HStack>
+          {isDateEnabled ? (
+            <Input
+              type="date"
+              onChange={(e) => {
+                setDate(e.target.value)
+              }}
+              value={toISODateString(date)}
+            />
+          ) : (
+            <Input type="text" disabled value={"-"} />
+          )}
+        </HStack>
       </FormControl>
       <FormControl>
         <FormLabel>Comment</FormLabel>

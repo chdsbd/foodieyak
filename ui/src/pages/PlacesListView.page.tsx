@@ -41,7 +41,12 @@ function LastVisitedOn({
   if (state == null) {
     return null
   }
-  return <Text fontSize="sm">visited {formatHumanDate(state.createdAt)}</Text>
+  return (
+    <Text fontSize="sm">
+      visited{" "}
+      {state.checkedInAt != null ? formatHumanDate(state.checkedInAt) : "-"}
+    </Text>
+  )
 }
 
 export function PlacesListView() {

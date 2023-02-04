@@ -130,7 +130,7 @@ export function useCheckins(placeId: string) {
   const q = useMemo(() => {
     return query(
       collection(db, "places", placeId, "checkins"),
-      orderBy("createdAt", "desc"),
+      orderBy("checkedInAt", "desc"),
     )
   }, [placeId])
   return useQuery(q, PlaceCheckInSchema)

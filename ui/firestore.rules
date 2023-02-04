@@ -85,7 +85,7 @@ service cloud.firestore {
       	function isValidNewCheckin() {
         	let data = request.resource.data;
           return isValidNewDoc(request) && data.keys().hasAll(
-          ['ratings','ratingsMenuItemIds', 'comment']) 
+          ['ratings','ratingsMenuItemIds', 'comment', 'checkedInAt']) 
           && data.ratings is list
           && data.ratingsMenuItemIds is list
           && data.comment is string

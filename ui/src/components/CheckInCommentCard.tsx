@@ -25,7 +25,7 @@ export function CheckInCommentCard({ checkIn: c }: { checkIn: PlaceCheckIn }) {
           </Text>
           {"   "}
           <Text as="span" fontSize="sm">
-            {formatHumanDate(c.createdAt)}
+            {c.checkedInAt != null ? formatHumanDate(c.checkedInAt) : "-"}
           </Text>
         </Text>
 

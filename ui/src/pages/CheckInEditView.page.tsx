@@ -44,7 +44,7 @@ export function CheckInEditView() {
   const [isSaving, setIsSaving] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
-  const [date, setDate] = useState<string>(toISODateString(new Date()))
+  const [date, setDate] = useState<string | null>(toISODateString(new Date()))
   const [comment, setComment] = useState<string>("")
   const [menuItemRatings, setMenutItemRatings] = useState<MenuItemRating[]>([])
   const [isOpen, setIsOpen] = useState(false)
@@ -56,15 +56,19 @@ export function CheckInEditView() {
     // @ts-expect-error this will work.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkIn?.comment])
+
+  const checkedInAt = checkIn !== "loading" ? checkIn.checkedInAt : checkIn
   useEffect(() => {
-    if (checkIn !== "loading") {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const createdAt: Date = checkIn.createdAt.toDate()
-      setDate(toISODateString(createdAt))
+    if (checkedInAt !== "loading") {
+      if (checkedInAt == null) {
+        setDate(null)
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const createdAt: Date = checkedInAt.toDate()
+        setDate(toISODateString(createdAt))
+      }
     }
-    // @ts-expect-error this will work.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [checkIn?.createdAt])
+  }, [checkedInAt])
   useEffect(() => {
     if (checkIn !== "loading") {
       setMenutItemRatings(checkIn.ratings)
@@ -103,13 +107,17 @@ export function CheckInEditView() {
 
       <FormControl>
         <FormLabel>Date</FormLabel>
-        <Input
-          type="date"
-          onChange={(e) => {
-            setDate(e.target.value)
-          }}
-          value={toISODateString(date)}
-        />
+        {date != null ? (
+          <Input
+            type="date"
+            onChange={(e) => {
+              setDate(e.target.value)
+            }}
+            value={toISODateString(date)}
+          />
+        ) : (
+          <Input type="text" disabled value={"-"} />
+        )}
       </FormControl>
       <FormControl>
         <FormLabel>Comment</FormLabel>
@@ -212,7 +220,7 @@ export function CheckInEditView() {
             api.checkin
               .update({
                 userId: user.data.uid,
-                date: parseISO(date),
+                date: date != null ? parseISO(date) : null,
                 placeId: place.id,
                 comment,
                 reviews: menuItemRatings,

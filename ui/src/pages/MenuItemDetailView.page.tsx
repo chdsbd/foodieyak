@@ -101,12 +101,12 @@ export function MenuItemDetailView() {
       {checkInsForMenuItem.length === 0 && (
         <EmptyStateText>No Check-Ins for menu item.</EmptyStateText>
       )}
-      {checkInsForMenuItem.map((m) => (
+      {checkInsForMenuItem.map((menuItem) => (
         <HStack
-          key={m.id}
+          key={menuItem.id}
           width="100%"
           as={Link}
-          to={pathCheckinDetail({ checkInId: m.id, placeId })}
+          to={pathCheckinDetail({ checkInId: menuItem.id, placeId })}
         >
           <Card size="sm" w="full">
             <CardBody>
@@ -114,14 +114,14 @@ export function MenuItemDetailView() {
                 <HStack>
                   <VStack align="start">
                     <Text fontWeight={"bold"}>
-                      <UserIdToName userId={m.createdById} />
+                      <UserIdToName userId={menuItem.createdById} />
                     </Text>
-                    <div>{formatHumanDate(m.createdAt)}</div>
+                    <div>{formatHumanDate(menuItem.createdAt)}</div>
                   </VStack>
                 </HStack>
                 <Spacer />
                 <Box padding="4">
-                  {m.rating > 0 ? <Upvote /> : <Downvote />}
+                  {menuItem.rating > 0 ? <Upvote /> : <Downvote />}
                 </Box>
               </HStack>
             </CardBody>

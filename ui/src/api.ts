@@ -77,13 +77,14 @@ export const checkin = {
     reviews,
   }: {
     placeId: string
-    date: Date
+    date: Date | null
     userId: string
     comment: string
     reviews: { menuItemId: string; rating: -1 | 1; comment: string }[]
   }) {
     const checkin: Omit<PlaceCheckIn, "id"> = {
-      createdAt: Timestamp.fromDate(date),
+      createdAt: Timestamp.now(),
+      checkedInAt: date != null ? Timestamp.fromDate(date) : null,
       createdById: userId,
       lastModifiedAt: null,
       lastModifiedById: null,
@@ -107,13 +108,13 @@ export const checkin = {
   }: {
     placeId: string
     checkInId: string
-    date: Date
+    date: Date | null
     userId: string
     comment: string
     reviews: { menuItemId: string; rating: -1 | 1; comment: string }[]
   }) {
-    const checkin: Omit<PlaceCheckIn, "id" | "createdById"> = {
-      createdAt: Timestamp.fromDate(date),
+    const checkin: Omit<PlaceCheckIn, "id" | "createdById" | "createdAt"> = {
+      checkedInAt: date != null ? Timestamp.fromDate(date) : null,
       lastModifiedAt: Timestamp.now(),
       lastModifiedById: userId,
       comment,
