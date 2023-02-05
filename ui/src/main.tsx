@@ -6,8 +6,9 @@ import ReactDOM from "react-dom/client"
 import { FirebaseAppProvider } from "reactfire"
 
 import App from "./App"
+import { firebaseConfig } from "./config"
 // todo: rework how we initialize this
-import { config, db } from "./db"
+import { db } from "./db"
 
 Sentry.init({
   // TODO: move to env var
@@ -33,7 +34,7 @@ const theme = extendTheme()
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <ChakraProvider theme={theme}>
-      <FirebaseAppProvider firebaseConfig={config}>
+      <FirebaseAppProvider firebaseConfig={firebaseConfig}>
         <App />
       </FirebaseAppProvider>
     </ChakraProvider>
