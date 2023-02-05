@@ -62,7 +62,7 @@ function PlacesList({ userId }: { userId: string }) {
           <VStack w="full" spacing={2}>
             <EmptyStateText marginBottom={0}>No matching places</EmptyStateText>
             <Link to={pathPlaceCreate({}) + `?default_name=${search.trim()}`}>
-              <Button size="sm">Add Place</Button>
+              <Button size="sm">Add '{search.trim()}' as new Place</Button>
             </Link>
           </VStack>
         )}
