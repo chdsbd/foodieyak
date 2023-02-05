@@ -1,8 +1,12 @@
 import * as functions from "firebase-functions"
 import * as admin from "firebase-admin"
+import { defineString } from "firebase-functions/params"
 
 import * as identity from "firebase-functions/lib/common/providers/identity"
+import algoliasearch from "algoliasearch"
 import { uniq, first } from "lodash"
+
+const algoliaSearchApiKey = defineString("ALGOLIA_SEARCH_API_KEY")
 
 admin.initializeApp()
 admin.firestore().settings({ ignoreUndefinedProperties: true })
@@ -259,14 +263,29 @@ async function updateUser(user: identity.AuthUserRecord) {
     })
 }
 
+async function setAlgoliaKeyForUser({ userId }: { userId: string }) {
+  const publicKey = algoliasearch("", "").generateSecuredApiKey(
+    algoliaSearchApiKey.value(),
+    {
+      filters: `viewerIds:${userId}`,
+    },
+  )
+  await admin
+    .firestore()
+    .doc(`/users/${userId}/private_user_info/${userId}`)
+    .set({ algoliaSearchApiKey: publicKey }, { merge: true })
+}
+
 export const userBeforeCreate = functions.auth
   .user()
   .beforeCreate(async (user, context) => {
+    await setAlgoliaKeyForUser({ userId: user.uid })
     await updateUser(user)
   })
 
 export const userBeforeSignIn = functions.auth
   .user()
   .beforeSignIn(async (user, context) => {
+    await setAlgoliaKeyForUser({ userId: user.uid })
     await updateUser(user)
   })

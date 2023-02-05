@@ -10,6 +10,7 @@ import {
 } from "@chakra-ui/react"
 import algoliasearch from "algoliasearch/lite"
 import { Hit } from "instantsearch.js"
+import { useMemo } from "react"
 import {
   Highlight,
   InstantSearch,
@@ -25,15 +26,18 @@ import { Place } from "../api-schemas"
 import { EmptyStateText } from "../components/EmptyStateText"
 import { Page } from "../components/Page"
 import { formatHumanDate } from "../date"
-import { useLastVisitedOn, usePlaces, useUser } from "../hooks"
+import { ENVIRONMENT } from "../db"
+import {
+  useLastVisitedOn,
+  usePersonalUserInfo,
+  usePlaces,
+  useUser,
+} from "../hooks"
 import { pathPlaceCreate, pathPlaceDetail } from "../paths"
 
-const searchClient = algoliasearch(
-  "UA3MF4ZCHW",
-  // TODO: replace with restricted key and regenerate this in the dashboard
-  // https://www.algolia.com/account/api-keys/all?applicationId=UA3MF4ZCHW
-  "062dcb40ae6a8a18245c37f0f9df2afb",
-)
+const SEARCH_INDEX =
+  ENVIRONMENT === "staging" ? "staging_places" : "production_places"
+const ALGOLIA_APP_ID = "UA3MF4ZCHW"
 
 function LastVisitedOn({
   placeId,
@@ -167,13 +171,23 @@ function SearchHits(props: UseHitsProps & { userId: string; places: Place[] }) {
 
 function PlacesList({ userId }: { userId: string }) {
   const places = usePlaces(userId)
+  const userPersonalInfo = usePersonalUserInfo(userId)
 
-  if (places === "loading") {
+  const searchClient = useMemo(() => {
+    if (
+      userPersonalInfo === "loading" ||
+      !userPersonalInfo.algoliaSearchApiKey
+    ) {
+      return null
+    }
+    return algoliasearch(ALGOLIA_APP_ID, userPersonalInfo.algoliaSearchApiKey)
+  }, [userPersonalInfo])
+  if (places === "loading" || searchClient == null) {
     return null
   }
 
   return (
-    <InstantSearch searchClient={searchClient} indexName="staging_places">
+    <InstantSearch searchClient={searchClient} indexName={SEARCH_INDEX}>
       {places.length === 0 && <EmptyStateText>No Places</EmptyStateText>}
       {places.length > 0 && <SearchBox />}
       <SearchHits userId={userId} places={places} />

@@ -22,11 +22,14 @@ const stageFirebaseConfig: FirebaseOptions = {
   appId: "1:227275725965:web:7d4a3c7f08bf07c3c916c4",
 }
 
+export const ENVIRONMENT =
+  import.meta.env.VITE_PROJECT == null ||
+  import.meta.env.VITE_PROJECT === "foodieyak-staging"
+    ? "staging"
+    : "production"
+
 function getConfig() {
-  if (
-    import.meta.env.VITE_PROJECT == null ||
-    import.meta.env.VITE_PROJECT === "foodieyak-staging"
-  ) {
+  if (ENVIRONMENT === "staging") {
     return stageFirebaseConfig
   }
   return prodFirebaseConfig

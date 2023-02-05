@@ -17,7 +17,7 @@ import {
   where,
 } from "firebase/firestore"
 import { useEffect, useMemo, useState } from "react"
-import { useFirestoreCollectionData } from "reactfire"
+import { useFirestoreCollectionData, useFirestoreDocData } from "reactfire"
 import { z } from "zod"
 
 import {
@@ -26,6 +26,7 @@ import {
   PlaceCheckInSchema,
   PlaceMenuItemSchema,
   PlaceSchema,
+  UserPersonalInfoSchema,
 } from "./api-schemas"
 import { db } from "./db"
 
@@ -225,4 +226,32 @@ export function useLastVisitedOn(placeId: string, userId: string) {
     return null
   }
   return PlaceCheckInSchema.parse(data[0]).checkedInAt
+}
+
+export function usePersonalUserInfo(userId: string) {
+  const cache = useMemo(() => {
+    const cached = localStorage.getItem(`personalUserInfoCache:${userId}`)
+    if (cached) {
+      const res = UserPersonalInfoSchema.safeParse(JSON.parse(cached))
+      if (res.success) {
+        return res.data
+      }
+    }
+  }, [userId])
+
+  const { status, data, error } = useFirestoreDocData(
+    doc(db, "users", userId, "private_user_info", userId),
+    { initialData: cache },
+  )
+  if (status === "error") {
+    throw error
+  }
+  if (status === "loading") {
+    return "loading"
+  }
+  const res = UserPersonalInfoSchema.parse(data || {})
+  if (res) {
+    localStorage.setItem(`personalUserInfoCache:${userId}`, JSON.stringify(res))
+  }
+  return res
 }
