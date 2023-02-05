@@ -9,7 +9,7 @@ import {
 } from "@chakra-ui/react"
 import { FirebaseError } from "firebase/app"
 import { useState } from "react"
-import { useHistory } from "react-router-dom"
+import { useHistory, useLocation } from "react-router-dom"
 
 import * as api from "../api"
 import { Page } from "../components/Page"
@@ -17,7 +17,11 @@ import { useFriends, useUser } from "../hooks"
 import { pathPlaceDetail } from "../paths"
 
 export function PlacesCreateView() {
-  const [name, setName] = useState("")
+  const search = useLocation().search
+  const [name, setName] = useState(() => {
+    const searchParams = new URLSearchParams(search)
+    return searchParams.get("default_name") ?? ""
+  })
   const [location, setLocation] = useState("")
   const [saving, setSaving] = useState(false)
   const user = useUser()

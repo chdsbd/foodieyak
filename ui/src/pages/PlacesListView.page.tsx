@@ -58,7 +58,14 @@ function PlacesList({ userId }: { userId: string }) {
       {places.length > 0 &&
         places.filter((x) =>
           x.name.toLowerCase().includes(search.toLowerCase().trim()),
-        ).length === 0 && <EmptyStateText>No matching places</EmptyStateText>}
+        ).length === 0 && (
+          <VStack w="full" spacing={2}>
+            <EmptyStateText marginBottom={0}>No matching places</EmptyStateText>
+            <Link to={pathPlaceCreate({}) + `?default_name=${search.trim()}`}>
+              <Button size="sm">Add Place</Button>
+            </Link>
+          </VStack>
+        )}
 
       <VStack w="full">
         {places
