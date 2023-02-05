@@ -6,8 +6,6 @@ export const ENVIRONMENT =
     ? "staging"
     : "production"
 
-export const PROJECT: string = import.meta.env.VITE_PROJECT
-
 export const ALGOLIA_APP_ID = "UA3MF4ZCHW"
 export const ALGOLIA_PLACES_SEARCH_INDEX =
   ENVIRONMENT === "staging" ? "staging_places" : "prod_places"
