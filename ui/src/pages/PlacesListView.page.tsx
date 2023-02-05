@@ -41,8 +41,12 @@ function PlacesList({ userId }: { userId: string }) {
     return null
   }
 
+  const searchResults = places.filter((x) =>
+    x.name.toLowerCase().includes(search.toLowerCase().trim()),
+  )
+
   return (
-    <>
+    <VStack spacing={0} w="full" alignItems="start">
       {places.length === 0 && <EmptyStateText>No Places</EmptyStateText>}
       {places.length > 0 && (
         <Input
@@ -54,50 +58,54 @@ function PlacesList({ userId }: { userId: string }) {
           }}
         />
       )}
-
+      <div>
+        {searchResults.length}{" "}
+        {searchResults.length === 1 ? "result" : "results"}
+      </div>
       {places.length > 0 &&
         places.filter((x) =>
           x.name.toLowerCase().includes(search.toLowerCase().trim()),
         ).length === 0 && (
           <VStack w="full" spacing={2}>
             <EmptyStateText marginBottom={0}>No matching places</EmptyStateText>
-            <Link to={pathPlaceCreate({}) + `?default_name=${search.trim()}`}>
+            <Link
+              to={
+                pathPlaceCreate({}) +
+                `?default_name=${encodeURIComponent(search.trim())}`
+              }
+            >
               <Button size="sm">Add '{search.trim()}' as new Place</Button>
             </Link>
           </VStack>
         )}
 
       <VStack w="full">
-        {places
-          .filter((x) =>
-            x.name.toLowerCase().includes(search.toLowerCase().trim()),
-          )
-          .map((place) => (
-            <React.Fragment key={place.id}>
-              <HStack
-                as={Link}
-                to={pathPlaceDetail({ placeId: place.id })}
-                w="full"
-              >
-                <Card w="full" size="sm">
-                  <CardBody>
-                    <div>
-                      <Text fontSize="xl" fontWeight={"bold"}>
-                        {place.name}
-                      </Text>
-                      <HStack>
-                        <Text>{place.location || " "}</Text>
-                        <Spacer />
-                        <LastVisitedOn placeId={place.id} userId={userId} />
-                      </HStack>
-                    </div>
-                  </CardBody>
-                </Card>
-              </HStack>
-            </React.Fragment>
-          ))}
+        {searchResults.map((place) => (
+          <React.Fragment key={place.id}>
+            <HStack
+              as={Link}
+              to={pathPlaceDetail({ placeId: place.id })}
+              w="full"
+            >
+              <Card w="full" size="sm">
+                <CardBody>
+                  <div>
+                    <Text fontSize="xl" fontWeight={"bold"}>
+                      {place.name}
+                    </Text>
+                    <HStack>
+                      <Text>{place.location || " "}</Text>
+                      <Spacer />
+                      <LastVisitedOn placeId={place.id} userId={userId} />
+                    </HStack>
+                  </div>
+                </CardBody>
+              </Card>
+            </HStack>
+          </React.Fragment>
+        ))}
       </VStack>
-    </>
+    </VStack>
   )
 }
 
