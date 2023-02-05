@@ -69,6 +69,7 @@ function CheckInEditForm({
   const [isDeleting, setIsDeleting] = useState(false)
   const user = useUser()
 
+  const [isDateEnabled, setIsDateEnabled] = useState(false)
   const [date, setDate] = useState<string>(() => {
     const checkedInAt = checkIn.checkedInAt
     if (checkedInAt == null) {
@@ -85,7 +86,6 @@ function CheckInEditForm({
     checkIn.ratings,
   )
   const [isOpen, setIsOpen] = useState(false)
-  const [isDateEnabled, setIsDateEnabled] = useState(false)
 
   const isCheckInAuthor = checkIn.createdById !== user.data?.uid
 
