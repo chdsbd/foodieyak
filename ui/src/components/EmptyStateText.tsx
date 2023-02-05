@@ -1,15 +1,22 @@
 import { Box, Text } from "@chakra-ui/react"
 import React from "react"
 
-export function EmptyStateText({ children }: { children: React.ReactNode }) {
+export function EmptyStateText({
+  children,
+  marginBottom = 0,
+}: {
+  children: React.ReactNode
+  marginBottom?: number
+}) {
   return (
     <Box w="full">
       <Text
+        userSelect={"none"}
         fontSize="xl"
         textColor={"GrayText"}
         textAlign="center"
         w="full"
-        marginBottom={4}
+        marginBottom={marginBottom}
       >
         {children}
       </Text>
