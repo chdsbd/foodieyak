@@ -70,11 +70,7 @@ function SearchHit({
         <CardBody>
           <div>
             <Text fontSize="xl" fontWeight={"bold"}>
-              {hit != null ? (
-                <Highlight hit={hit} attribute="name" />
-              ) : (
-                <div>{name}</div>
-              )}
+              {hit != null ? <Highlight hit={hit} attribute="name" /> : name}
             </Text>
 
             <HStack>
