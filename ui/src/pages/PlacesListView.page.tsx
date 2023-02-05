@@ -30,6 +30,8 @@ import { pathPlaceCreate, pathPlaceDetail } from "../paths"
 
 const searchClient = algoliasearch(
   "UA3MF4ZCHW",
+  // TODO: replace with restricted key and regenerate this in the dashboard
+  // https://www.algolia.com/account/api-keys/all?applicationId=UA3MF4ZCHW
   "062dcb40ae6a8a18245c37f0f9df2afb",
 )
 
