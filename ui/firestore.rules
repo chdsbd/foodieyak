@@ -17,7 +17,7 @@ service cloud.firestore {
     // only allow lastModified edits. Disallow createdBy edits.
     function isValidDocUpdate(request) {
       let data = request.resource.data; 
-			
+      
       let hasCreationKeys = data.diff(resource.data).affectedKeys().hasAny(
           ['createdById','createdAt']);
       return !hasCreationKeys && data.keys().hasAll(['lastModifiedById','lastModifiedAt'])
@@ -28,11 +28,11 @@ service cloud.firestore {
     function placeData() {
         return get(/databases/$(database)/documents/places/$(place))
       }
-    	function canViewPlace(request, resource) {
-      	return request.auth.uid in resource.data.viewerIds
+      function canViewPlace(request, resource) {
+        return request.auth.uid in resource.data.viewerIds
       }
       function isValidPlace() {
-      	let data = request.resource.data;
+        let data = request.resource.data;
         return isValidNewDoc(request)
         && data.keys().hasAll(
         ['viewerIds', 'name', 'location', 'checkInCount','menuItemCount' ]) 
@@ -43,7 +43,7 @@ service cloud.firestore {
         && data.viewerIds is list
       }
       function isValidPlaceUpdate() {
-      	let data = request.resource.data;
+        let data = request.resource.data;
         return isValidDocUpdate(request)
         && data.diff(resource.data).affectedKeys().hasAny(
         ['name', 'location'])
@@ -51,12 +51,12 @@ service cloud.firestore {
         && data.location is string
       }
       function placeHasCheckins() {
-      	let data = resource.data;
-      	return "checkInCount" in data.keys() && data.checkInCount > 0
+        let data = resource.data;
+        return "checkInCount" in data.keys() && data.checkInCount > 0
       }
       
       
-    	allow read: if canViewPlace(request, resource)
+      allow read: if canViewPlace(request, resource)
       allow create: if isValidPlace()
       allow update: if canViewPlace(request, resource) && isValidPlaceUpdate()
       allow delete: if canViewPlace(request, resource) && !placeHasCheckins()
@@ -64,17 +64,17 @@ service cloud.firestore {
       
       
       match /menuitems/{menuitem} {
-      	function isValidNewMenuItem() {
-        	let data = request.resource.data;
+        function isValidNewMenuItem() {
+          let data = request.resource.data;
           return isValidNewDoc(request) && data.keys().hasAll(
           ['name']) 
           && data.name is string
         }
-      	function isValidUpdateMenuItem() {
-        	let data = request.resource.data;
+        function isValidUpdateMenuItem() {
+          let data = request.resource.data;
           return isValidDocUpdate(request) 
-          	&& data.diff(resource.data).affectedKeys().hasAny(['name'])
-          	&& data.name is string
+            && data.diff(resource.data).affectedKeys().hasAny(['name'])
+            && data.name is string
         }
 
         function isValidDeleteMenuItem() {
@@ -82,36 +82,40 @@ service cloud.firestore {
             return resource.data.checkInCount == 0
         }
 
-      	allow read: if canViewPlace(request, placeData())
+        allow read: if canViewPlace(request, placeData())
         allow create: if canViewPlace(request, placeData()) && isValidNewMenuItem()
         allow update: if canViewPlace(request, placeData()) && isValidUpdateMenuItem()
         allow delete: if canViewPlace(request, placeData()) && isValidDeleteMenuItem()
       }
       match /checkins/{checkin} {
-      	function isValidNewCheckin() {
-        	let data = request.resource.data;
+        function isValidNewCheckin() {
+          let data = request.resource.data;
           return isValidNewDoc(request) && data.keys().hasAll(
           ['ratings','ratingsMenuItemIds', 'comment', 'checkedInAt']) 
           && data.ratings is list
           && data.ratingsMenuItemIds is list
           && data.comment is string
         }
-      	allow read: if canViewPlace(request, placeData())
+        allow read: if canViewPlace(request, placeData())
         allow create: if canViewPlace(request, placeData())
-        	&& isValidNewCheckin()
+          && isValidNewCheckin()
         allow update: if canViewPlace(request, placeData())
-        	&& isValidNewCheckin()
-        	&& request.resource.data.createdById == request.auth.uid
+          && isValidNewCheckin()
+          && request.resource.data.createdById == request.auth.uid
         allow delete: if canViewPlace(request, placeData())
-        	&& resource.data.createdById == request.auth.uid
+          && resource.data.createdById == request.auth.uid
       }
     }
 
      match /users/{user} {
-			allow read: if request.auth != null
+      allow read: if request.auth != null
       allow update: if request.auth.uid == resource.id
-      	&& request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName'])
       allow create, delete: if false
+    }
+    
+    match /users/{userIdA}/private_user_info/{userIdB} {
+      allow read: if request.auth.uid == userIdA && request.auth.uid == userIdB
     }
     
     match /users/{user}/friends/{friend} {
@@ -122,16 +126,16 @@ service cloud.firestore {
           && data.accepted == false
           && data.acceptedAt == null
       }
-    	function isFriend() {
-      	return user == request.auth.uid || friend == request.auth.uid
+      function isFriend() {
+        return user == request.auth.uid || friend == request.auth.uid
       }
-    	allow read, delete: if isFriend()
+      allow read, delete: if isFriend()
       allow create: if isFriend() && isValidNewFriend()
       
       function isValidFriendUpdate() {
-      	let data = request.resource.data;
-        	// only allow the receiving friend to accept the invite.
-      		return isValidNewFriend() || (data.createdById != request.auth.uid
+        let data = request.resource.data;
+          // only allow the receiving friend to accept the invite.
+          return isValidNewFriend() || (data.createdById != request.auth.uid
           && data.diff(resource.data).affectedKeys().hasAll(['accepted', 'acceptedAt'])
           && data.accepted == true
           && data.acceptedAt is timestamp)
