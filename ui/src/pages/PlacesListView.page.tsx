@@ -25,8 +25,8 @@ import { Link } from "react-router-dom"
 import { Place } from "../api-schemas"
 import { EmptyStateText } from "../components/EmptyStateText"
 import { Page } from "../components/Page"
+import * as config from "../config"
 import { formatHumanDate } from "../date"
-import { ENVIRONMENT } from "../db"
 import {
   useLastVisitedOn,
   usePersonalUserInfo,
@@ -34,10 +34,6 @@ import {
   useUser,
 } from "../hooks"
 import { pathPlaceCreate, pathPlaceDetail } from "../paths"
-
-const SEARCH_INDEX =
-  ENVIRONMENT === "staging" ? "staging_places" : "prod_places"
-const ALGOLIA_APP_ID = "UA3MF4ZCHW"
 
 function LastVisitedOn({
   placeId,
@@ -180,14 +176,20 @@ function PlacesList({ userId }: { userId: string }) {
     ) {
       return null
     }
-    return algoliasearch(ALGOLIA_APP_ID, userPersonalInfo.algoliaSearchApiKey)
+    return algoliasearch(
+      config.ALGOLIA_APP_ID,
+      userPersonalInfo.algoliaSearchApiKey,
+    )
   }, [userPersonalInfo])
   if (places === "loading" || searchClient == null) {
     return null
   }
 
   return (
-    <InstantSearch searchClient={searchClient} indexName={SEARCH_INDEX}>
+    <InstantSearch
+      searchClient={searchClient}
+      indexName={config.ALGOLIA_PLACES_SEARCH_INDEX}
+    >
       {places.length === 0 && <EmptyStateText>No Places</EmptyStateText>}
       {places.length > 0 && <SearchBox />}
       <SearchHits userId={userId} places={places} />
