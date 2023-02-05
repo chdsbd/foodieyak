@@ -31,7 +31,7 @@ export function CheckInCommentCard({ checkIn: c }: { checkIn: PlaceCheckIn }) {
           )}
         </Text>
 
-        {c.comment && <Text>{c.comment}</Text>}
+        {c.comment && <Text whiteSpace={"pre-wrap"}>{c.comment}</Text>}
         {c.ratings.length > 0 && <Rating ratings={c.ratings} />}
       </VStack>
     </VStack>
