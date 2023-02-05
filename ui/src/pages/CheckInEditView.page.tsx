@@ -199,6 +199,18 @@ function CheckInEditForm({
             key={mir.menuItemId}
             menuItemName={menuItemMap[mir.menuItemId][0].name}
             rating={mir.rating}
+            comment={mir.comment}
+            setComment={(comment) => {
+              setMenutItemRatings(
+                produce((s) => {
+                  const item = s.find((x) => x.menuItemId === mir.menuItemId)
+                  if (item != null) {
+                    item.comment = comment
+                  }
+                  return s
+                }),
+              )
+            }}
             setRating={(rating) => {
               setMenutItemRatings(
                 produce((s) => {

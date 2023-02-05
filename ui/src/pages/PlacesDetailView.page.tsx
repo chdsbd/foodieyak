@@ -3,6 +3,7 @@ import {
   ButtonGroup,
   Card,
   CardBody,
+  Divider,
   HStack,
   Spacer,
   Tab,
@@ -159,20 +160,28 @@ export function PlacesDetailView() {
                 to={pathMenuItemDetail({ placeId, menuItemId: m.id })}
               >
                 <Card w="full" size="sm">
-                  <HStack as={CardBody} w="full">
-                    <Text fontSize={"lg"}>{m.name}</Text>
-                    <Spacer />
-                    <ButtonGroup>
-                      <Upvote
-                        count={countsByMenuItem[m.id]?.positive}
-                        showColor={(ratingForUser(m) ?? 0) > 0}
-                      />
-                      <Downvote
-                        count={countsByMenuItem[m.id]?.negative}
-                        showColor={(ratingForUser(m) ?? 0) < 0}
-                      />
-                    </ButtonGroup>
-                  </HStack>
+                  <CardBody>
+                    <HStack w="full">
+                      <Text fontSize={"lg"}>{m.name}</Text>
+                      <Spacer />
+                      <ButtonGroup>
+                        <Upvote
+                          count={countsByMenuItem[m.id]?.positive}
+                          showColor={(ratingForUser(m) ?? 0) > 0}
+                        />
+                        <Downvote
+                          count={countsByMenuItem[m.id]?.negative}
+                          showColor={(ratingForUser(m) ?? 0) < 0}
+                        />
+                      </ButtonGroup>
+                    </HStack>
+                    {m.comment.trim().length > 0 && (
+                      <>
+                        <Divider marginY="4" />
+                        <Text whiteSpace={"pre-wrap"}>{m.comment}</Text>
+                      </>
+                    )}
+                  </CardBody>
                 </Card>
               </HStack>
             ))}

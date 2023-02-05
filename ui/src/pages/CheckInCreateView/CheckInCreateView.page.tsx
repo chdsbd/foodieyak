@@ -37,8 +37,10 @@ import { SelectMenuItemModal } from "./SelectMenuItemModal"
 export function MenuItem(props: {
   menuItemName: string
   rating: -1 | 1
+  comment: string
   setRating: (_: -1 | 1) => void
   onRemove: () => void
+  setComment: (_: string) => void
 }) {
   return (
     <Card w="100%" size="sm">
@@ -70,6 +72,14 @@ export function MenuItem(props: {
                 Remove
               </Button>
             </ButtonGroup>
+            <Divider marginY="4" />
+            <Input
+              placeholder="Add a note about this item..."
+              value={props.comment}
+              onChange={(e) => {
+                props.setComment(e.target.value)
+              }}
+            />
           </FormControl>
         </VStack>
       </CardBody>
@@ -233,6 +243,18 @@ export function CheckInCreateView() {
                   const item = s.find((x) => x.menuItemId === mir.menuItemId)
                   if (item != null) {
                     item.rating = rating
+                  }
+                  return s
+                }),
+              )
+            }}
+            comment={mir.comment}
+            setComment={(comment) => {
+              setMenutItemRatings(
+                produce((s) => {
+                  const item = s.find((x) => x.menuItemId === mir.menuItemId)
+                  if (item != null) {
+                    item.comment = comment
                   }
                   return s
                 }),

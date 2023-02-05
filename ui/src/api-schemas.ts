@@ -31,6 +31,7 @@ export type Place = z.infer<typeof PlaceSchema>
 
 export const PlaceMenuItemSchema = BaseSchema.extend({
   name: z.string(),
+  comment: z.string().default(""),
   checkInCount: z.number().default(0),
 })
 export type PlaceMenuItem = z.infer<typeof PlaceMenuItemSchema>

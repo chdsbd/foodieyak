@@ -56,7 +56,7 @@ export function MenuItemDetailView() {
       }
       const c = {
         ...checkin,
-        rating: rating.rating,
+        rating,
       }
       return c
     })
@@ -121,9 +121,15 @@ export function MenuItemDetailView() {
                 </HStack>
                 <Spacer />
                 <Box padding="4">
-                  {menuItem.rating > 0 ? <Upvote /> : <Downvote />}
+                  {menuItem.rating.rating > 0 ? <Upvote /> : <Downvote />}
                 </Box>
               </HStack>
+              {menuItem.rating.comment.length > 0 && (
+                <>
+                  <Spacer marginY="4" />
+                  <Text>{menuItem.rating.comment}</Text>
+                </>
+              )}
             </CardBody>
           </Card>
         </HStack>
