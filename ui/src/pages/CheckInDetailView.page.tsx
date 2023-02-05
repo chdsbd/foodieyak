@@ -3,8 +3,6 @@ import {
   ButtonGroup,
   Card,
   CardBody,
-  CardFooter,
-  Divider,
   Heading,
   HStack,
   Spacer,
