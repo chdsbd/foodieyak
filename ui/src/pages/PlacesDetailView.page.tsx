@@ -117,28 +117,6 @@ export function PlacesDetailView() {
     )
     return latestCheckin?.rating.rating ?? 0
   }
-  function latestMenuItemCommentForUser(m: PlaceMenuItem): string {
-    if (checkins === "loading") {
-      return ""
-    }
-
-    const checkinRatings: {
-      rating: CheckInRating
-      createdAt: Timestamp | null
-    }[] = []
-    for (const checkin of checkins) {
-      for (const rating of checkin.ratings) {
-        if (rating.menuItemId === m.id && rating.comment.trim()) {
-          checkinRatings.push({ rating, createdAt: checkin.checkedInAt })
-        }
-      }
-    }
-
-    const latestCheckin = first(
-      orderBy(checkinRatings, (x) => x.createdAt, ["desc"]),
-    )
-    return latestCheckin?.rating.comment.trim() ?? ""
-  }
 
   const countsByMenuItem = calculateCheckinCountsByMenuItem(checkins)
 
@@ -189,22 +167,14 @@ export function PlacesDetailView() {
                       <ButtonGroup>
                         <Upvote
                           count={countsByMenuItem[m.id]?.positive}
-                          showColor={(ratingForUser(m)?.rating ?? 0) > 0}
+                          showColor={(ratingForUser(m) ?? 0) > 0}
                         />
                         <Downvote
                           count={countsByMenuItem[m.id]?.negative}
-                          showColor={(ratingForUser(m)?.rating ?? 0) < 0}
+                          showColor={(ratingForUser(m) ?? 0) < 0}
                         />
                       </ButtonGroup>
                     </HStack>
-                    {latestMenuItemCommentForUser(m).length > 0 && (
-                      <>
-                        <Spacer marginY="2" />
-                        <Text whiteSpace={"pre-wrap"} fontSize="sm">
-                          {latestMenuItemCommentForUser(m)}
-                        </Text>
-                      </>
-                    )}
                   </CardBody>
                 </Card>
               </HStack>
