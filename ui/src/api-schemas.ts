@@ -20,6 +20,12 @@ export const UserSchema = z.object({
 
 export type User = z.infer<typeof UserSchema>
 
+export const UserPersonalInfoSchema = z.object({
+  algoliaSearchApiKey: z.string().default(""),
+})
+
+export type UserPersonalInfo = z.infer<typeof UserPersonalInfoSchema>
+
 export const PlaceSchema = BaseSchema.extend({
   name: z.string(),
   location: z.string(),

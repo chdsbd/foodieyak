@@ -15,7 +15,6 @@ import {
 import { FirebaseError } from "firebase/app"
 import { AuthError, getAuth, signOut } from "firebase/auth"
 import { useEffect, useState } from "react"
-import { useHistory } from "react-router-dom"
 
 import * as api from "../api"
 import { Page } from "../components/Page"
@@ -25,7 +24,6 @@ import { pathLogin } from "../paths"
 export function SettingsView() {
   const toast = useToast()
   const { colorMode, setColorMode } = useColorMode()
-  const history = useHistory()
   const [isLoading, setIsLoading] = useState(false)
   const [displayName, setDisplayName] = useState<string>("")
   const [updatingDisplayName, setUpdatingDisplayName] = useState(false)
@@ -40,7 +38,10 @@ export function SettingsView() {
     setIsLoading(true)
     signOut(auth)
       .then(() => {
-        history.push({ pathname: pathLogin({}) })
+        localStorage.clear()
+        // Workaround for cache issue where we get an error on login after clearing localStorage.
+        // If we do a full page refresh, we work around the issue.
+        location.pathname = pathLogin({})
       })
       .catch((error: FirebaseError) => {
         toast({
