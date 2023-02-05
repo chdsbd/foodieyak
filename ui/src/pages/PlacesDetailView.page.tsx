@@ -94,9 +94,9 @@ export function PlacesDetailView() {
     )
   }
 
-  function ratingForUser(m: PlaceMenuItem): -1 | 0 | 1 {
+  function ratingForUser(m: PlaceMenuItem) {
     if (checkins === "loading") {
-      return 0
+      return null
     }
 
     const checkinRatings: {
@@ -159,20 +159,22 @@ export function PlacesDetailView() {
                 to={pathMenuItemDetail({ placeId, menuItemId: m.id })}
               >
                 <Card w="full" size="sm">
-                  <HStack as={CardBody} w="full">
-                    <Text fontSize={"lg"}>{m.name}</Text>
-                    <Spacer />
-                    <ButtonGroup>
-                      <Upvote
-                        count={countsByMenuItem[m.id]?.positive}
-                        showColor={(ratingForUser(m) ?? 0) > 0}
-                      />
-                      <Downvote
-                        count={countsByMenuItem[m.id]?.negative}
-                        showColor={(ratingForUser(m) ?? 0) < 0}
-                      />
-                    </ButtonGroup>
-                  </HStack>
+                  <CardBody>
+                    <HStack w="full">
+                      <Text fontSize={"lg"}>{m.name}</Text>
+                      <Spacer />
+                      <ButtonGroup>
+                        <Upvote
+                          count={countsByMenuItem[m.id]?.positive}
+                          showColor={(ratingForUser(m) ?? 0) > 0}
+                        />
+                        <Downvote
+                          count={countsByMenuItem[m.id]?.negative}
+                          showColor={(ratingForUser(m) ?? 0) < 0}
+                        />
+                      </ButtonGroup>
+                    </HStack>
+                  </CardBody>
                 </Card>
               </HStack>
             ))}

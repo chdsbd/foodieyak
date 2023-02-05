@@ -86,13 +86,23 @@ export function CheckInDetailView() {
           to={pathMenuItemDetail({ placeId, menuItemId: m.menuItemId })}
         >
           <Card w="full" size="sm">
-            <HStack as={CardBody} w="full">
-              <Text>{menuItemMap[m.menuItemId]?.name}</Text>
-              <Spacer />
-              <ButtonGroup>
-                {m.rating > 0 ? <Upvote /> : <Downvote />}
-              </ButtonGroup>
-            </HStack>
+            <CardBody>
+              <HStack w="full">
+                <Text fontWeight={"bold"}>
+                  {menuItemMap[m.menuItemId]?.name}
+                </Text>
+                <Spacer />
+                <ButtonGroup>
+                  {m.rating > 0 ? <Upvote /> : <Downvote />}
+                </ButtonGroup>
+              </HStack>
+              {m.comment.trim().length > 0 && (
+                <>
+                  <Spacer marginY="2" />
+                  <Text>{m.comment}</Text>
+                </>
+              )}
+            </CardBody>
           </Card>
         </HStack>
       ))}
