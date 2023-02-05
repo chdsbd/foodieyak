@@ -40,6 +40,7 @@ export function SettingsView() {
     setIsLoading(true)
     signOut(auth)
       .then(() => {
+        localStorage.clear()
         history.push({ pathname: pathLogin({}) })
       })
       .catch((error: FirebaseError) => {
