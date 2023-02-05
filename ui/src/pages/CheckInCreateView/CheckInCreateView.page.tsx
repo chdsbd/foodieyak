@@ -72,7 +72,7 @@ export function MenuItem(props: {
                 Remove
               </Button>
             </ButtonGroup>
-            <Divider marginY="4" />
+            <Spacer marginY="4" />
             <Input
               placeholder="Add a note about this item..."
               value={props.comment}
