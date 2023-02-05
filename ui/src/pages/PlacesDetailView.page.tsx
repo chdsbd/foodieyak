@@ -95,9 +95,9 @@ export function PlacesDetailView() {
     )
   }
 
-  function ratingForUser(m: PlaceMenuItem): -1 | 0 | 1 {
+  function ratingForUser(m: PlaceMenuItem) {
     if (checkins === "loading") {
-      return 0
+      return null
     }
 
     const checkinRatings: {
@@ -116,6 +116,28 @@ export function PlacesDetailView() {
       orderBy(checkinRatings, (x) => x.createdAt, ["desc"]),
     )
     return latestCheckin?.rating.rating ?? 0
+  }
+  function latestMenuItemCommentForUser(m: PlaceMenuItem): string {
+    if (checkins === "loading") {
+      return ""
+    }
+
+    const checkinRatings: {
+      rating: CheckInRating
+      createdAt: Timestamp | null
+    }[] = []
+    for (const checkin of checkins) {
+      for (const rating of checkin.ratings) {
+        if (rating.menuItemId === m.id && rating.comment.trim()) {
+          checkinRatings.push({ rating, createdAt: checkin.checkedInAt })
+        }
+      }
+    }
+
+    const latestCheckin = first(
+      orderBy(checkinRatings, (x) => x.createdAt, ["desc"]),
+    )
+    return latestCheckin?.rating.comment.trim() ?? ""
   }
 
   const countsByMenuItem = calculateCheckinCountsByMenuItem(checkins)
@@ -167,18 +189,20 @@ export function PlacesDetailView() {
                       <ButtonGroup>
                         <Upvote
                           count={countsByMenuItem[m.id]?.positive}
-                          showColor={(ratingForUser(m) ?? 0) > 0}
+                          showColor={(ratingForUser(m)?.rating ?? 0) > 0}
                         />
                         <Downvote
                           count={countsByMenuItem[m.id]?.negative}
-                          showColor={(ratingForUser(m) ?? 0) < 0}
+                          showColor={(ratingForUser(m)?.rating ?? 0) < 0}
                         />
                       </ButtonGroup>
                     </HStack>
-                    {m.comment.trim().length > 0 && (
+                    {latestMenuItemCommentForUser(m).length > 0 && (
                       <>
-                        <Divider marginY="4" />
-                        <Text whiteSpace={"pre-wrap"}>{m.comment}</Text>
+                        <Spacer marginY="2" />
+                        <Text whiteSpace={"pre-wrap"} fontSize="sm">
+                          {latestMenuItemCommentForUser(m)}
+                        </Text>
                       </>
                     )}
                   </CardBody>
