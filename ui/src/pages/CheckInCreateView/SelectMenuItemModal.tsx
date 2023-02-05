@@ -91,6 +91,11 @@ export function SelectMenuItemModal({
           <FormControl>
             <Input
               type="search"
+              onKeyUp={(e) => {
+                if (e.key === "Enter") {
+                  onCreateAndSelect()
+                }
+              }}
               placeholder="Search for menu items..."
               value={search}
               onChange={(e) => {
@@ -133,8 +138,6 @@ export function SelectMenuItemModal({
                       size="sm"
                       w="full"
                       variant={"outline"}
-                      //   colorScheme="purple"
-                      //   borderColor={"purple"}
                       borderWidth={1}
                       borderColor={
                         selectedMenuItemIds.includes(mir.id)
@@ -149,7 +152,6 @@ export function SelectMenuItemModal({
                           <Button
                             size="sm"
                             variant="outline"
-                            // colorScheme="purple"
                             onClick={() => {
                               onSelect(mir.id)
                             }}
@@ -159,7 +161,6 @@ export function SelectMenuItemModal({
                         ) : (
                           <Button
                             size="sm"
-                            // colorScheme="orange"
                             variant="outline"
                             onClick={() => {
                               onRemove(mir.id)
@@ -173,34 +174,6 @@ export function SelectMenuItemModal({
                   </React.Fragment>
                 )
               })}
-            {/* <Divider /> */}
-            {/* {selectedMenuItems.length > 0 && (
-                <Heading as="h2" size="sm" alignSelf={"start"}>
-                  Selected Menu Items
-                </Heading>
-              )}
-              {selectedMenuItems.map((mir) => {
-                return (
-                  <React.Fragment key={mir.id}>
-                    <Card size="sm" w="full">
-                      <HStack as={CardBody} w="full">
-                        <Text>{mir.name}</Text>
-                        <Spacer />
-                        {
-                          <Button
-                            size="sm"
-                            onClick={() => {
-                              onRemove(mir.id)
-                            }}
-                          >
-                            Remove
-                          </Button>
-                        }
-                      </HStack>
-                    </Card>
-                  </React.Fragment>
-                )
-              })} */}
           </VStack>
         </VStack>
 

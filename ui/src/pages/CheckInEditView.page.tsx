@@ -69,11 +69,12 @@ function CheckInEditForm({
   const [isDeleting, setIsDeleting] = useState(false)
   const user = useUser()
 
-  const [isDateEnabled, setIsDateEnabled] = useState(false)
+  const [isDateEnabled, setIsDateEnabled] = useState(
+    checkIn.checkedInAt != null,
+  )
   const [date, setDate] = useState<string>(() => {
     const checkedInAt = checkIn.checkedInAt
     if (checkedInAt == null) {
-      setIsDateEnabled(false)
       return toISODateString(new Date())
     } else {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
