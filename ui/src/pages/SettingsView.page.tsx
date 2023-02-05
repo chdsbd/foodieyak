@@ -41,7 +41,9 @@ export function SettingsView() {
     signOut(auth)
       .then(() => {
         localStorage.clear()
-        history.push({ pathname: pathLogin({}) })
+        // Workaround for cache issue where we get an error on login after clearing localStorage.
+        // If we do a full page refresh, we work around the issue.
+        location.pathname = pathLogin({})
       })
       .catch((error: FirebaseError) => {
         toast({
