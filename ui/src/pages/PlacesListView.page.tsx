@@ -36,7 +36,7 @@ import {
 import { pathPlaceCreate, pathPlaceDetail } from "../paths"
 
 const SEARCH_INDEX =
-  ENVIRONMENT === "staging" ? "staging_places" : "production_places"
+  ENVIRONMENT === "staging" ? "staging_places" : "prod_places"
 const ALGOLIA_APP_ID = "UA3MF4ZCHW"
 
 function LastVisitedOn({
