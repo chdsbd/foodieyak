@@ -47,7 +47,7 @@ export function MenuItem(props: {
       <CardBody>
         <VStack w="100%">
           <FormControl>
-            <FormLabel>{props.menuItemName}</FormLabel>
+            <FormLabel fontSize={"lg"}>{props.menuItemName}</FormLabel>
             <ButtonGroup w="100%">
               <Upvote
                 showColor={props.rating > 0}
