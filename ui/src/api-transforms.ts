@@ -32,15 +32,17 @@ export function calculateCheckinCountsByMenuItem(
     string,
     { positive: number; negative: number }
   > = {}
-  Object.entries(checkinRatings).forEach(([entry, checkinRatingArr]) => {
+  Object.entries(checkinRatings).forEach(([menuItemId, checkinRatingArr]) => {
     const ratings = uniqBy(
-      orderBy(checkinRatingArr, (x) => x.checkedInAt, ["desc"]),
+      orderBy(checkinRatingArr, (x) => x.checkedInAt?.toMillis() ?? 0, [
+        "desc",
+      ]),
       (x) => x.userId,
     ).map((x) => x.rating)
     const groupedResult = countBy(ratings, (x) => x)
-    ratingsPerMenuItemId[entry] = {
-      positive: groupedResult["1"],
-      negative: groupedResult["-1"],
+    ratingsPerMenuItemId[menuItemId] = {
+      positive: groupedResult["1"] ?? 0,
+      negative: groupedResult["-1"] ?? 0,
     }
   })
 

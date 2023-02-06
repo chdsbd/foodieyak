@@ -112,7 +112,7 @@ export function PlacesDetailView() {
     }
 
     const latestCheckin = first(
-      orderBy(checkinRatings, (x) => x.createdAt, ["desc"]),
+      orderBy(checkinRatings, (x) => x.createdAt?.toMillis() ?? 0, ["desc"]),
     )
     return latestCheckin?.rating.rating ?? 0
   }
