@@ -34,6 +34,7 @@ import {
   useUser,
 } from "../hooks"
 import { pathPlaceCreate, pathPlaceDetail } from "../paths"
+import { notUndefined } from "../type-guards"
 
 function LastVisitedOn({
   placeId,
@@ -120,10 +121,22 @@ function SearchHits(props: UseHitsProps & { userId: string; places: Place[] }) {
   }, {})
   const hasQuery = indexUiState.query != null
 
+  const placesMap = props.places.reduce<Record<string, Place | undefined>>(
+    (acc, val) => {
+      acc[val.id] = val
+      return acc
+    },
+    {},
+  )
+
   // If we don't have any query, we can just show all places from Firestore.
   // When we have a query, we'll want to filter based on the Algolia results.
   const filteredPlaces = (
-    !hasQuery ? props.places : props.places.filter((x) => hitMap[x.id] != null)
+    !hasQuery
+      ? props.places
+      : // display the results as they are sorting from Algolia based on relevance.
+        // Otherwise we'll just show places alphbetically, which isn't what we want.
+        hits.map((x) => placesMap[x.objectID]).filter(notUndefined)
   ).map((place) => {
     return { ...place, hit: hitMap[place.id] }
   })
