@@ -116,7 +116,7 @@ export function MergePlaceIntoPlaceModal({
               }
               if (
                 !confirm(
-                  `Are you sure you want to merge '${originalPlace.name}' into '${selectedPlace.name}'`,
+                  `Are you sure you want to merge '${originalPlace.name}' into '${selectedPlace.name}'?`,
                 )
               ) {
                 return
