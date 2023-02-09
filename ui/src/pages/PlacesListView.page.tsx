@@ -202,6 +202,23 @@ function PlacesList({ userId }: { userId: string }) {
   return (
     <InstantSearch
       searchClient={searchClient}
+      // use custom routing config so we can have `search` be our query parameter.
+      // https://www.algolia.com/doc/guides/building-search-ui/going-further/routing-urls/react-hooks/
+      routing={{
+        stateMapping: {
+          stateToRoute(uiState) {
+            const indexUiState = uiState[config.ALGOLIA_PLACES_SEARCH_INDEX]
+            return { search: indexUiState.query }
+          },
+          routeToState(routeState) {
+            return {
+              [config.ALGOLIA_PLACES_SEARCH_INDEX]: {
+                query: routeState.search,
+              },
+            }
+          },
+        },
+      }}
       indexName={config.ALGOLIA_PLACES_SEARCH_INDEX}
     >
       {places.length === 0 && <EmptyStateText>No Places</EmptyStateText>}
