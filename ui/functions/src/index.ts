@@ -200,15 +200,15 @@ async function mergePlaces({
   const db = admin.firestore()
 
   await db.runTransaction(async (transaction) => {
-    const oldPlace = (
-      await transaction.get(db.doc(`/places/${oldPlaceId}`))
-    ).data()
-    const targetPlace = (
-      await transaction.get(db.doc(`/places/${targetPlaceId}`))
-    ).data()
+    const oldPlace = await transaction.get(db.doc(`/places/${oldPlaceId}`))
+    const targetPlace = await transaction.get(
+      db.doc(`/places/${targetPlaceId}`),
+    )
+    const oldPlaceData = oldPlace.data()
+    const targetPlaceData = targetPlace.data()
 
     // if neither place exists, we shouldn't do anything
-    if (!oldPlace || !targetPlace) {
+    if (!oldPlaceData || !targetPlaceData) {
       functions.logger.info("cannot merge places. Missing place", {
         oldPlace,
         targetPlace,
@@ -217,8 +217,8 @@ async function mergePlaces({
     }
 
     if (
-      !oldPlace.viewerIds.includes(userId) ||
-      !targetPlace.viewerIds.includes(userId)
+      !oldPlaceData.viewerIds.includes(userId) ||
+      !targetPlaceData.viewerIds.includes(userId)
     ) {
       throw new functions.https.HttpsError(
         "permission-denied",
@@ -238,6 +238,7 @@ async function mergePlaces({
         db.doc(`/places/${targetPlaceId}/menuitems/${oldMenuItem.id}`),
         oldMenuItem.data(),
       )
+      transaction.delete(oldMenuItem.ref)
     }
 
     for (const oldCheckin of oldCheckins.docs) {
@@ -245,7 +246,11 @@ async function mergePlaces({
         db.doc(`/places/${targetPlaceId}/checkins/${oldCheckin.id}`),
         oldCheckin.data(),
       )
+      transaction.delete(oldCheckin.ref)
     }
+
+    transaction.delete(oldPlace.ref)
+
     functions.logger.info("copied child documents", {
       checkinCount: oldCheckins.size,
       menuItemCount: oldMenuItems.size,
