@@ -18,7 +18,6 @@ import { Link, useHistory, useParams } from "react-router-dom"
 
 import * as api from "../api"
 import { Page } from "../components/Page"
-import { mergePlaceIntoPlace } from "../db"
 import { usePlace, useUser } from "../hooks"
 import { pathPlaceDetail, pathPlaceList } from "../paths"
 import { MergePlaceIntoPlaceModal } from "./MergePlaceintoPlaceModal"
