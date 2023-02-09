@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react"
 import algoliasearch from "algoliasearch/lite"
 import { Hit } from "instantsearch.js"
-import { useMemo } from "react"
+import { Component, useMemo } from "react"
 import {
   Highlight,
   InstantSearch,
@@ -35,6 +35,26 @@ import {
 } from "../hooks"
 import { pathPlaceCreate, pathPlaceDetail } from "../paths"
 import { notUndefined } from "../type-guards"
+
+class HackErrorBoundary extends Component<
+  { children: React.ReactNode },
+  {
+    readonly error: null | Error
+  }
+> {
+  state = {
+    error: null,
+  }
+  componentDidCatch(error: Error) {
+    this.setState({ error })
+  }
+  render() {
+    if (this.state.error) {
+      return null
+    }
+    return this.props.children
+  }
+}
 
 function LastVisitedOn({
   placeId,
@@ -87,7 +107,9 @@ function SearchHit({
                 )}
               </Text>
               <Spacer />
-              <LastVisitedOn placeId={placeId} userId={userId} />
+              <HackErrorBoundary>
+                <LastVisitedOn placeId={placeId} userId={userId} />
+              </HackErrorBoundary>
             </HStack>
           </div>
         </CardBody>
