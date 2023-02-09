@@ -1,6 +1,7 @@
 import {
   Button,
   FormControl,
+  FormHelperText,
   FormLabel,
   Heading,
   Input,
@@ -74,6 +75,7 @@ export function PlacesCreateView() {
             }}
             value={name}
           />
+          <FormHelperText>Similiar places: Naco Taco.</FormHelperText>
         </FormControl>
 
         <FormControl>
