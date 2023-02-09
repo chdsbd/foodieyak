@@ -1,0 +1,113 @@
+import {
+  Button,
+  FormControl,
+  FormHelperText,
+  FormLabel,
+  Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  Text,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Select,
+  useToast,
+  VStack,
+} from "@chakra-ui/react"
+import { useState } from "react"
+import { Place } from "../api-schemas"
+import { usePlaces } from "../hooks"
+
+// mergePlaceIntoPlace({ oldPlaceId: "", targetPlaceId: "" })
+// .then(() => {})
+// .catch(() => {})
+export function MergePlaceIntoPlaceModal({
+  isOpen,
+  onClose,
+  userId,
+  originalPlace,
+}: {
+  isOpen: boolean
+  onClose: () => void
+  userId: string
+  originalPlace: Place
+}) {
+  const toast = useToast()
+  const places = usePlaces(userId)
+  const [selectedPlaceId, setSelectedPlace] = useState<string>()
+
+  const selectedPlace =
+    places !== "loading" ? places.find((x) => x.id === selectedPlaceId) : null
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader paddingBottom={"0"}>Merge Places</ModalHeader>
+        <ModalCloseButton />
+
+        <VStack as={ModalBody} w="full">
+          <Text fontSize={"sm"} alignSelf="start">
+            Merge a source place into the target place. Checkins and menu items
+            will be moved too.
+          </Text>
+          <FormControl>
+            <FormLabel>Source Place</FormLabel>
+            <Input isReadOnly value={originalPlace.name} />
+          </FormControl>
+
+          <FormControl>
+            <FormLabel>Destination Place</FormLabel>
+            <Select
+              defaultValue={"-1"}
+              onChange={(e) => {
+                if (places === "loading") {
+                  return
+                }
+                const place = places.find((x) => x.id === e.target.value)
+                if (!place) {
+                  return
+                }
+                setSelectedPlace(place.id)
+              }}
+            >
+              <option disabled value="-1">
+                Select a destination place...
+              </option>
+
+              {places !== "loading" &&
+                places
+                  .filter((x) => x.id !== originalPlace.id)
+                  .map((place) => {
+                    return (
+                      <option key={place.id} value={place.id}>
+                        {place.location
+                          ? `${place.name} — ${place.location}`
+                          : place.name}
+                      </option>
+                    )
+                  })}
+            </Select>
+
+            {selectedPlace && (
+              <FormHelperText>
+                Merge "{originalPlace.name}" ({originalPlace.checkInCount}{" "}
+                checkins, {originalPlace.menuItemCount} menu items) into "
+                {selectedPlace.name}" ({selectedPlace.checkInCount} checkins,{" "}
+                {selectedPlace.menuItemCount} menu items).
+              </FormHelperText>
+            )}
+          </FormControl>
+        </VStack>
+
+        <ModalFooter paddingTop="0">
+          <Button w="full" onClick={onClose}>
+            Merge Places
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  )
+}

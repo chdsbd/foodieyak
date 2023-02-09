@@ -5,7 +5,7 @@ import { defineString } from "firebase-functions/params"
 import * as identity from "firebase-functions/lib/common/providers/identity"
 import algoliasearch from "algoliasearch"
 import { uniq, first } from "lodash"
-
+import { z } from "zod"
 const algoliaSearchApiKey = defineString("ALGOLIA_SEARCH_API_KEY")
 
 admin.initializeApp()
@@ -188,6 +188,71 @@ async function updateUsageCountForMenuItem({
     })
 }
 
+async function mergePlaces({
+  oldPlaceId,
+  targetPlaceId,
+  userId,
+}: {
+  oldPlaceId: string
+  targetPlaceId: string
+  userId: string
+}) {
+  const db = admin.firestore()
+
+  await db.runTransaction(async (transaction) => {
+    const oldPlace = (
+      await transaction.get(db.doc(`/places/${oldPlaceId}`))
+    ).data()
+    const targetPlace = (
+      await transaction.get(db.doc(`/places/${targetPlaceId}`))
+    ).data()
+
+    // if neither place exists, we shouldn't do anything
+    if (!oldPlace || !targetPlace) {
+      functions.logger.info("cannot merge places. Missing place", {
+        oldPlace,
+        targetPlace,
+      })
+      return
+    }
+
+    if (
+      !oldPlace.viewerIds.includes(userId) ||
+      !targetPlace.viewerIds.includes(userId)
+    ) {
+      throw new functions.https.HttpsError(
+        "permission-denied",
+        "user does not have access to resources",
+      )
+    }
+
+    const oldMenuItems = await transaction.get(
+      db.collection(`/places/${oldPlaceId}/menuitems`),
+    )
+
+    for (const oldMenuItem of oldMenuItems.docs) {
+      transaction.set(
+        db.doc(`/places/${targetPlaceId}/menuitems/${oldMenuItem.id}`),
+        oldMenuItem.data(),
+      )
+    }
+    const oldCheckins = await transaction.get(
+      db.collection(`/places/${oldPlaceId}/checkins`),
+    )
+
+    for (const oldCheckin of oldCheckins.docs) {
+      transaction.set(
+        db.doc(`/places/${targetPlaceId}/checkins/${oldCheckin.id}`),
+        oldCheckin.data(),
+      )
+    }
+    functions.logger.info("copied child documents", {
+      checkinCount: oldCheckins.size,
+      menuItemCount: oldMenuItems.size,
+    })
+  })
+}
+
 async function updateMenuItemsForCheckIn({
   placeId,
   change,
@@ -210,6 +275,34 @@ async function updateMenuItemsForCheckIn({
     ),
   )
 }
+
+const MergePlaceIntoPlaceParams = z.object({
+  oldPlaceId: z.string(),
+  targetPlaceId: z.string(),
+})
+
+export const mergePlaceIntoPlace = functions.https.onCall(
+  async (data, context) => {
+    if (!context.auth) {
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        "The function must be called while authenticated.",
+      )
+    }
+    const res = MergePlaceIntoPlaceParams.safeParse(data)
+    if (!res.success) {
+      throw new functions.https.HttpsError(
+        "invalid-argument",
+        JSON.stringify(res.error.flatten()),
+      )
+    }
+    await mergePlaces({
+      oldPlaceId: res.data.oldPlaceId,
+      targetPlaceId: res.data.targetPlaceId,
+      userId: context.auth.uid,
+    })
+  },
+)
 
 export const checkinOnChange = functions.firestore
   .document("/places/{placeId}/checkins/{checkin}")
