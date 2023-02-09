@@ -195,7 +195,8 @@ function PlacesList({ userId }: { userId: string }) {
     )
   }, [userPersonalInfo])
   if (places === "loading" || searchClient == null) {
-    return null
+    // Empty state for loading.
+    return <Input placeholder="Search" type="search" value="" isReadOnly />
   }
 
   return (
