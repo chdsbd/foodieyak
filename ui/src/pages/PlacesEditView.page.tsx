@@ -5,6 +5,7 @@ import {
   FormControl,
   FormLabel,
   Heading,
+  HStack,
   Input,
   Spacer,
   Tooltip,
@@ -19,6 +20,7 @@ import * as api from "../api"
 import { Page } from "../components/Page"
 import { usePlace, useUser } from "../hooks"
 import { pathPlaceDetail, pathPlaceList } from "../paths"
+import { MergePlaceIntoPlaceModal } from "./MergePlaceintoPlaceModal"
 
 export function PlacesEditView() {
   const { placeId }: { placeId: string } = useParams()
@@ -29,6 +31,8 @@ export function PlacesEditView() {
   const [location, setLocation] = useState("")
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
+
+  const [showMergeModal, setShowMergeModal] = useState(false)
 
   const place = usePlace(placeId)
   useEffect(() => {
@@ -123,45 +127,67 @@ export function PlacesEditView() {
       <Spacer />
       <Divider />
       <Spacer />
-      <Tooltip
-        isDisabled={(place.checkInCount ?? 0) === 0}
-        label={`Deletion disabled until all (${place.checkInCount}) check-ins have been deleted.`}
-      >
+      <HStack w="full">
+        <Tooltip
+          isDisabled={(place.checkInCount ?? 0) === 0}
+          label={`Deletion disabled until all (${place.checkInCount}) check-ins have been deleted.`}
+        >
+          <Button
+            size="sm"
+            type="button"
+            colorScheme={"red"}
+            variant="outline"
+            disabled={(place.checkInCount ?? 0) > 0}
+            isLoading={deleting}
+            loadingText="Deleting..."
+            onClick={() => {
+              if (!confirm("Delete place?")) {
+                return
+              }
+              setDeleting(true)
+              api
+                .placeDelete({ placeId })
+                .then(() => {
+                  history.push(pathPlaceList({}))
+                  setDeleting(false)
+                })
+                .catch((error: FirebaseError) => {
+                  const errorCode = error.code
+                  const errorMessage = error.message
+                  toast({
+                    title: "Problem deleting place",
+                    description: `${errorCode}: ${errorMessage}`,
+                    status: "error",
+                    isClosable: true,
+                  })
+                  setDeleting(false)
+                })
+            }}
+          >
+            Delete Place
+          </Button>
+        </Tooltip>
+
         <Button
           size="sm"
-          type="button"
-          colorScheme={"red"}
-          variant="outline"
-          disabled={(place.checkInCount ?? 0) > 0}
-          isLoading={deleting}
-          loadingText="Deleting..."
+          variant={"outline"}
           onClick={() => {
-            if (!confirm("Delete place?")) {
-              return
-            }
-            setDeleting(true)
-            api
-              .placeDelete({ placeId })
-              .then(() => {
-                history.push(pathPlaceList({}))
-                setDeleting(false)
-              })
-              .catch((error: FirebaseError) => {
-                const errorCode = error.code
-                const errorMessage = error.message
-                toast({
-                  title: "Problem deleting place",
-                  description: `${errorCode}: ${errorMessage}`,
-                  status: "error",
-                  isClosable: true,
-                })
-                setDeleting(false)
-              })
+            setShowMergeModal(true)
           }}
         >
-          Delete Place
+          Merge Place
         </Button>
-      </Tooltip>
+      </HStack>
+      {user.data != null && (
+        <MergePlaceIntoPlaceModal
+          originalPlace={place}
+          userId={user.data.uid}
+          isOpen={showMergeModal}
+          onClose={() => {
+            setShowMergeModal(false)
+          }}
+        />
+      )}
     </Page>
   )
 }
