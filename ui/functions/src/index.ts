@@ -1,10 +1,10 @@
-import * as functions from "firebase-functions"
 import * as admin from "firebase-admin"
+import * as functions from "firebase-functions"
 import { defineString } from "firebase-functions/params"
 
-import * as identity from "firebase-functions/lib/common/providers/identity"
 import algoliasearch from "algoliasearch"
-import { uniq, first } from "lodash"
+import * as identity from "firebase-functions/lib/common/providers/identity"
+import { first, uniq } from "lodash"
 import { z } from "zod"
 const algoliaSearchApiKey = defineString("ALGOLIA_SEARCH_API_KEY")
 
@@ -229,6 +229,9 @@ async function mergePlaces({
     const oldMenuItems = await transaction.get(
       db.collection(`/places/${oldPlaceId}/menuitems`),
     )
+    const oldCheckins = await transaction.get(
+      db.collection(`/places/${oldPlaceId}/checkins`),
+    )
 
     for (const oldMenuItem of oldMenuItems.docs) {
       transaction.set(
@@ -236,9 +239,6 @@ async function mergePlaces({
         oldMenuItem.data(),
       )
     }
-    const oldCheckins = await transaction.get(
-      db.collection(`/places/${oldPlaceId}/checkins`),
-    )
 
     for (const oldCheckin of oldCheckins.docs) {
       transaction.set(

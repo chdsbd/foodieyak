@@ -8,21 +8,23 @@ import {
   ModalBody,
   ModalCloseButton,
   ModalContent,
-  Text,
   ModalFooter,
   ModalHeader,
   ModalOverlay,
   Select,
+  Text,
   useToast,
   VStack,
 } from "@chakra-ui/react"
+import { FirebaseError } from "firebase/app"
 import { useState } from "react"
-import { Place } from "../api-schemas"
-import { usePlaces } from "../hooks"
+import { useHistory } from "react-router-dom"
 
-// mergePlaceIntoPlace({ oldPlaceId: "", targetPlaceId: "" })
-// .then(() => {})
-// .catch(() => {})
+import { Place } from "../api-schemas"
+import { mergePlaceIntoPlace } from "../db"
+import { usePlaces } from "../hooks"
+import { pathPlaceDetail } from "../paths"
+
 export function MergePlaceIntoPlaceModal({
   isOpen,
   onClose,
@@ -37,7 +39,8 @@ export function MergePlaceIntoPlaceModal({
   const toast = useToast()
   const places = usePlaces(userId)
   const [selectedPlaceId, setSelectedPlace] = useState<string>()
-
+  const [isMerging, setIsMerging] = useState(false)
+  const history = useHistory()
   const selectedPlace =
     places !== "loading" ? places.find((x) => x.id === selectedPlaceId) : null
 
@@ -103,7 +106,45 @@ export function MergePlaceIntoPlaceModal({
         </VStack>
 
         <ModalFooter paddingTop="0">
-          <Button w="full" onClick={onClose}>
+          <Button
+            w="full"
+            loadingText="Merging"
+            isLoading={isMerging}
+            onClick={() => {
+              if (!selectedPlace) {
+                return
+              }
+              if (
+                !confirm(
+                  `Are you sure you want to merge '${originalPlace.name}' into '${selectedPlace.name}'`,
+                )
+              ) {
+                return
+              }
+              setIsMerging(true)
+              mergePlaceIntoPlace({
+                oldPlaceId: originalPlace.id,
+                targetPlaceId: selectedPlace.id,
+              })
+                .then(() => {
+                  toast({
+                    title: "Places merged",
+                    status: "success",
+                    isClosable: true,
+                  })
+                  history.push(pathPlaceDetail({ placeId: selectedPlace.id }))
+                  setIsMerging(false)
+                })
+                .catch((e: FirebaseError) => {
+                  toast({
+                    title: "Problem merging places",
+                    description: `${e.code}: ${e.message}`,
+                    status: "error",
+                  })
+                  setIsMerging(false)
+                })
+            }}
+          >
             Merge Places
           </Button>
         </ModalFooter>
