@@ -19,6 +19,7 @@ import {
   VStack,
 } from "@chakra-ui/react"
 import { FirebaseError } from "firebase/app"
+import { sortBy } from "lodash-es"
 import React, { useEffect, useState } from "react"
 
 import * as api from "../../api"
@@ -127,7 +128,7 @@ export function SelectMenuItemModal({
                   </HStack>
                 </Card>
               )}
-            {menuItems
+            {sortBy(menuItems, (x) => x.name.toLowerCase())
               .filter((x) =>
                 x.name.toLowerCase().includes(search.toLowerCase()),
               )
@@ -154,6 +155,7 @@ export function SelectMenuItemModal({
                             variant="outline"
                             onClick={() => {
                               onSelect(mir.id)
+                              setSearch("")
                             }}
                           >
                             Select

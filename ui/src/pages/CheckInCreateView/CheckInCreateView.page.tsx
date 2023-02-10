@@ -19,7 +19,7 @@ import {
 import { parseISO } from "date-fns"
 import { FirebaseError } from "firebase/app"
 import produce from "immer"
-import { groupBy } from "lodash-es"
+import { groupBy, sortBy } from "lodash-es"
 import { useState } from "react"
 import { Link, useHistory, useParams } from "react-router-dom"
 
@@ -231,7 +231,9 @@ export function CheckInCreateView() {
           <EmptyStateText>Add a menu item to review.</EmptyStateText>
         </>
       )}
-      {menuItemRatings.map((mir) => {
+      {sortBy(menuItemRatings, (x) =>
+        menuItemMap[x.menuItemId][0].name.toLowerCase(),
+      ).map((mir) => {
         return (
           <MenuItem
             key={mir.menuItemId}
