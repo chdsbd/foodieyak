@@ -169,31 +169,19 @@ export function CheckInCreateView() {
           )}
         </HStack>
       </FormControl>
-      <FormControl>
-        <FormLabel>Comment</FormLabel>
-        <Textarea
-          placeholder="Add a note about your visit..."
-          onChange={(e) => {
-            setComment(e.target.value)
-          }}
-          value={comment}
-        />
-      </FormControl>
 
-      <Heading as="h2" size="md" alignSelf={"start"} w="full">
-        <HStack w="full">
-          <span>Menu Items</span>
-          <Spacer />
-          <Button
-            size="sm"
-            onClick={() => {
-              setIsOpen(true)
-            }}
-          >
-            Add Menu Item
-          </Button>
-        </HStack>
-      </Heading>
+      <HStack w="full">
+        <span>Menu Items</span>
+        <Spacer />
+        <Button
+          size="sm"
+          onClick={() => {
+            setIsOpen(true)
+          }}
+        >
+          Add Menu Item
+        </Button>
+      </HStack>
 
       <SelectMenuItemModal
         isOpen={isOpen}
@@ -271,7 +259,18 @@ export function CheckInCreateView() {
         )
       })}
 
-      <Divider paddingY="1" />
+      <FormControl>
+        <FormLabel>Comment</FormLabel>
+        <Textarea
+          placeholder="Add a note about your visit..."
+          onChange={(e) => {
+            setComment(e.target.value)
+          }}
+          value={comment}
+        />
+      </FormControl>
+
+      <Spacer />
       <FormControl isInvalid={menuItemRatings.length === 0 && showHelperText}>
         <Button
           width="100%"

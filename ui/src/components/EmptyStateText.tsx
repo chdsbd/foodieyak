@@ -12,7 +12,7 @@ export function EmptyStateText({
     <Box w="full">
       <Text
         userSelect={"none"}
-        fontSize="xl"
+        fontSize="lg"
         textColor={"GrayText"}
         textAlign="center"
         w="full"
