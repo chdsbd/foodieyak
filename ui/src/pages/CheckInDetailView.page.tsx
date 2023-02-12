@@ -96,6 +96,7 @@ export function CheckInDetailView() {
         <VStack
           key={m.menuItemId}
           w="full"
+          alignItems={"start"}
           as={Link}
           to={pathMenuItemDetail({ placeId, menuItemId: m.menuItemId })}
         >

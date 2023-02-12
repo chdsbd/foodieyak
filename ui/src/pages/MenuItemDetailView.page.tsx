@@ -115,6 +115,7 @@ export function MenuItemDetailView() {
             width="100%"
             as={Link}
             to={pathCheckinDetail({ checkInId: menuItem.id, placeId })}
+            alignItems={"start"}
           >
             <HStack w="full" alignItems={"start"}>
               <VStack align="start">
