@@ -118,26 +118,29 @@ export function MenuItemDetailView() {
             alignItems={"start"}
           >
             <HStack w="full" alignItems={"start"}>
-              <VStack align="start">
+              <VStack w="full" alignItems={"start"}>
                 <Text fontWeight={"bold"}>
                   <UserIdToName userId={menuItem.createdById} />
                 </Text>
-                {menuItem.checkedInAt != null && (
-                  <div>{formatHumanDate(menuItem.checkedInAt)}</div>
+                {menuItem.rating.comment.length > 0 && (
+                  <Text paddingRight={"4"}>{menuItem.rating.comment}</Text>
                 )}
               </VStack>
+              <VStack alignItems={"end"}>
+                {menuItem.checkedInAt != null ? (
+                  <Text whiteSpace={"pre"}>
+                    {formatHumanDate(menuItem.checkedInAt)}
+                  </Text>
+                ) : (
+                  <div>{"\u00A0"}</div>
+                )}
 
-              <Spacer />
-              <Box padding="4">
-                {menuItem.rating.rating > 0 ? <Upvote /> : <Downvote />}
-              </Box>
+                <Box>
+                  {menuItem.rating.rating > 0 ? <Upvote /> : <Downvote />}
+                </Box>
+              </VStack>
             </HStack>
-            {menuItem.rating.comment.length > 0 && (
-              <>
-                <Spacer marginY="4" />
-                <Text>{menuItem.rating.comment}</Text>
-              </>
-            )}
+
             <Divider />
           </VStack>
         ),
