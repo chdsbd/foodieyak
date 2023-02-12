@@ -1,8 +1,7 @@
 import {
   Button,
   ButtonGroup,
-  Card,
-  CardBody,
+  Divider,
   Heading,
   HStack,
   Spacer,
@@ -79,32 +78,27 @@ export function CheckInDetailView() {
         <EmptyStateText>No Ratings</EmptyStateText>
       )}
       {checkIn.ratings.map((m) => (
-        <HStack
+        <VStack
           key={m.menuItemId}
           w="full"
           as={Link}
           to={pathMenuItemDetail({ placeId, menuItemId: m.menuItemId })}
         >
-          <Card w="full" size="sm">
-            <CardBody>
-              <HStack w="full">
-                <Text fontWeight={"bold"}>
-                  {menuItemMap[m.menuItemId]?.name}
-                </Text>
-                <Spacer />
-                <ButtonGroup>
-                  {m.rating > 0 ? <Upvote /> : <Downvote />}
+          <HStack w="full">
+            <Text fontWeight={"bold"}>{menuItemMap[m.menuItemId]?.name}</Text>
+            <Spacer />
+            <ButtonGroup>
+              {m.rating > 0 ? <Upvote /> : <Downvote />}
                 </ButtonGroup>
               </HStack>
               {m.comment.trim().length > 0 && (
                 <>
                   <Spacer marginY="2" />
-                  <Text>{m.comment}</Text>
-                </>
-              )}
-            </CardBody>
-          </Card>
-        </HStack>
+              <Text>{m.comment}</Text>
+            </>
+          )}
+          <Divider />
+        </VStack>
       ))}
     </Page>
   )
