@@ -1,8 +1,7 @@
 import {
   Button,
   ButtonGroup,
-  Card,
-  CardBody,
+  Divider,
   HStack,
   Spacer,
   Tab,
@@ -152,31 +151,28 @@ export function PlacesDetailView() {
               <EmptyStateText>No Menu Items</EmptyStateText>
             )}
             {menuitems.map((m) => (
-              <HStack
+              <VStack
                 key={m.id}
                 w="full"
                 as={Link}
                 to={pathMenuItemDetail({ placeId, menuItemId: m.id })}
               >
-                <Card w="full" size="sm">
-                  <CardBody>
-                    <HStack w="full">
-                      <Text fontSize={"lg"}>{m.name}</Text>
-                      <Spacer />
-                      <ButtonGroup>
-                        <Upvote
-                          count={countsByMenuItem[m.id]?.positive}
-                          showColor={(ratingForUser(m) ?? 0) > 0}
-                        />
-                        <Downvote
-                          count={countsByMenuItem[m.id]?.negative}
-                          showColor={(ratingForUser(m) ?? 0) < 0}
-                        />
-                      </ButtonGroup>
-                    </HStack>
-                  </CardBody>
-                </Card>
-              </HStack>
+                <HStack w="full">
+                  <Text fontSize={"lg"}>{m.name}</Text>
+                  <Spacer />
+                  <ButtonGroup>
+                    <Upvote
+                      count={countsByMenuItem[m.id]?.positive}
+                      showColor={(ratingForUser(m) ?? 0) > 0}
+                    />
+                    <Downvote
+                      count={countsByMenuItem[m.id]?.negative}
+                      showColor={(ratingForUser(m) ?? 0) < 0}
+                    />
+                  </ButtonGroup>
+                </HStack>
+                <Divider />
+              </VStack>
             ))}
           </TabPanel>
           <TabPanel

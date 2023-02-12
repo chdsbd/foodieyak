@@ -1,14 +1,14 @@
 import {
   Box,
   Button,
-  Card,
-  CardBody,
+  Divider,
   Heading,
   HStack,
   Spacer,
   Text,
   VStack,
 } from "@chakra-ui/react"
+import { sortBy } from "lodash-es"
 import { Link, useParams } from "react-router-dom"
 
 import { calculateCheckinCountsByMenuItem } from "../api-transforms"
@@ -70,17 +70,20 @@ export function MenuItemDetailView() {
       <VStack alignItems="start" spacing={2} w="full">
         <HStack w="full">
           <VStack alignItems="start" spacing={0}>
+            <HStack>
+              <Heading alignSelf={"start"} as="h1" size="lg">
+                {menuItem.name}
+              </Heading>
+            </HStack>
             <Text
               as={Link}
-              to={pathPlaceDetail({ placeId })}
               fontSize="md"
               fontWeight={500}
+              to={pathPlaceDetail({ placeId })}
             >
-              {place.name}
+              <div>{place.name}</div>
+              <div>{place.location}</div>
             </Text>
-            <Heading alignSelf={"start"} as="h1" size="lg">
-              {menuItem.name}
-            </Heading>
           </VStack>
           <Spacer />
           <Box alignSelf={"start"}>
@@ -91,49 +94,53 @@ export function MenuItemDetailView() {
             </Link>
           </Box>
         </HStack>
-        <HStack>
-          <div>↑ {checkinCountsByMenuItem?.positive ?? 0}</div>
-          <div>↓ {checkinCountsByMenuItem?.negative ?? 0}</div>
-        </HStack>
       </VStack>
 
-      <Text fontWeight={500}>Check-Ins</Text>
+      <HStack w="full">
+        <Heading as="h2" size="md" marginRight="auto">
+          Check-Ins
+        </Heading>
+
+        <span>↑ {checkinCountsByMenuItem?.positive ?? 0}</span>
+        <span>↓ {checkinCountsByMenuItem?.negative ?? 0}</span>
+      </HStack>
+      <Divider />
       {checkInsForMenuItem.length === 0 && (
         <EmptyStateText>No Check-Ins for menu item.</EmptyStateText>
       )}
-      {checkInsForMenuItem.map((menuItem) => (
-        <HStack
-          key={menuItem.id}
-          width="100%"
-          as={Link}
-          to={pathCheckinDetail({ checkInId: menuItem.id, placeId })}
-        >
-          <Card size="sm" w="full">
-            <CardBody>
-              <HStack w="full">
-                <HStack>
-                  <VStack align="start">
-                    <Text fontWeight={"bold"}>
-                      <UserIdToName userId={menuItem.createdById} />
-                    </Text>
-                    <div>{formatHumanDate(menuItem.createdAt)}</div>
-                  </VStack>
-                </HStack>
-                <Spacer />
-                <Box padding="4">
-                  {menuItem.rating.rating > 0 ? <Upvote /> : <Downvote />}
-                </Box>
-              </HStack>
-              {menuItem.rating.comment.length > 0 && (
-                <>
-                  <Spacer marginY="4" />
-                  <Text>{menuItem.rating.comment}</Text>
-                </>
-              )}
-            </CardBody>
-          </Card>
-        </HStack>
-      ))}
+      {sortBy(checkInsForMenuItem, (x) => x.checkedInAt?.toMillis()).map(
+        (menuItem) => (
+          <VStack
+            key={menuItem.id}
+            width="100%"
+            as={Link}
+            to={pathCheckinDetail({ checkInId: menuItem.id, placeId })}
+          >
+            <HStack w="full" alignItems={"start"}>
+              <VStack align="start">
+                <Text fontWeight={"bold"}>
+                  <UserIdToName userId={menuItem.createdById} />
+                </Text>
+                {menuItem.checkedInAt != null && (
+                  <div>{formatHumanDate(menuItem.checkedInAt)}</div>
+                )}
+              </VStack>
+
+              <Spacer />
+              <Box padding="4">
+                {menuItem.rating.rating > 0 ? <Upvote /> : <Downvote />}
+              </Box>
+            </HStack>
+            {menuItem.rating.comment.length > 0 && (
+              <>
+                <Spacer marginY="4" />
+                <Text>{menuItem.rating.comment}</Text>
+              </>
+            )}
+            <Divider />
+          </VStack>
+        ),
+      )}
     </Page>
   )
 }

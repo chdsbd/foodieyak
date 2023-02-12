@@ -1,4 +1,4 @@
-import { Card, CardBody, Text, VStack } from "@chakra-ui/react"
+import { Divider, HStack, Text, VStack } from "@chakra-ui/react"
 
 import { PlaceCheckIn } from "../api-schemas"
 import { formatHumanDate } from "../date"
@@ -17,23 +17,25 @@ function Rating(props: { ratings: PlaceCheckIn["ratings"] }) {
 
 export function CheckInCommentCard({ checkIn: c }: { checkIn: PlaceCheckIn }) {
   return (
-    <VStack alignItems="start" as={Card} width="full" size="sm">
-      <VStack as={CardBody} alignItems="start" spacing={0}>
-        <Text>
-          <Text as="span" fontWeight={"bold"}>
-            <UserIdToName userId={c.createdById} />
-          </Text>
-          {"   "}
+    <VStack alignItems="start" width="full">
+      <VStack alignItems="start" spacing={0} w="full">
+        <HStack w="full">
+          <HStack marginRight="auto">
+            <Text as="span" fontWeight={"bold"}>
+              <UserIdToName userId={c.createdById} />
+            </Text>
+            {c.ratings.length > 0 && <Rating ratings={c.ratings} />}
+          </HStack>
           {c.checkedInAt != null && (
-            <Text as="span" fontSize="sm">
+            <Text as="span" fontSize="sm" marginLeft="auto">
               {formatHumanDate(c.checkedInAt)}
             </Text>
           )}
-        </Text>
+        </HStack>
 
         {c.comment && <Text whiteSpace={"pre-wrap"}>{c.comment}</Text>}
-        {c.ratings.length > 0 && <Rating ratings={c.ratings} />}
       </VStack>
+      <Divider />
     </VStack>
   )
 }
