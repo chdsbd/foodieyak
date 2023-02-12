@@ -40,7 +40,7 @@ export function UserIdToName({ userId }: { userId: string }) {
     return <> {nameCacheEntry}</>
   }
   if (name === "loading") {
-    return null
+    return <>{"\u00A0"}</>
   }
   return <>{name.name}</>
 }
