@@ -54,6 +54,7 @@ export function CheckInDetailView() {
           >
             {place.name}
           </Text>
+          <Text>{place.location}</Text>
           <Heading as="h1" size="md">
             Check-In
           </Heading>
@@ -89,11 +90,11 @@ export function CheckInDetailView() {
             <Spacer />
             <ButtonGroup>
               {m.rating > 0 ? <Upvote /> : <Downvote />}
-                </ButtonGroup>
-              </HStack>
-              {m.comment.trim().length > 0 && (
-                <>
-                  <Spacer marginY="2" />
+            </ButtonGroup>
+          </HStack>
+          {m.comment.trim().length > 0 && (
+            <>
+              <Spacer marginY="2" />
               <Text>{m.comment}</Text>
             </>
           )}
