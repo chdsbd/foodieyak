@@ -11,13 +11,14 @@ import {
 import { Link, useParams } from "react-router-dom"
 
 import { PlaceMenuItem } from "../api-schemas"
-import { CheckInCommentCard } from "../components/CheckInCommentCard"
 import { DelayedLoader } from "../components/DelayedLoader"
 import { EmptyStateText } from "../components/EmptyStateText"
 import { Page } from "../components/Page"
 import { Downvote, Upvote } from "../components/Ratings"
+import { formatHumanDate } from "../date"
 import { useCheckIn, useMenuItems, usePlace, useUser } from "../hooks"
 import { pathCheckinEdit, pathMenuItemDetail, pathPlaceDetail } from "../paths"
+import { UserIdToName } from "./FriendsListView.page"
 
 export function CheckInDetailView() {
   const { placeId, checkInId }: { placeId: string; checkInId: string } =
@@ -44,20 +45,21 @@ export function CheckInDetailView() {
 
   return (
     <Page>
-      <HStack w="full">
-        <VStack spacing={0} alignItems="start">
+      <HStack w="full" alignItems={"star"}>
+        <VStack spacing={0} alignItems="start" w="full">
+          <Heading as="h1" size="md">
+            Check-In
+          </Heading>
+
           <Text
             as={Link}
             to={pathPlaceDetail({ placeId })}
             fontSize="md"
             fontWeight={500}
           >
-            {place.name}
+            <div>{place.name}</div>
+            <div>{place.location}</div>
           </Text>
-          <Text>{place.location}</Text>
-          <Heading as="h1" size="md">
-            Check-In
-          </Heading>
         </VStack>
         <Spacer />
         {checkIn.createdById === user.data?.uid && (
@@ -71,9 +73,21 @@ export function CheckInDetailView() {
         )}
       </HStack>
 
-      <CheckInCommentCard checkIn={checkIn} />
-
-      <Text fontWeight={500}>Menu Items</Text>
+      {/* <CheckInCommentCard checkIn={checkIn} /> */}
+      <HStack w="full" justifyContent={"space-between"}>
+        <Text as="span" fontWeight={"bold"}>
+          <UserIdToName userId={checkIn.createdById} />
+        </Text>
+        {checkIn.checkedInAt != null && (
+          <Text as="span" fontSize="md" marginLeft="auto">
+            {formatHumanDate(checkIn.checkedInAt)}
+          </Text>
+        )}
+      </HStack>
+      {checkIn.comment && (
+        <Text whiteSpace={"pre-wrap"}>{checkIn.comment}</Text>
+      )}
+      <Divider />
 
       {checkIn.ratings.length === 0 && (
         <EmptyStateText>No Ratings</EmptyStateText>
@@ -86,7 +100,7 @@ export function CheckInDetailView() {
           to={pathMenuItemDetail({ placeId, menuItemId: m.menuItemId })}
         >
           <HStack w="full">
-            <Text fontWeight={"bold"}>{menuItemMap[m.menuItemId]?.name}</Text>
+            <Text>{menuItemMap[m.menuItemId]?.name}</Text>
             <Spacer />
             <ButtonGroup>
               {m.rating > 0 ? <Upvote /> : <Downvote />}

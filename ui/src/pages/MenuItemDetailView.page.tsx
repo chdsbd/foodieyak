@@ -8,6 +8,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react"
+import { sortBy } from "lodash-es"
 import { Link, useParams } from "react-router-dom"
 
 import { calculateCheckinCountsByMenuItem } from "../api-transforms"
@@ -107,40 +108,39 @@ export function MenuItemDetailView() {
       {checkInsForMenuItem.length === 0 && (
         <EmptyStateText>No Check-Ins for menu item.</EmptyStateText>
       )}
-      {checkInsForMenuItem.map((menuItem) => (
-        <VStack
-          key={menuItem.id}
-          width="100%"
-          as={Link}
-          to={pathCheckinDetail({ checkInId: menuItem.id, placeId })}
-        >
-          <>
-            <>
-              <HStack w="full">
-                <HStack>
-                  <VStack align="start">
-                    <Text fontWeight={"bold"}>
-                      <UserIdToName userId={menuItem.createdById} />
-                    </Text>
-                    <div>{formatHumanDate(menuItem.createdAt)}</div>
-                  </VStack>
-                </HStack>
-                <Spacer />
-                <Box padding="4">
-                  {menuItem.rating.rating > 0 ? <Upvote /> : <Downvote />}
-                </Box>
-              </HStack>
-              {menuItem.rating.comment.length > 0 && (
-                <>
-                  <Spacer marginY="4" />
-                  <Text>{menuItem.rating.comment}</Text>
-                </>
-              )}
-            </>
+      {sortBy(checkInsForMenuItem, (x) => x.checkedInAt?.toMillis()).map(
+        (menuItem) => (
+          <VStack
+            key={menuItem.id}
+            width="100%"
+            as={Link}
+            to={pathCheckinDetail({ checkInId: menuItem.id, placeId })}
+          >
+            <HStack w="full" alignItems={"start"}>
+              <VStack align="start">
+                <Text fontWeight={"bold"}>
+                  <UserIdToName userId={menuItem.createdById} />
+                </Text>
+                {menuItem.checkedInAt != null && (
+                  <div>{formatHumanDate(menuItem.checkedInAt)}</div>
+                )}
+              </VStack>
+
+              <Spacer />
+              <Box padding="4">
+                {menuItem.rating.rating > 0 ? <Upvote /> : <Downvote />}
+              </Box>
+            </HStack>
+            {menuItem.rating.comment.length > 0 && (
+              <>
+                <Spacer marginY="4" />
+                <Text>{menuItem.rating.comment}</Text>
+              </>
+            )}
             <Divider />
-          </>
-        </VStack>
-      ))}
+          </VStack>
+        ),
+      )}
     </Page>
   )
 }
