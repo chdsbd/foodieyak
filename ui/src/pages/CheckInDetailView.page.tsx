@@ -100,19 +100,17 @@ export function CheckInDetailView() {
           as={Link}
           to={pathMenuItemDetail({ placeId, menuItemId: m.menuItemId })}
         >
-          <HStack w="full">
-            <Text>{menuItemMap[m.menuItemId]?.name}</Text>
-            <Spacer />
+          <HStack w="full" alignItems="start">
+            <VStack w="full" alignItems={"start"}>
+              <Text>{menuItemMap[m.menuItemId]?.name}</Text>
+              {m.comment.trim().length > 0 && (
+                <Text marginRight="4">{m.comment}</Text>
+              )}
+            </VStack>
             <ButtonGroup>
               {m.rating > 0 ? <Upvote /> : <Downvote />}
             </ButtonGroup>
           </HStack>
-          {m.comment.trim().length > 0 && (
-            <>
-              <Spacer marginY="2" />
-              <Text>{m.comment}</Text>
-            </>
-          )}
           <Divider />
         </VStack>
       ))}
