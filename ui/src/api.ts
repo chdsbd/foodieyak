@@ -31,6 +31,7 @@ export async function placeCreate(params: {
   name: string
   location: string
   userId: string
+  placeId: string | null
   friendIds: string[]
 }): Promise<Place["id"]> {
   const place: Omit<Place, "id"> = {

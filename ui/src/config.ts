@@ -9,6 +9,7 @@ export const ENVIRONMENT =
 export const ALGOLIA_APP_ID = "UA3MF4ZCHW"
 export const ALGOLIA_PLACES_SEARCH_INDEX =
   ENVIRONMENT === "staging" ? "staging_places" : "prod_places"
+export const GOOGLE_MAPS_API_KEY = "AIzaSyBekpp2MYRNLvd9f0fIAEjgMmVHe32aoW0"
 
 const prodFirebaseConfig: FirebaseOptions = {
   apiKey: "AIzaSyCjtXB9vYR7qNm3EW6pLomMEVWVP4OhvtI",
