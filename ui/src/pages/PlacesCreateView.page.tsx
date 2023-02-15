@@ -19,20 +19,26 @@ import { GOOGLE_MAPS_API_KEY } from "../config"
 import { useFriends, useUser } from "../hooks"
 import { pathPlaceDetail } from "../paths"
 
-function LocationImage({
+export function LocationImage({
   markerLocation,
   mapsUrl,
+  variant = "color",
 }: {
   markerLocation: string
   mapsUrl: string
+  variant?: "gray" | "color"
 }) {
   const searchParams = {
     key: GOOGLE_MAPS_API_KEY,
-    map_id: "a7ace313e8de6a37",
-    markers: markerLocation,
+    // map_id: "a7ace313e8de6a37",
+    map_id: variant === "color" ? "a7ace313e8de6a37" : "5b431cb5aca0f386",
+    markers:
+      variant === "gray" ? `color:black|${markerLocation}` : markerLocation,
     zoom: "14",
-    size: "600x150",
+    size: "600x100",
+
     scale: "2",
+    ts: "100",
   }
   const url = new URL("https://maps.googleapis.com/maps/api/staticmap")
   for (const [key, val] of Object.entries(searchParams)) {
@@ -43,6 +49,87 @@ function LocationImage({
     <a href={mapsUrl} target="_blank">
       <img src={url.href} />
     </a>
+  )
+}
+
+function LocationPicker() {
+  const search = useLocation().search
+  const nameRef = useRef<HTMLInputElement | null>(null)
+
+  const locationRef = useRef<HTMLInputElement>(null)
+
+  const [place, setPlace] = useState<google.maps.places.PlaceResult | null>(
+    null,
+  )
+
+  const autoCompleteRef = useCallback(
+    (node: HTMLInputElement | null) => {
+      nameRef.current = node
+      if (node !== null) {
+        const searchParams = new URLSearchParams(search)
+        node.value = searchParams.get("default_name") ?? ""
+        const service = new google.maps.places.Autocomplete(node, {
+          types: ["food"],
+        })
+
+        service.addListener("place_changed", () => {
+          const place = service.getPlace()
+          setPlace(place)
+          node.value = `${place.name} — ${place.rating} stars, ${place.user_ratings_total} reviews`
+          if (locationRef.current) {
+            locationRef.current.value = place.formatted_address ?? ""
+          }
+        })
+      }
+    },
+    [search],
+  )
+
+  const handleClearPlace = () => {
+    setPlace(null)
+    if (nameRef.current != null) {
+      nameRef.current.value = ""
+    }
+    if (locationRef.current) {
+      locationRef.current.value = ""
+    }
+  }
+
+  return (
+    <Wrapper apiKey={GOOGLE_MAPS_API_KEY} libraries={["places"]}>
+      <FormControl>
+        {/* Use a hidden character to change the label so Safari doesn't try to auto suggest contact names. */}
+        <FormLabel>N{"͏"}ame (required)</FormLabel>
+
+        <HStack>
+          <Input
+            type="text"
+            ref={autoCompleteRef}
+            isDisabled={place != null}
+            isRequired
+          />
+          <Button
+            variant={"outline"}
+            isDisabled={place == null}
+            onClick={handleClearPlace}
+          >
+            Clear
+          </Button>
+        </HStack>
+      </FormControl>
+
+      <FormControl>
+        <FormLabel>Location</FormLabel>
+        <Input type="text" ref={locationRef} isDisabled={place != null} />
+      </FormControl>
+
+      {place != null && (
+        <LocationImage
+          markerLocation={place.formatted_address ?? ""}
+          mapsUrl={place.url ?? ""}
+        />
+      )}
+    </Wrapper>
   )
 }
 
@@ -106,8 +193,9 @@ export function PlacesCreateView() {
           if (user.data == null) {
             return
           }
-          const name = nameRef.current?.value
-          const location = locationRef.current?.value
+          const name = place != null ? place.name : nameRef.current?.value
+          const location =
+            place != null ? place.formatted_address : locationRef.current?.value
           if (name == null || location == null) {
             return
           }
@@ -116,7 +204,7 @@ export function PlacesCreateView() {
             .placeCreate({
               name,
               location,
-              placeId: place?.place_id ?? null,
+              googleMapsPlaceId: place?.place_id ?? null,
               userId: user.data.uid,
               friendIds: friends !== "loading" ? friends.map((f) => f.id) : [],
             })
@@ -135,10 +223,7 @@ export function PlacesCreateView() {
             })
         }}
       >
-        <Wrapper
-          apiKey={"AIzaSyBekpp2MYRNLvd9f0fIAEjgMmVHe32aoW0"}
-          libraries={["places"]}
-        >
+        <Wrapper apiKey={GOOGLE_MAPS_API_KEY} libraries={["places"]}>
           <FormControl>
             {/* Use a hidden character to change the label so Safari doesn't try to auto suggest contact names. */}
             <FormLabel>N{"͏"}ame (required)</FormLabel>

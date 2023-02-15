@@ -35,20 +35,22 @@ service cloud.firestore {
         let data = request.resource.data;
         return isValidNewDoc(request)
         && data.keys().hasAll(
-        ['viewerIds', 'name', 'location', 'checkInCount','menuItemCount' ]) 
+        ['viewerIds', 'name', 'location', 'googleMapsPlaceId', 'checkInCount','menuItemCount' ]) 
         && data.name is string && data.name.size() >= 1
         && data.location is string
         && data.checkInCount == 0
         && data.menuItemCount == 0
         && data.viewerIds is list
+        && (data.googleMapsPlaceId is string || data.googleMapsPlaceId == null)
       }
       function isValidPlaceUpdate() {
         let data = request.resource.data;
         return isValidDocUpdate(request)
         && data.diff(resource.data).affectedKeys().hasAny(
-        ['name', 'location'])
+        ['name', 'location', 'googleMapsPlaceId'])
         &&  data.name is string && data.name.size() >= 1
         && data.location is string
+        && (data.googleMapsPlaceId is string || data.googleMapsPlaceId == null)
       }
       function placeHasCheckins() {
         let data = resource.data;
