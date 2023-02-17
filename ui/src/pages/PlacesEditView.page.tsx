@@ -136,6 +136,7 @@ export function PlacesEditView() {
         </FormControl>
         {googleMapsPlaceId != null && (
           <LocationImage
+            variant="gray"
             markerLocation={location}
             googleMapsPlaceId={googleMapsPlaceId}
           />

@@ -217,6 +217,7 @@ export function PlacesCreateView() {
             <LocationImage
               markerLocation={location}
               googleMapsPlaceId={placeId}
+              variant="gray"
             />
           )}
 
