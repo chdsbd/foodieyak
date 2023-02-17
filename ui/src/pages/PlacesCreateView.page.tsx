@@ -58,7 +58,7 @@ export function LocationImage({
 
 type GMapsPlace = { name: string; address: string; googleMapsPlaceId: string }
 
-function LocationSelect({
+export function LocationSelect({
   value,
   onChange,
   onSelect,

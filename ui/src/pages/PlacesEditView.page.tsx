@@ -21,6 +21,7 @@ import { Page } from "../components/Page"
 import { usePlace, useUser } from "../hooks"
 import { pathPlaceDetail, pathPlaceList } from "../paths"
 import { MergePlaceIntoPlaceModal } from "./MergePlaceintoPlaceModal"
+import { LocationImage, LocationSelect } from "./PlacesCreateView.page"
 
 export function PlacesEditView() {
   const { placeId }: { placeId: string } = useParams()
@@ -28,6 +29,9 @@ export function PlacesEditView() {
   const history = useHistory()
   const toast = useToast()
   const [name, setName] = useState("")
+  const [googleMapsPlaceId, setGoogleMapsPlaceId] = useState<string | null>(
+    null,
+  )
   const [location, setLocation] = useState("")
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -41,6 +45,7 @@ export function PlacesEditView() {
     }
     setName(place?.name ?? "")
     setLocation(place?.location ?? "")
+    setGoogleMapsPlaceId(place?.googleMapsPlaceId)
     // @ts-expect-error null coalesing works here.
   }, [place, place?.name, place?.location])
   if (place === "loading") {
@@ -69,6 +74,7 @@ export function PlacesEditView() {
           api
             .placeUpdate({
               placeId,
+              googleMapsPlaceId,
               name,
               location,
               userId: user.data.uid,
@@ -90,25 +96,51 @@ export function PlacesEditView() {
       >
         <FormControl>
           <FormLabel>Name</FormLabel>
-          <Input
-            type="text"
-            onChange={(e) => {
-              setName(e.target.value)
-            }}
-            value={name}
-          />
+          <HStack>
+            <LocationSelect
+              value={name}
+              isDisabled={googleMapsPlaceId != null}
+              onSelect={(v) => {
+                setGoogleMapsPlaceId(v?.googleMapsPlaceId ?? null)
+                setName(v?.name ?? "")
+                setLocation(v?.address ?? "")
+              }}
+              onChange={(v) => {
+                setName(v)
+              }}
+            />
+            <Button
+              variant={"outline"}
+              isDisabled={placeId == null}
+              onClick={() => {
+                setGoogleMapsPlaceId(null)
+                setName("")
+                setLocation("")
+              }}
+            >
+              Clear
+            </Button>
+          </HStack>
         </FormControl>
 
         <FormControl>
           <FormLabel>Location</FormLabel>
           <Input
             type="text"
+            isDisabled={googleMapsPlaceId != null}
             onChange={(e) => {
               setLocation(e.target.value)
             }}
             value={location}
           />
         </FormControl>
+        {googleMapsPlaceId != null && (
+          <LocationImage
+            markerLocation={location}
+            googleMapsPlaceId={googleMapsPlaceId}
+          />
+        )}
+
         <Spacer />
         <ButtonGroup w="100%">
           <Link to={pathPlaceDetail({ placeId })}>
