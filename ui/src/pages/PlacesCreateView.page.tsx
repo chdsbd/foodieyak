@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react"
 import { Wrapper } from "@googlemaps/react-wrapper"
 import { FirebaseError } from "firebase/app"
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useHistory, useLocation } from "react-router-dom"
 
 import * as api from "../api"
@@ -21,11 +21,11 @@ import { pathPlaceDetail } from "../paths"
 
 export function LocationImage({
   markerLocation,
-  mapsUrl,
+  googleMapsPlaceId,
   variant = "color",
 }: {
   markerLocation: string
-  mapsUrl: string
+  googleMapsPlaceId: string
   variant?: "gray" | "color"
 }) {
   const searchParams = {
@@ -45,8 +45,12 @@ export function LocationImage({
     url.searchParams.set(key, val)
   }
 
+  const href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    markerLocation,
+  )}&query_place_id=${encodeURIComponent(googleMapsPlaceId)}`
+
   return (
-    <a href={mapsUrl} target="_blank">
+    <a href={href} target="_blank">
       <img style={{ height: "100px" }} src={url.href} />
     </a>
   )
@@ -65,32 +69,43 @@ function LocationSelect({
   isDisabled: boolean
   onSelect: (_: GMapsPlace | null) => void
 }) {
-  const autoCompleteRef = useCallback(
-    (node: HTMLInputElement | null) => {
-      if (node !== null) {
-        const service = new google.maps.places.Autocomplete(node, {
-          types: ["food"],
-        })
+  const autoCompleteService = useRef<google.maps.places.Autocomplete>()
+  const autoCompleteCallback = useCallback((node: HTMLInputElement | null) => {
+    if (node !== null) {
+      const service = new google.maps.places.Autocomplete(node, {
+        types: ["food"],
+      })
+      autoCompleteService.current = service
+    }
+  }, [])
 
-        service.addListener("place_changed", () => {
-          const place = service.getPlace()
-          onSelect({
-            name: place.name,
-            address: place.formatted_address,
-            googleMapsPlaceId: place.place_id,
-          })
+  useEffect(() => {
+    const service = autoCompleteService.current
+    if (!service) {
+      return
+    }
+    service.addListener("place_changed", () => {
+      const place = service.getPlace()
+      if (
+        place.name != null &&
+        place.formatted_address != null &&
+        place.place_id != null
+      ) {
+        onSelect({
+          name: place.name,
+          address: place.formatted_address,
+          googleMapsPlaceId: place.place_id,
         })
       }
-    },
-    [onSelect],
-  )
+    })
+  }, [onSelect])
 
   return (
     <Wrapper apiKey={GOOGLE_MAPS_API_KEY} libraries={["places"]}>
       <Input
         type="text"
         value={value}
-        ref={autoCompleteRef}
+        ref={autoCompleteCallback}
         onChange={(e) => {
           onChange(e.target.value)
         }}
@@ -105,6 +120,7 @@ export function PlacesCreateView() {
   const search = useLocation().search
   const [saving, setSaving] = useState(false)
   const [location, setLocation] = useState("")
+  const [placeId, setPlaceId] = useState<string>()
   const user = useUser()
   const friends = useFriends(user.data?.uid ?? null)
   const history = useHistory()
@@ -114,12 +130,8 @@ export function PlacesCreateView() {
     return searchParams.get("default_name") ?? ""
   })
 
-  const [place, setPlace] = useState<google.maps.places.PlaceResult | null>(
-    null,
-  )
-
   const handleClearPlace = () => {
-    setPlace(null)
+    setPlaceId(undefined)
     setName("")
     setLocation("")
   }
@@ -169,9 +181,9 @@ export function PlacesCreateView() {
             <HStack>
               <LocationSelect
                 value={name}
-                isDisabled={place != null}
+                isDisabled={placeId != null}
                 onSelect={(v) => {
-                  setPlace(v)
+                  setPlaceId(v?.googleMapsPlaceId)
                   setName(v?.name ?? "")
                   setLocation(v?.address ?? "")
                 }}
@@ -181,7 +193,7 @@ export function PlacesCreateView() {
               />
               <Button
                 variant={"outline"}
-                isDisabled={place == null}
+                isDisabled={placeId == null}
                 onClick={handleClearPlace}
               >
                 Clear
@@ -193,7 +205,7 @@ export function PlacesCreateView() {
             <FormLabel>Location</FormLabel>
             <Input
               type="text"
-              isDisabled={place != null}
+              isDisabled={placeId != null}
               value={location}
               onChange={(e) => {
                 setLocation(e.target.value)
@@ -201,10 +213,10 @@ export function PlacesCreateView() {
             />
           </FormControl>
 
-          {place != null && (
+          {placeId != null && (
             <LocationImage
-              markerLocation={place.formatted_address ?? ""}
-              mapsUrl={place.url ?? ""}
+              markerLocation={location}
+              googleMapsPlaceId={placeId}
             />
           )}
 
