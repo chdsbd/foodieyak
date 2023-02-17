@@ -119,10 +119,6 @@ export function PlacesDetailView() {
 
   const countsByMenuItem = calculateCheckinCountsByMenuItem(checkins)
 
-  const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-    place.location,
-  )}&query_place_id=${encodeURIComponent(place.googleMapsPlaceId ?? "")}`
-
   return (
     <Page>
       <HStack w="100%" alignItems={"stretch"}>
@@ -140,7 +136,7 @@ export function PlacesDetailView() {
       {place.googleMapsPlaceId != null && (
         <LocationImage
           markerLocation={place.location}
-          mapsUrl={url}
+          googleMapsPlaceId={place.googleMapsPlaceId}
           variant="gray"
         />
       )}
