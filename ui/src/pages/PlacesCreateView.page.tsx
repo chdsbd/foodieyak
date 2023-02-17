@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react"
 import { Wrapper } from "@googlemaps/react-wrapper"
 import { FirebaseError } from "firebase/app"
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useState } from "react"
 import { useHistory, useLocation } from "react-router-dom"
 
 import * as api from "../api"
@@ -52,51 +52,76 @@ export function LocationImage({
   )
 }
 
-export function PlacesCreateView() {
-  const search = useLocation().search
-  const nameRef = useRef<HTMLInputElement | null>(null)
-  const [saving, setSaving] = useState(false)
-  const user = useUser()
-  const friends = useFriends(user.data?.uid ?? null)
-  const history = useHistory()
-  const toast = useToast()
-  const locationRef = useRef<HTMLInputElement>(null)
+type GMapsPlace = { name: string; address: string; googleMapsPlaceId: string }
 
-  const [place, setPlace] = useState<google.maps.places.PlaceResult | null>(
-    null,
-  )
-
+function LocationSelect({
+  value,
+  onChange,
+  onSelect,
+  isDisabled,
+}: {
+  value: string
+  onChange: (_: string) => void
+  isDisabled: boolean
+  onSelect: (_: GMapsPlace | null) => void
+}) {
   const autoCompleteRef = useCallback(
     (node: HTMLInputElement | null) => {
-      nameRef.current = node
       if (node !== null) {
-        const searchParams = new URLSearchParams(search)
-        node.value = searchParams.get("default_name") ?? ""
         const service = new google.maps.places.Autocomplete(node, {
           types: ["food"],
         })
 
         service.addListener("place_changed", () => {
           const place = service.getPlace()
-          setPlace(place)
-          node.value = `${place.name} — ${place.rating} stars, ${place.user_ratings_total} reviews`
-          if (locationRef.current) {
-            locationRef.current.value = place.formatted_address ?? ""
-          }
+          onSelect({
+            name: place.name,
+            address: place.formatted_address,
+            googleMapsPlaceId: place.place_id,
+          })
         })
       }
     },
-    [search],
+    [onSelect],
+  )
+
+  return (
+    <Wrapper apiKey={GOOGLE_MAPS_API_KEY} libraries={["places"]}>
+      <Input
+        type="text"
+        value={value}
+        ref={autoCompleteRef}
+        onChange={(e) => {
+          onChange(e.target.value)
+        }}
+        isDisabled={isDisabled}
+        isRequired
+      />
+    </Wrapper>
+  )
+}
+
+export function PlacesCreateView() {
+  const search = useLocation().search
+  const [saving, setSaving] = useState(false)
+  const [location, setLocation] = useState("")
+  const user = useUser()
+  const friends = useFriends(user.data?.uid ?? null)
+  const history = useHistory()
+  const toast = useToast()
+  const [name, setName] = useState(() => {
+    const searchParams = new URLSearchParams(search)
+    return searchParams.get("default_name") ?? ""
+  })
+
+  const [place, setPlace] = useState<google.maps.places.PlaceResult | null>(
+    null,
   )
 
   const handleClearPlace = () => {
     setPlace(null)
-    if (nameRef.current != null) {
-      nameRef.current.value = ""
-    }
-    if (locationRef.current) {
-      locationRef.current.value = ""
-    }
+    setName("")
+    setLocation("")
   }
 
   return (
@@ -112,18 +137,12 @@ export function PlacesCreateView() {
           if (user.data == null) {
             return
           }
-          const name = place != null ? place.name : nameRef.current?.value
-          const location =
-            place != null ? place.formatted_address : locationRef.current?.value
-          if (name == null || location == null) {
-            return
-          }
           setSaving(true)
           api
             .placeCreate({
-              name,
-              location,
-              googleMapsPlaceId: place?.place_id ?? null,
+              name: "",
+              location: "",
+              googleMapsPlaceId: "place?.place_id ?? null",
               userId: user.data.uid,
               friendIds: friends !== "loading" ? friends.map((f) => f.id) : [],
             })
@@ -148,11 +167,17 @@ export function PlacesCreateView() {
             <FormLabel>N{"͏"}ame (required)</FormLabel>
 
             <HStack>
-              <Input
-                type="text"
-                ref={autoCompleteRef}
+              <LocationSelect
+                value={name}
                 isDisabled={place != null}
-                isRequired
+                onSelect={(v) => {
+                  setPlace(v)
+                  setName(v?.name ?? "")
+                  setLocation(v?.address ?? "")
+                }}
+                onChange={(v) => {
+                  setName(v)
+                }}
               />
               <Button
                 variant={"outline"}
@@ -166,7 +191,14 @@ export function PlacesCreateView() {
 
           <FormControl>
             <FormLabel>Location</FormLabel>
-            <Input type="text" ref={locationRef} isDisabled={place != null} />
+            <Input
+              type="text"
+              isDisabled={place != null}
+              value={location}
+              onChange={(e) => {
+                setLocation(e.target.value)
+              }}
+            />
           </FormControl>
 
           {place != null && (
