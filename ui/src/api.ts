@@ -54,7 +54,7 @@ type DocUpdateFields = "lastModifiedAt" | "lastModifiedById"
 
 export async function placeUpdate(params: {
   placeId: string
-  googleMapsPlaceId: string
+  googleMapsPlaceId: string | null
   name: string
   location: string
   userId: string
