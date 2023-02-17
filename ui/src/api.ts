@@ -31,11 +31,13 @@ export async function placeCreate(params: {
   name: string
   location: string
   userId: string
+  googleMapsPlaceId: string | null
   friendIds: string[]
 }): Promise<Place["id"]> {
   const place: Omit<Place, "id"> = {
     name: params.name,
     location: params.location,
+    googleMapsPlaceId: params.googleMapsPlaceId,
     createdById: params.userId,
     createdAt: Timestamp.now(),
     lastModifiedAt: null,
@@ -52,13 +54,18 @@ type DocUpdateFields = "lastModifiedAt" | "lastModifiedById"
 
 export async function placeUpdate(params: {
   placeId: string
+  googleMapsPlaceId: string | null
   name: string
   location: string
   userId: string
 }): Promise<void> {
-  const place: Pick<Place, "name" | "location" | DocUpdateFields> = {
+  const place: Pick<
+    Place,
+    "name" | "location" | "googleMapsPlaceId" | DocUpdateFields
+  > = {
     name: params.name,
     location: params.location,
+    googleMapsPlaceId: params.googleMapsPlaceId,
     lastModifiedAt: Timestamp.now(),
     lastModifiedById: params.userId,
   }

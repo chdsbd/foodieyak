@@ -33,6 +33,7 @@ import {
   pathMenuItemDetail,
   pathPlaceEdit,
 } from "../paths"
+import { LocationImage } from "./PlacesCreateView.page"
 
 function tabToIndex(tab: string | null): number {
   if (tab === "checkins") {
@@ -131,6 +132,14 @@ export function PlacesDetailView() {
           </Link>
         </VStack>
       </HStack>
+
+      {place.googleMapsPlaceId != null && (
+        <LocationImage
+          markerLocation={place.location}
+          googleMapsPlaceId={place.googleMapsPlaceId}
+          variant="gray"
+        />
+      )}
       <Link style={{ width: "100%" }} to={pathCheckinCreate({ placeId })}>
         <Button width="100%">Add a Check-In</Button>
       </Link>
