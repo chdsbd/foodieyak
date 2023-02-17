@@ -94,7 +94,7 @@ export function PlacesDetailView() {
     )
   }
 
-  function ratingForUser(m: PlaceMenuItem) {
+  function ratingForUser(m: PlaceMenuItem, userId: string) {
     if (checkins === "loading") {
       return null
     }
@@ -104,6 +104,9 @@ export function PlacesDetailView() {
       createdAt: Timestamp | null
     }[] = []
     for (const checkin of checkins) {
+      if (checkin.createdById !== userId) {
+        continue
+      }
       for (const rating of checkin.ratings) {
         if (rating.menuItemId === m.id) {
           checkinRatings.push({ rating, createdAt: checkin.checkedInAt })
@@ -172,11 +175,11 @@ export function PlacesDetailView() {
                   <ButtonGroup>
                     <Upvote
                       count={countsByMenuItem[m.id]?.positive}
-                      showColor={(ratingForUser(m) ?? 0) > 0}
+                      showColor={(ratingForUser(m, user.data.uid) ?? 0) > 0}
                     />
                     <Downvote
                       count={countsByMenuItem[m.id]?.negative}
-                      showColor={(ratingForUser(m) ?? 0) < 0}
+                      showColor={(ratingForUser(m, user.data.uid) ?? 0) < 0}
                     />
                   </ButtonGroup>
                 </HStack>
