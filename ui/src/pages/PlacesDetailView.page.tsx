@@ -33,6 +33,7 @@ import {
   pathMenuItemDetail,
   pathPlaceEdit,
 } from "../paths"
+import { LocationImage } from "./PlacesCreateView.page"
 
 function tabToIndex(tab: string | null): number {
   if (tab === "checkins") {
@@ -118,6 +119,10 @@ export function PlacesDetailView() {
 
   const countsByMenuItem = calculateCheckinCountsByMenuItem(checkins)
 
+  const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    place.location,
+  )}&query_place_id=${encodeURIComponent(place.googleMapsPlaceId ?? "")}`
+
   return (
     <Page>
       <HStack w="100%" alignItems={"stretch"}>
@@ -131,6 +136,14 @@ export function PlacesDetailView() {
           </Link>
         </VStack>
       </HStack>
+
+      {place.googleMapsPlaceId != null && (
+        <LocationImage
+          markerLocation={place.location}
+          mapsUrl={url}
+          variant="gray"
+        />
+      )}
       <Link style={{ width: "100%" }} to={pathCheckinCreate({ placeId })}>
         <Button width="100%">Add a Check-In</Button>
       </Link>
