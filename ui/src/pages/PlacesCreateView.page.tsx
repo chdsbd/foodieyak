@@ -35,7 +35,7 @@ export function LocationImage({
     markers:
       variant === "gray" ? `color:black|${markerLocation}` : markerLocation,
     zoom: "14",
-    size: "600x100",
+    size: "570x100",
 
     scale: "2",
     ts: "100",
@@ -51,7 +51,10 @@ export function LocationImage({
 
   return (
     <a href={href} target="_blank">
-      <img style={{ height: "100px" }} src={url.href} />
+      <img
+        style={{ height: "100px", objectFit: "cover" }}
+        src={url.href}
+      />
     </a>
   )
 }
