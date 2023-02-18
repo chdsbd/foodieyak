@@ -54,12 +54,12 @@ export function LocationImage({
       variant === "gray" ? `color:black|${markerLocation}` : markerLocation,
     zoom: "14",
     size: `${width}x100`,
-    scale: "2",
+    scale: devicePixelRatio,
     ts: "100",
   }
   const url = new URL("https://maps.googleapis.com/maps/api/staticmap")
   for (const [key, val] of Object.entries(searchParams)) {
-    url.searchParams.set(key, val)
+    url.searchParams.set(key, val.toString())
   }
 
   const href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
