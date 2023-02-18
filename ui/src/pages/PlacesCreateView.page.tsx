@@ -19,6 +19,9 @@ import { GOOGLE_MAPS_API_KEY } from "../config"
 import { useFriends, useUser } from "../hooks"
 import { pathPlaceDetail } from "../paths"
 
+const MaxViewportWidth = 570
+const ViewportPadding = 16
+
 export function LocationImage({
   markerLocation,
   googleMapsPlaceId,
@@ -35,7 +38,7 @@ export function LocationImage({
     markers:
       variant === "gray" ? `color:black|${markerLocation}` : markerLocation,
     zoom: "14",
-    size: "570x100",
+    size: `${MaxViewportWidth - ViewportPadding}x100`,
 
     scale: "2",
     ts: "100",
@@ -51,10 +54,7 @@ export function LocationImage({
 
   return (
     <a href={href} target="_blank">
-      <img
-        style={{ height: "100px", objectFit: "cover" }}
-        src={url.href}
-      />
+      <img style={{ height: "100px", objectFit: "cover" }} src={url.href} />
     </a>
   )
 }
