@@ -149,7 +149,7 @@ function App() {
   return (
     <ErrorBoundary>
       <FirestoreProvider sdk={firestoreInstance}>
-        <Container padding={2} maxWidth="570px">
+        <Container padding={2}>
           <Router>
             <Switch>
               {routes.map((r) => {

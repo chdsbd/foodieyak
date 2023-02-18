@@ -10,7 +10,13 @@ import {
 } from "@chakra-ui/react"
 import { Wrapper } from "@googlemaps/react-wrapper"
 import { FirebaseError } from "firebase/app"
-import { useCallback, useEffect, useRef, useState } from "react"
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react"
 import { useHistory, useLocation } from "react-router-dom"
 
 import * as api from "../api"
@@ -18,9 +24,6 @@ import { Page } from "../components/Page"
 import { GOOGLE_MAPS_API_KEY } from "../config"
 import { useFriends, useUser } from "../hooks"
 import { pathPlaceDetail } from "../paths"
-
-const MaxViewportWidth = 570
-const ViewportPadding = 16
 
 export function LocationImage({
   markerLocation,
@@ -31,15 +34,26 @@ export function LocationImage({
   googleMapsPlaceId: string
   variant?: "gray" | "color"
 }) {
+  // We adjust the width of the image to fit the anchor element.
+  //
+  // We use object-fit: cover to ensure the image looks okay even if the size is off.
+  // By using the exact size, Google Maps will render a better looking image that has points of interest correctly fitted in the image.
+  const ref = useRef<HTMLAnchorElement | null>(null)
+  const [width, setWidth] = useState(0)
+
+  useLayoutEffect(() => {
+    if (ref.current) {
+      setWidth(ref.current.offsetWidth)
+    }
+  }, [])
+
   const searchParams = {
     key: GOOGLE_MAPS_API_KEY,
-    // map_id: "a7ace313e8de6a37",
     map_id: variant === "color" ? "a7ace313e8de6a37" : "5b431cb5aca0f386",
     markers:
       variant === "gray" ? `color:black|${markerLocation}` : markerLocation,
     zoom: "14",
-    size: `${MaxViewportWidth - ViewportPadding}x100`,
-
+    size: `${width}x100`,
     scale: "2",
     ts: "100",
   }
@@ -53,8 +67,10 @@ export function LocationImage({
   )}&query_place_id=${encodeURIComponent(googleMapsPlaceId)}`
 
   return (
-    <a href={href} target="_blank">
-      <img style={{ height: "100px", objectFit: "cover" }} src={url.href} />
+    <a href={href} target="_blank" ref={ref} style={{ width: "100%" }}>
+      {width > 0 && (
+        <img style={{ height: "100px", objectFit: "cover" }} src={url.href} />
+      )}
     </a>
   )
 }
