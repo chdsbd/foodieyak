@@ -18,12 +18,12 @@ import { Link, useHistory, useParams } from "react-router-dom"
 
 import * as api from "../api"
 import { Place } from "../api-schemas"
+import { GoogleMapsJSMap } from "../components/GoogleMapsJSMap"
 import { GoogleMapsSelectInput } from "../components/GoogleMapsSelectInput"
 import { Page } from "../components/Page"
 import { usePlace, useUser } from "../hooks"
 import { pathPlaceDetail, pathPlaceList } from "../paths"
 import { MergePlaceIntoPlaceModal } from "./MergePlaceintoPlaceModal"
-import { LocationImage } from "./PlacesCreateView.page"
 
 export function PlacesEditView() {
   const { placeId }: { placeId: string } = useParams()
@@ -134,7 +134,7 @@ export function PlacesEditViewInner({ place }: { place: Place }) {
           />
         </FormControl>
         {geoInfo != null && (
-          <LocationImage
+          <GoogleMapsJSMap
             variant="gray"
             markerLocation={location}
             geoInfo={geoInfo}
