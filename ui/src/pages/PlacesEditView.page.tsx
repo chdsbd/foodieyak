@@ -13,41 +13,22 @@ import {
   VStack,
 } from "@chakra-ui/react"
 import { FirebaseError } from "firebase/app"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Link, useHistory, useParams } from "react-router-dom"
 
 import * as api from "../api"
+import { Place } from "../api-schemas"
+import { GoogleMapsJSMap } from "../components/GoogleMapsJSMap"
+import { GoogleMapsSelectInput } from "../components/GoogleMapsSelectInput"
 import { Page } from "../components/Page"
 import { usePlace, useUser } from "../hooks"
 import { pathPlaceDetail, pathPlaceList } from "../paths"
 import { MergePlaceIntoPlaceModal } from "./MergePlaceintoPlaceModal"
-import { LocationImage, LocationSelect } from "./PlacesCreateView.page"
 
 export function PlacesEditView() {
   const { placeId }: { placeId: string } = useParams()
-  const user = useUser()
-  const history = useHistory()
-  const toast = useToast()
-  const [name, setName] = useState("")
-  const [googleMapsPlaceId, setGoogleMapsPlaceId] = useState<string | null>(
-    null,
-  )
-  const [location, setLocation] = useState("")
-  const [saving, setSaving] = useState(false)
-  const [deleting, setDeleting] = useState(false)
-
-  const [showMergeModal, setShowMergeModal] = useState(false)
 
   const place = usePlace(placeId)
-  useEffect(() => {
-    if (place === "loading") {
-      return
-    }
-    setName(place?.name ?? "")
-    setLocation(place?.location ?? "")
-    setGoogleMapsPlaceId(place?.googleMapsPlaceId)
-    // @ts-expect-error null coalesing works here.
-  }, [place, place?.name, place?.location])
   if (place === "loading") {
     return (
       <Page>
@@ -55,6 +36,24 @@ export function PlacesEditView() {
       </Page>
     )
   }
+
+  return <PlacesEditViewInner place={place} />
+}
+
+export function PlacesEditViewInner({ place }: { place: Place }) {
+  const user = useUser()
+  const history = useHistory()
+  const toast = useToast()
+
+  const [name, setName] = useState(place.name)
+  const [geoInfo, setGeoInfo] = useState<Place["geoInfo"] | null>(place.geoInfo)
+  const [location, setLocation] = useState(place.location)
+
+  const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [showMergeModal, setShowMergeModal] = useState(false)
+
+  const placeId = place.id
 
   return (
     <Page>
@@ -74,7 +73,7 @@ export function PlacesEditView() {
           api
             .placeUpdate({
               placeId,
-              googleMapsPlaceId,
+              geoInfo,
               name,
               location,
               userId: user.data.uid,
@@ -97,11 +96,11 @@ export function PlacesEditView() {
         <FormControl>
           <FormLabel>Name</FormLabel>
           <HStack>
-            <LocationSelect
+            <GoogleMapsSelectInput
               value={name}
-              isDisabled={googleMapsPlaceId != null}
+              isDisabled={geoInfo != null}
               onSelect={(v) => {
-                setGoogleMapsPlaceId(v?.googleMapsPlaceId ?? null)
+                setGeoInfo(v?.geoInfo ?? null)
                 setName(v?.name ?? "")
                 setLocation(v?.address ?? "")
               }}
@@ -113,7 +112,7 @@ export function PlacesEditView() {
               variant={"outline"}
               isDisabled={placeId == null}
               onClick={() => {
-                setGoogleMapsPlaceId(null)
+                setGeoInfo(null)
                 setName("")
                 setLocation("")
               }}
@@ -127,18 +126,18 @@ export function PlacesEditView() {
           <FormLabel>Location</FormLabel>
           <Input
             type="text"
-            isDisabled={googleMapsPlaceId != null}
+            isDisabled={geoInfo != null}
             onChange={(e) => {
               setLocation(e.target.value)
             }}
             value={location}
           />
         </FormControl>
-        {googleMapsPlaceId != null && (
-          <LocationImage
+        {geoInfo != null && (
+          <GoogleMapsJSMap
             variant="gray"
             markerLocation={location}
-            googleMapsPlaceId={googleMapsPlaceId}
+            geoInfo={geoInfo}
           />
         )}
 

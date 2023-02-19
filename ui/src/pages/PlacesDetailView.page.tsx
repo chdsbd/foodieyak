@@ -23,6 +23,7 @@ import { calculateCheckinCountsByMenuItem } from "../api-transforms"
 import { CheckInCommentCard } from "../components/CheckInCommentCard"
 import { DelayedLoader } from "../components/DelayedLoader"
 import { EmptyStateText } from "../components/EmptyStateText"
+import { GoogleMapsJSMap } from "../components/GoogleMapsJSMap"
 import { Page } from "../components/Page"
 import { PlaceInfoPanel } from "../components/PlaceInfoPanel"
 import { Downvote, Upvote } from "../components/Ratings"
@@ -33,7 +34,6 @@ import {
   pathMenuItemDetail,
   pathPlaceEdit,
 } from "../paths"
-import { LocationImage } from "./PlacesCreateView.page"
 
 function tabToIndex(tab: string | null): number {
   if (tab === "checkins") {
@@ -136,10 +136,10 @@ export function PlacesDetailView() {
         </VStack>
       </HStack>
 
-      {place.googleMapsPlaceId != null && (
-        <LocationImage
+      {place.geoInfo != null && (
+        <GoogleMapsJSMap
           markerLocation={place.location}
-          googleMapsPlaceId={place.googleMapsPlaceId}
+          geoInfo={place.geoInfo}
           variant="gray"
         />
       )}

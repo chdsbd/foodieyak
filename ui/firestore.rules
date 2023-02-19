@@ -33,24 +33,38 @@ service cloud.firestore {
       }
       function isValidPlace() {
         let data = request.resource.data;
+
+        let isGeoInfoValid = (data.geoInfo == null || (
+          data.geoInfo.latitude is number && 
+          data.geoInfo.longitude is number && 
+          data.geoInfo.googlePlaceId is string
+        ));
+
         return isValidNewDoc(request)
         && data.keys().hasAll(
-        ['viewerIds', 'name', 'location', 'googleMapsPlaceId', 'checkInCount','menuItemCount' ]) 
+        ['viewerIds', 'name', 'location', 'geoInfo', 'checkInCount','menuItemCount' ]) 
         && data.name is string && data.name.size() >= 1
         && data.location is string
         && data.checkInCount == 0
         && data.menuItemCount == 0
         && data.viewerIds is list
-        && (data.googleMapsPlaceId is string || data.googleMapsPlaceId == null)
+        && isGeoInfoValid
+
       }
+
       function isValidPlaceUpdate() {
         let data = request.resource.data;
+        let isGeoInfoValid = (data.geoInfo == null || (
+          data.geoInfo.latitude is number && 
+          data.geoInfo.longitude is number && 
+          data.geoInfo.googlePlaceId is string
+        ));
         return isValidDocUpdate(request)
         && data.diff(resource.data).affectedKeys().hasAny(
-        ['name', 'location', 'googleMapsPlaceId'])
-        &&  data.name is string && data.name.size() >= 1
+        ['name', 'location', 'geoInfo'])
+        && data.name is string && data.name.size() >= 1
         && data.location is string
-        && (data.googleMapsPlaceId is string || data.googleMapsPlaceId == null)
+        && isGeoInfoValid
       }
       function placeHasCheckins() {
         let data = resource.data;
