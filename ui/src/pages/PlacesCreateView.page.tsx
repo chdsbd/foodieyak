@@ -10,13 +10,7 @@ import {
 } from "@chakra-ui/react"
 import { Wrapper } from "@googlemaps/react-wrapper"
 import { FirebaseError } from "firebase/app"
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useHistory, useLocation } from "react-router-dom"
 
 import * as api from "../api"
@@ -25,7 +19,7 @@ import { GOOGLE_MAPS_API_KEY } from "../config"
 import { useFriends, useUser } from "../hooks"
 import { pathPlaceDetail } from "../paths"
 
-export function LocationImage({
+function InternalLocationImage({
   markerLocation,
   googleMapsPlaceId,
   variant = "color",
@@ -38,40 +32,67 @@ export function LocationImage({
   //
   // We use object-fit: cover to ensure the image looks okay even if the size is off.
   // By using the exact size, Google Maps will render a better looking image that has points of interest correctly fitted in the image.
-  const ref = useRef<HTMLAnchorElement | null>(null)
-  const [width, setWidth] = useState(0)
+  const ref = useRef<HTMLDivElement | null>(null)
 
-  useLayoutEffect(() => {
-    if (ref.current) {
-      setWidth(ref.current.offsetWidth)
+  useEffect(() => {
+    if (!ref.current) {
+      return
     }
-  }, [])
+    const map = new window.google.maps.Map(ref.current, {
+      center: { lat: 42.34956388349563, lng: -71.20717235765544 },
+      zoom: 14,
+      mapId: "5b431cb5aca0f386",
+      clickableIcons: false,
+      disableDefaultUI: true,
+      draggableCursor: "pointer",
+      gestureHandling: "none",
 
-  const searchParams = {
-    key: GOOGLE_MAPS_API_KEY,
-    map_id: variant === "color" ? "a7ace313e8de6a37" : "5b431cb5aca0f386",
-    markers:
-      variant === "gray" ? `color:black|${markerLocation}` : markerLocation,
-    zoom: "14",
-    size: `${width}x100`,
-    scale: devicePixelRatio,
-    ts: "100",
-  }
-  const url = new URL("https://maps.googleapis.com/maps/api/staticmap")
-  for (const [key, val] of Object.entries(searchParams)) {
-    url.searchParams.set(key, val.toString())
-  }
+      keyboardShortcuts: false,
+    })
+    const pinViewGlyph = new google.maps.marker.PinView({
+      glyphColor: "#4C4C4C",
+      borderColor: "#4C4C4C",
+      background: "#666666",
+    })
+    new window.google.maps.marker.AdvancedMarkerView({
+      map,
+      content: pinViewGlyph.element,
+      position: { lat: 42.34956388349563, lng: -71.20717235765544 },
+    })
+  })
 
   const href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
     markerLocation,
   )}&query_place_id=${encodeURIComponent(googleMapsPlaceId)}`
 
   return (
-    <a href={href} target="_blank" ref={ref} style={{ width: "100%" }}>
-      {width > 0 && (
-        <img style={{ height: "100px", objectFit: "cover" }} src={url.href} />
-      )}
+    <a href={href} target="_blank" style={{ width: "100%", height: "100px" }}>
+      <div style={{ width: "100%", height: "100px" }} ref={ref} />
     </a>
+  )
+}
+
+export function LocationImage({
+  markerLocation,
+  googleMapsPlaceId,
+  variant = "color",
+}: {
+  markerLocation: string
+  googleMapsPlaceId: string
+  variant?: "gray" | "color"
+}) {
+  return (
+    <Wrapper
+      apiKey={GOOGLE_MAPS_API_KEY}
+      libraries={["places", "marker"]}
+      version="beta"
+    >
+      <InternalLocationImage
+        googleMapsPlaceId={googleMapsPlaceId}
+        markerLocation={markerLocation}
+        variant={variant}
+      />
+    </Wrapper>
   )
 }
 
