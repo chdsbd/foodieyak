@@ -32,6 +32,7 @@ export function PlacesEditView() {
   const [googleMapsPlaceId, setGoogleMapsPlaceId] = useState<string | null>(
     null,
   )
+  const [latLng, setLatLng] = useState<google.maps.LatLngLiteral | null>(null)
   const [location, setLocation] = useState("")
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -46,8 +47,22 @@ export function PlacesEditView() {
     setName(place?.name ?? "")
     setLocation(place?.location ?? "")
     setGoogleMapsPlaceId(place?.googleMapsPlaceId)
+    setLatLng(
+      place?.latitude != null && place?.longitude != null
+        ? { lat: place?.latitude, lng: place?.longitude }
+        : null,
+    )
+  }, [
+    place,
     // @ts-expect-error null coalesing works here.
-  }, [place, place?.name, place?.location])
+    place?.name,
+    // @ts-expect-error null coalesing works here.
+    place?.location,
+    // @ts-expect-error null coalesing works here.
+    place?.googleMapsPlaceId,
+    // @ts-expect-error null coalesing works here.
+    place?.latitude,
+  ])
   if (place === "loading") {
     return (
       <Page>
@@ -102,6 +117,7 @@ export function PlacesEditView() {
               isDisabled={googleMapsPlaceId != null}
               onSelect={(v) => {
                 setGoogleMapsPlaceId(v?.googleMapsPlaceId ?? null)
+                setLatLng(v?.latLng != null ? v.latLng : null)
                 setName(v?.name ?? "")
                 setLocation(v?.address ?? "")
               }}
@@ -134,10 +150,11 @@ export function PlacesEditView() {
             value={location}
           />
         </FormControl>
-        {googleMapsPlaceId != null && (
+        {googleMapsPlaceId != null && latLng != null && (
           <LocationImage
             variant="gray"
             markerLocation={location}
+            latLng={latLng}
             googleMapsPlaceId={googleMapsPlaceId}
           />
         )}

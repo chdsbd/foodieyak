@@ -32,6 +32,7 @@ export async function placeCreate(params: {
   location: string
   userId: string
   googleMapsPlaceId: string | null
+  latLng: google.maps.LatLngLiteral | null
   friendIds: string[]
 }): Promise<Place["id"]> {
   const place: Omit<Place, "id"> = {
@@ -40,6 +41,8 @@ export async function placeCreate(params: {
     googleMapsPlaceId: params.googleMapsPlaceId,
     createdById: params.userId,
     createdAt: Timestamp.now(),
+    latitude: params.latLng?.lat ?? null,
+    longitude: params.latLng?.lng ?? null,
     lastModifiedAt: null,
     lastModifiedById: null,
     viewerIds: [params.userId, ...params.friendIds],

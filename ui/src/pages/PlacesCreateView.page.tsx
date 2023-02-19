@@ -23,10 +23,12 @@ function InternalLocationImage({
   markerLocation,
   googleMapsPlaceId,
   variant = "color",
+  latLng,
 }: {
   markerLocation: string
   googleMapsPlaceId: string
-  variant?: "gray" | "color"
+  variant: "gray" | "color"
+  latLng: google.maps.LatLngLiteral
 }) {
   // We adjust the width of the image to fit the anchor element.
   //
@@ -39,9 +41,9 @@ function InternalLocationImage({
       return
     }
     const map = new window.google.maps.Map(ref.current, {
-      center: { lat: 42.34956388349563, lng: -71.20717235765544 },
+      center: latLng,
       zoom: 14,
-      mapId: "5b431cb5aca0f386",
+      mapId: variant === "gray" ? "5b431cb5aca0f386" : "a7ace313e8de6a37",
       clickableIcons: false,
       disableDefaultUI: true,
       draggableCursor: "pointer",
@@ -57,7 +59,7 @@ function InternalLocationImage({
     new window.google.maps.marker.AdvancedMarkerView({
       map,
       content: pinViewGlyph.element,
-      position: { lat: 42.34956388349563, lng: -71.20717235765544 },
+      position: latLng,
     })
   })
 
@@ -76,10 +78,12 @@ export function LocationImage({
   markerLocation,
   googleMapsPlaceId,
   variant = "color",
+  latLng,
 }: {
   markerLocation: string
   googleMapsPlaceId: string
   variant?: "gray" | "color"
+  latLng: google.maps.LatLngLiteral
 }) {
   return (
     <Wrapper
@@ -91,12 +95,18 @@ export function LocationImage({
         googleMapsPlaceId={googleMapsPlaceId}
         markerLocation={markerLocation}
         variant={variant}
+        latLng={latLng}
       />
     </Wrapper>
   )
 }
 
-type GMapsPlace = { name: string; address: string; googleMapsPlaceId: string }
+type GMapsPlace = {
+  name: string
+  address: string
+  googleMapsPlaceId: string
+  latLng: google.maps.LatLngLiteral
+}
 
 export function LocationSelect({
   value,
@@ -126,22 +136,29 @@ export function LocationSelect({
     }
     service.addListener("place_changed", () => {
       const place = service.getPlace()
+      const latLng = place.geometry?.location?.toJSON()
       if (
         place.name != null &&
         place.formatted_address != null &&
-        place.place_id != null
+        place.place_id != null &&
+        latLng != null
       ) {
         onSelect({
           name: place.name,
           address: place.formatted_address,
           googleMapsPlaceId: place.place_id,
+          latLng,
         })
       }
     })
   }, [onSelect])
 
   return (
-    <Wrapper apiKey={GOOGLE_MAPS_API_KEY} libraries={["places"]}>
+    <Wrapper
+      apiKey={GOOGLE_MAPS_API_KEY}
+      libraries={["places", "marker"]}
+      version="beta"
+    >
       <Input
         type="text"
         value={value}
@@ -160,7 +177,10 @@ export function PlacesCreateView() {
   const search = useLocation().search
   const [saving, setSaving] = useState(false)
   const [location, setLocation] = useState("")
-  const [placeId, setPlaceId] = useState<string>()
+  const [googleMapsPlaceInfo, setGoogleMapsPlaceInfo] = useState<{
+    placeId: string
+    latLng: google.maps.LatLngLiteral
+  } | null>(null)
   const user = useUser()
   const friends = useFriends(user.data?.uid ?? null)
   const history = useHistory()
@@ -171,7 +191,7 @@ export function PlacesCreateView() {
   })
 
   const handleClearPlace = () => {
-    setPlaceId(undefined)
+    setGoogleMapsPlaceInfo(null)
     setName("")
     setLocation("")
   }
@@ -192,9 +212,10 @@ export function PlacesCreateView() {
           setSaving(true)
           api
             .placeCreate({
-              name: "",
-              location: "",
-              googleMapsPlaceId: "place?.place_id ?? null",
+              name,
+              location,
+              googleMapsPlaceId: googleMapsPlaceInfo?.placeId ?? null,
+              latLng: googleMapsPlaceInfo?.latLng ?? null,
               userId: user.data.uid,
               friendIds: friends !== "loading" ? friends.map((f) => f.id) : [],
             })
@@ -213,7 +234,11 @@ export function PlacesCreateView() {
             })
         }}
       >
-        <Wrapper apiKey={GOOGLE_MAPS_API_KEY} libraries={["places"]}>
+        <Wrapper
+          apiKey={GOOGLE_MAPS_API_KEY}
+          libraries={["places", "marker"]}
+          version="beta"
+        >
           <FormControl>
             {/* Use a hidden character to change the label so Safari doesn't try to auto suggest contact names. */}
             <FormLabel>N{"͏"}ame (required)</FormLabel>
@@ -221,9 +246,14 @@ export function PlacesCreateView() {
             <HStack>
               <LocationSelect
                 value={name}
-                isDisabled={placeId != null}
+                isDisabled={googleMapsPlaceInfo != null}
                 onSelect={(v) => {
-                  setPlaceId(v?.googleMapsPlaceId)
+                  if (v?.googleMapsPlaceId != null) {
+                    setGoogleMapsPlaceInfo({
+                      placeId: v.googleMapsPlaceId,
+                      latLng: v.latLng,
+                    })
+                  }
                   setName(v?.name ?? "")
                   setLocation(v?.address ?? "")
                 }}
@@ -233,7 +263,7 @@ export function PlacesCreateView() {
               />
               <Button
                 variant={"outline"}
-                isDisabled={placeId == null}
+                isDisabled={googleMapsPlaceInfo == null}
                 onClick={handleClearPlace}
               >
                 Clear
@@ -245,7 +275,7 @@ export function PlacesCreateView() {
             <FormLabel>Location</FormLabel>
             <Input
               type="text"
-              isDisabled={placeId != null}
+              isDisabled={googleMapsPlaceInfo != null}
               value={location}
               onChange={(e) => {
                 setLocation(e.target.value)
@@ -253,10 +283,11 @@ export function PlacesCreateView() {
             />
           </FormControl>
 
-          {placeId != null && (
+          {googleMapsPlaceInfo != null && (
             <LocationImage
               markerLocation={location}
-              googleMapsPlaceId={placeId}
+              googleMapsPlaceId={googleMapsPlaceInfo.placeId}
+              latLng={googleMapsPlaceInfo.latLng}
               variant="gray"
             />
           )}

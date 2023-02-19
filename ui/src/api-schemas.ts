@@ -30,6 +30,8 @@ export const PlaceSchema = BaseSchema.extend({
   name: z.string(),
   location: z.string(),
   googleMapsPlaceId: z.string().nullable().default(null),
+  latitude: z.number().nullable().default(null),
+  longitude: z.number().nullable().default(null),
   viewerIds: z.array(z.string()),
   menuItemCount: z.number(),
   checkInCount: z.number().default(0),
