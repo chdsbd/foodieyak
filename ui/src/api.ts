@@ -67,7 +67,6 @@ export async function placeUpdate(params: {
       lastModifiedAt: Timestamp.now(),
       lastModifiedById: params.userId,
     }
-  console.log({ place })
   await updateDoc(doc(db, "places", params.placeId), place)
 }
 export async function placeDelete(params: { placeId: string }): Promise<void> {

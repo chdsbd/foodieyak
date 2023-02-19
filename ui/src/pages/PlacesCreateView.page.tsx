@@ -10,11 +10,12 @@ import {
 } from "@chakra-ui/react"
 import { Wrapper } from "@googlemaps/react-wrapper"
 import { FirebaseError } from "firebase/app"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useHistory, useLocation } from "react-router-dom"
 
 import * as api from "../api"
 import { Place } from "../api-schemas"
+import { GoogleMapsSelectInput } from "../components/GoogleMapsSelectInput"
 import { Page } from "../components/Page"
 import { GOOGLE_MAPS_API_KEY } from "../config"
 import { useFriends, useUser } from "../hooks"
@@ -99,80 +100,6 @@ export function LocationImage({
   )
 }
 
-type GMapsPlace = {
-  name: string
-  address: string
-  geoInfo: Place["geoInfo"]
-}
-
-export function LocationSelect({
-  value,
-  onChange,
-  onSelect,
-  isDisabled,
-}: {
-  value: string
-  onChange: (_: string) => void
-  isDisabled: boolean
-  onSelect: (_: GMapsPlace | null) => void
-}) {
-  const autoCompleteService = useRef<google.maps.places.Autocomplete>()
-  const autoCompleteCallback = useCallback((node: HTMLInputElement | null) => {
-    if (node !== null) {
-      const service = new google.maps.places.Autocomplete(node, {
-        types: ["food"],
-      })
-      autoCompleteService.current = service
-    }
-  }, [])
-
-  useEffect(() => {
-    const service = autoCompleteService.current
-    if (!service) {
-      return
-    }
-    service.addListener("place_changed", () => {
-      const place = service.getPlace()
-      const latLng = place.geometry?.location?.toJSON()
-      if (
-        place.name != null &&
-        place.formatted_address != null &&
-        place.place_id != null &&
-        latLng != null
-      ) {
-        onSelect({
-          name: place.name,
-          address: place.formatted_address,
-          geoInfo: {
-            latitude: latLng.lat,
-            longitude: latLng.lng,
-            googlePlaceId: place.place_id,
-          },
-        })
-      }
-    })
-  }, [onSelect])
-
-  return (
-    <Wrapper
-      apiKey={GOOGLE_MAPS_API_KEY}
-      libraries={["places", "marker"]}
-      version="beta"
-    >
-      <Input
-        type="text"
-        value={value}
-        ref={autoCompleteCallback}
-        onChange={(e) => {
-          onChange(e.target.value)
-        }}
-        isDisabled={isDisabled}
-        isRequired
-      />
-    </Wrapper>
-  )
-}
-
 export function PlacesCreateView() {
   const search = useLocation().search
   const [saving, setSaving] = useState(false)
@@ -240,7 +167,7 @@ export function PlacesCreateView() {
             <FormLabel>N{"͏"}ame (required)</FormLabel>
 
             <HStack>
-              <LocationSelect
+              <GoogleMapsSelectInput
                 value={name}
                 isDisabled={geoInfo != null}
                 onSelect={(v) => {
