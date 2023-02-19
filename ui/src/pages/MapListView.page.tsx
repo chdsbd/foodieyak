@@ -9,10 +9,6 @@ import { usePlaces, useUser } from "../hooks"
 import { pathPlaceDetail } from "../paths"
 
 function InternalLocationImage({ places }: { places: Place[] }) {
-  // We adjust the width of the image to fit the anchor element.
-  //
-  // We use object-fit: cover to ensure the image looks okay even if the size is off.
-  // By using the exact size, Google Maps will render a better looking image that has points of interest correctly fitted in the image.
   const ref = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
@@ -21,16 +17,9 @@ function InternalLocationImage({ places }: { places: Place[] }) {
     }
     const bounds = new google.maps.LatLngBounds()
     const map = new window.google.maps.Map(ref.current, {
-      // center: latLng,
-      center: { lat: -34.397, lng: 150.644 },
+      center: { lat: 40.7128, lng: 74.006 },
       zoom: 10,
       mapId: "a7ace313e8de6a37",
-      // clickableIcons: false,
-      // disableDefaultUI: true,
-      // draggableCursor: "pointer",
-      // gestureHandling: "none",
-
-      // keyboardShortcuts: false,
     })
 
     places.forEach((place) => {
@@ -40,14 +29,11 @@ function InternalLocationImage({ places }: { places: Place[] }) {
       const pinViewGlyph = new google.maps.marker.PinView({
         glyphColor: "white",
         borderColor: "#DB8A31",
-
         background: "#FF9E67",
         glyph: new URL(
-          "https://maps.gstatic.com/mapfiles/place_api/icons/v2/restaurant_pinlet" +
-            ".png",
+          "https://maps.gstatic.com/mapfiles/place_api/icons/v2/restaurant_pinlet.png",
         ),
       })
-      console.log(place.geoInfo)
       const position = {
         lat: place.geoInfo.latitude,
         lng: place.geoInfo.longitude,

@@ -9,7 +9,7 @@ export function Page({
 }: {
   children: React.ReactNode
   action?: JSX.Element
-  noCenter: boolean
+  noCenter?: boolean
 }) {
   if (noCenter) {
     return (
