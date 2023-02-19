@@ -136,16 +136,13 @@ export function PlacesDetailView() {
         </VStack>
       </HStack>
 
-      {place.googleMapsPlaceId != null &&
-        place.latitude != null &&
-        place.longitude != null && (
-          <LocationImage
-            markerLocation={place.location}
-            googleMapsPlaceId={place.googleMapsPlaceId}
-            latLng={{ lat: place.latitude, lng: place.longitude }}
-            variant="gray"
-          />
-        )}
+      {place.geoInfo != null && (
+        <LocationImage
+          markerLocation={place.location}
+          geoInfo={place.geoInfo}
+          variant="gray"
+        />
+      )}
       <Link style={{ width: "100%" }} to={pathCheckinCreate({ placeId })}>
         <Button width="100%">Add a Check-In</Button>
       </Link>

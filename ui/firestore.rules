@@ -35,22 +35,42 @@ service cloud.firestore {
         let data = request.resource.data;
         return isValidNewDoc(request)
         && data.keys().hasAll(
-        ['viewerIds', 'name', 'location', 'googleMapsPlaceId', 'checkInCount','menuItemCount' ]) 
+        ['viewerIds', 'name', 'location', 'geoInfo', 'checkInCount','menuItemCount' ]) 
         && data.name is string && data.name.size() >= 1
         && data.location is string
         && data.checkInCount == 0
         && data.menuItemCount == 0
         && data.viewerIds is list
-        && (data.googleMapsPlaceId is string || data.googleMapsPlaceId == null)
+        && (data.geoInfo == null || (
+        isNumber(['geoInfo','latitude']) && 
+        isNumber(['geoInfo','longitude']) && 
+        isString(['geoInfo', 'googlePlaceId'])
+        )
+        )
+
       }
+      function isNumber(keys) {
+        let value = request.resource.data.get(keys, null);
+        return value != null && value is number;
+      }
+      function isString(keys) {
+        let value = request.resource.data.get(keys, null);
+        return value != null && value is string;
+      }
+     
       function isValidPlaceUpdate() {
         let data = request.resource.data;
+        let geoInfoValid = (data.geoInfo == null || (
+        data.geoInfo.latitude is int && 
+        isNumber(['geoInfo','longitude']) && 
+        isString(['geoInfo', 'googlePlaceId'])
+        ));
         return isValidDocUpdate(request)
         && data.diff(resource.data).affectedKeys().hasAny(
-        ['name', 'location', 'googleMapsPlaceId'])
+        ['name', 'location', 'geoInfo'])
         &&  data.name is string && data.name.size() >= 1
         && data.location is string
-        && (data.googleMapsPlaceId is string || data.googleMapsPlaceId == null)
+        && geoInfoValid
       }
       function placeHasCheckins() {
         let data = resource.data;

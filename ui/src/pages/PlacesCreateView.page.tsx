@@ -14,6 +14,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { useHistory, useLocation } from "react-router-dom"
 
 import * as api from "../api"
+import { Place } from "../api-schemas"
 import { Page } from "../components/Page"
 import { GOOGLE_MAPS_API_KEY } from "../config"
 import { useFriends, useUser } from "../hooks"
@@ -21,14 +22,12 @@ import { pathPlaceDetail } from "../paths"
 
 function InternalLocationImage({
   markerLocation,
-  googleMapsPlaceId,
   variant = "color",
-  latLng,
+  geoInfo,
 }: {
   markerLocation: string
-  googleMapsPlaceId: string
   variant: "gray" | "color"
-  latLng: google.maps.LatLngLiteral
+  geoInfo: NonNullable<Place["geoInfo"]>
 }) {
   // We adjust the width of the image to fit the anchor element.
   //
@@ -40,6 +39,7 @@ function InternalLocationImage({
     if (!ref.current) {
       return
     }
+    const latLng = { lat: geoInfo.latitude, lng: geoInfo.longitude }
     const map = new window.google.maps.Map(ref.current, {
       center: latLng,
       zoom: 14,
@@ -65,7 +65,7 @@ function InternalLocationImage({
 
   const href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
     markerLocation,
-  )}&query_place_id=${encodeURIComponent(googleMapsPlaceId)}`
+  )}&query_place_id=${encodeURIComponent(geoInfo.googlePlaceId)}`
 
   return (
     <a href={href} target="_blank" style={{ width: "100%", height: "100px" }}>
@@ -76,14 +76,13 @@ function InternalLocationImage({
 
 export function LocationImage({
   markerLocation,
-  googleMapsPlaceId,
   variant = "color",
-  latLng,
+  geoInfo,
 }: {
   markerLocation: string
-  googleMapsPlaceId: string
+
   variant?: "gray" | "color"
-  latLng: google.maps.LatLngLiteral
+  geoInfo: NonNullable<Place["geoInfo"]>
 }) {
   return (
     <Wrapper
@@ -92,10 +91,9 @@ export function LocationImage({
       version="beta"
     >
       <InternalLocationImage
-        googleMapsPlaceId={googleMapsPlaceId}
+        geoInfo={geoInfo}
         markerLocation={markerLocation}
         variant={variant}
-        latLng={latLng}
       />
     </Wrapper>
   )
@@ -104,8 +102,7 @@ export function LocationImage({
 type GMapsPlace = {
   name: string
   address: string
-  googleMapsPlaceId: string
-  latLng: google.maps.LatLngLiteral
+  geoInfo: Place["geoInfo"]
 }
 
 export function LocationSelect({
@@ -146,8 +143,11 @@ export function LocationSelect({
         onSelect({
           name: place.name,
           address: place.formatted_address,
-          googleMapsPlaceId: place.place_id,
-          latLng,
+          geoInfo: {
+            latitude: latLng.lat,
+            longitude: latLng.lng,
+            googlePlaceId: place.place_id,
+          },
         })
       }
     })
@@ -177,10 +177,7 @@ export function PlacesCreateView() {
   const search = useLocation().search
   const [saving, setSaving] = useState(false)
   const [location, setLocation] = useState("")
-  const [googleMapsPlaceInfo, setGoogleMapsPlaceInfo] = useState<{
-    placeId: string
-    latLng: google.maps.LatLngLiteral
-  } | null>(null)
+  const [geoInfo, setGeoInfo] = useState<Place["geoInfo"] | null>(null)
   const user = useUser()
   const friends = useFriends(user.data?.uid ?? null)
   const history = useHistory()
@@ -191,7 +188,7 @@ export function PlacesCreateView() {
   })
 
   const handleClearPlace = () => {
-    setGoogleMapsPlaceInfo(null)
+    setGeoInfo(null)
     setName("")
     setLocation("")
   }
@@ -214,8 +211,7 @@ export function PlacesCreateView() {
             .placeCreate({
               name,
               location,
-              googleMapsPlaceId: googleMapsPlaceInfo?.placeId ?? null,
-              latLng: googleMapsPlaceInfo?.latLng ?? null,
+              geoInfo,
               userId: user.data.uid,
               friendIds: friends !== "loading" ? friends.map((f) => f.id) : [],
             })
@@ -246,14 +242,9 @@ export function PlacesCreateView() {
             <HStack>
               <LocationSelect
                 value={name}
-                isDisabled={googleMapsPlaceInfo != null}
+                isDisabled={geoInfo != null}
                 onSelect={(v) => {
-                  if (v?.googleMapsPlaceId != null) {
-                    setGoogleMapsPlaceInfo({
-                      placeId: v.googleMapsPlaceId,
-                      latLng: v.latLng,
-                    })
-                  }
+                  setGeoInfo(v?.geoInfo ?? null)
                   setName(v?.name ?? "")
                   setLocation(v?.address ?? "")
                 }}
@@ -263,7 +254,7 @@ export function PlacesCreateView() {
               />
               <Button
                 variant={"outline"}
-                isDisabled={googleMapsPlaceInfo == null}
+                isDisabled={geoInfo == null}
                 onClick={handleClearPlace}
               >
                 Clear
@@ -275,7 +266,7 @@ export function PlacesCreateView() {
             <FormLabel>Location</FormLabel>
             <Input
               type="text"
-              isDisabled={googleMapsPlaceInfo != null}
+              isDisabled={geoInfo != null}
               value={location}
               onChange={(e) => {
                 setLocation(e.target.value)
@@ -283,11 +274,10 @@ export function PlacesCreateView() {
             />
           </FormControl>
 
-          {googleMapsPlaceInfo != null && (
+          {geoInfo != null && (
             <LocationImage
               markerLocation={location}
-              googleMapsPlaceId={googleMapsPlaceInfo.placeId}
-              latLng={googleMapsPlaceInfo.latLng}
+              geoInfo={geoInfo}
               variant="gray"
             />
           )}

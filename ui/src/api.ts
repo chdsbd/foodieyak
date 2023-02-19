@@ -31,18 +31,15 @@ export async function placeCreate(params: {
   name: string
   location: string
   userId: string
-  googleMapsPlaceId: string | null
-  latLng: google.maps.LatLngLiteral | null
+  geoInfo: Place["geoInfo"] | null
   friendIds: string[]
 }): Promise<Place["id"]> {
   const place: Omit<Place, "id"> = {
     name: params.name,
     location: params.location,
-    googleMapsPlaceId: params.googleMapsPlaceId,
     createdById: params.userId,
     createdAt: Timestamp.now(),
-    latitude: params.latLng?.lat ?? null,
-    longitude: params.latLng?.lng ?? null,
+    geoInfo: params.geoInfo,
     lastModifiedAt: null,
     lastModifiedById: null,
     viewerIds: [params.userId, ...params.friendIds],
@@ -57,21 +54,20 @@ type DocUpdateFields = "lastModifiedAt" | "lastModifiedById"
 
 export async function placeUpdate(params: {
   placeId: string
-  googleMapsPlaceId: string | null
   name: string
   location: string
+  geoInfo: Place["geoInfo"] | null
   userId: string
 }): Promise<void> {
-  const place: Pick<
-    Place,
-    "name" | "location" | "googleMapsPlaceId" | DocUpdateFields
-  > = {
-    name: params.name,
-    location: params.location,
-    googleMapsPlaceId: params.googleMapsPlaceId,
-    lastModifiedAt: Timestamp.now(),
-    lastModifiedById: params.userId,
-  }
+  const place: Pick<Place, "name" | "location" | "geoInfo" | DocUpdateFields> =
+    {
+      name: params.name,
+      location: params.location,
+      geoInfo: params.geoInfo,
+      lastModifiedAt: Timestamp.now(),
+      lastModifiedById: params.userId,
+    }
+  console.log({ place })
   await updateDoc(doc(db, "places", params.placeId), place)
 }
 export async function placeDelete(params: { placeId: string }): Promise<void> {

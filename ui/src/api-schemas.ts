@@ -29,9 +29,14 @@ export type UserPersonalInfo = z.infer<typeof UserPersonalInfoSchema>
 export const PlaceSchema = BaseSchema.extend({
   name: z.string(),
   location: z.string(),
-  googleMapsPlaceId: z.string().nullable().default(null),
-  latitude: z.number().nullable().default(null),
-  longitude: z.number().nullable().default(null),
+  geoInfo: z
+    .object({
+      latitude: z.number(),
+      longitude: z.number(),
+      googlePlaceId: z.string(),
+    })
+    .nullable()
+    .default(null),
   viewerIds: z.array(z.string()),
   menuItemCount: z.number(),
   checkInCount: z.number().default(0),
