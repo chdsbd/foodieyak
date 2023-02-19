@@ -3,6 +3,8 @@ import { useEffect, useRef } from "react"
 
 import { Place } from "../api-schemas"
 import { GOOGLE_MAPS_API_KEY } from "../config"
+import { useRemoteConfigValue } from "../hooks"
+import { GoogleMapsStaticImage } from "./GoogleMapsStaticImage"
 
 function InternalLocationImage({
   markerLocation,
@@ -68,6 +70,18 @@ export function GoogleMapsJSMap({
   variant?: "gray" | "color"
   geoInfo: NonNullable<Place["geoInfo"]>
 }) {
+  const useJsMap = useRemoteConfigValue("use_js_map").asBoolean()
+
+  if (!useJsMap) {
+    return (
+      <GoogleMapsStaticImage
+        googleMapsPlaceId={geoInfo.googlePlaceId}
+        markerLocation={markerLocation}
+        variant={variant}
+      />
+    )
+  }
+
   return (
     <Wrapper
       apiKey={GOOGLE_MAPS_API_KEY}
