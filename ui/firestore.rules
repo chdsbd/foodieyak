@@ -33,6 +33,13 @@ service cloud.firestore {
       }
       function isValidPlace() {
         let data = request.resource.data;
+
+        let isGeoInfoValid = (data.geoInfo == null || (
+          data.geoInfo.latitude is number && 
+          data.geoInfo.longitude is number && 
+          data.geoInfo.googlePlaceId is string
+        ));
+
         return isValidNewDoc(request)
         && data.keys().hasAll(
         ['viewerIds', 'name', 'location', 'geoInfo', 'checkInCount','menuItemCount' ]) 
@@ -41,36 +48,23 @@ service cloud.firestore {
         && data.checkInCount == 0
         && data.menuItemCount == 0
         && data.viewerIds is list
-        && (data.geoInfo == null || (
-        isNumber(['geoInfo','latitude']) && 
-        isNumber(['geoInfo','longitude']) && 
-        isString(['geoInfo', 'googlePlaceId'])
-        )
-        )
+        && isGeoInfoValid
 
       }
-      function isNumber(keys) {
-        let value = request.resource.data.get(keys, null);
-        return value != null && value is number;
-      }
-      function isString(keys) {
-        let value = request.resource.data.get(keys, null);
-        return value != null && value is string;
-      }
-     
+
       function isValidPlaceUpdate() {
         let data = request.resource.data;
-        let geoInfoValid = (data.geoInfo == null || (
-        data.geoInfo.latitude is int && 
-        isNumber(['geoInfo','longitude']) && 
-        isString(['geoInfo', 'googlePlaceId'])
+        let isGeoInfoValid = (data.geoInfo == null || (
+          data.geoInfo.latitude is number && 
+          data.geoInfo.longitude is number && 
+          data.geoInfo.googlePlaceId is string
         ));
         return isValidDocUpdate(request)
         && data.diff(resource.data).affectedKeys().hasAny(
         ['name', 'location', 'geoInfo'])
-        &&  data.name is string && data.name.size() >= 1
+        && data.name is string && data.name.size() >= 1
         && data.location is string
-        && geoInfoValid
+        && isGeoInfoValid
       }
       function placeHasCheckins() {
         let data = resource.data;
