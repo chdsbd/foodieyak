@@ -11,7 +11,7 @@ const app = initializeApp(firebaseConfig)
 export const db = getFirestore(app)
 const functions = getFunctions(app)
 export const remoteConfig = getRemoteConfig(app)
-remoteConfig.settings.minimumFetchIntervalMillis = 60000
+remoteConfig.settings.minimumFetchIntervalMillis = (60 * 60 * 1000) / 5
 
 export const remoteConfigDefaults = {
   use_js_map: false,
