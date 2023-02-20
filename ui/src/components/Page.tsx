@@ -13,7 +13,13 @@ export function Page({
 }) {
   if (noCenter) {
     return (
-      <VStack spacing={2} alignItems="start">
+      <VStack
+        spacing={2}
+        alignItems="start"
+        height={"-webkit-fill-available"}
+        display={"flex"}
+        flexDirection={"column"}
+      >
         <Container padding={2}>
           <NavBar action={action} />
         </Container>
