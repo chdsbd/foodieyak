@@ -19,7 +19,8 @@ function InternalLocationImage({ places }: { places: Place[] }) {
     const map = new window.google.maps.Map(ref.current, {
       center: { lat: 40.7128, lng: 74.006 },
       zoom: 10,
-      mapId: "a7ace313e8de6a37",
+      // food businesses are hidden with this style.
+      mapId: "f7a404ec743f468f",
     })
 
     places.forEach((place) => {
@@ -44,18 +45,21 @@ function InternalLocationImage({ places }: { places: Place[] }) {
         content: pinViewGlyph.element,
         position,
         title: place.name,
+        collisionBehavior:
+          google.maps.CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY,
+      })
+      const infowindow = new google.maps.InfoWindow({
+        content: `<b>${place.name}</b><br/>
+        <u><a target="_blank" href="${pathPlaceDetail({
+          placeId: place.id,
+        })}">open in foodieyak</a></u>`,
       })
       m.addListener("click", () => {
-        const infowindow = new google.maps.InfoWindow({
-          content: `<b>${place.name}</b><br/>
-          <u><a target="_blank" href="${pathPlaceDetail({
-            placeId: place.id,
-          })}">open in foodieyak</a></u>`,
-        })
         infowindow.open({
           anchor: m,
           map,
         })
+
         map.addListener("click", () => {
           infowindow.close()
         })
