@@ -11,7 +11,12 @@ import {
 } from "@chakra-ui/react"
 import { Link } from "react-router-dom"
 
-import { pathFriendsList, pathPlaceList, pathSettingsDetail } from "../paths"
+import {
+  pathFriendsList,
+  pathMapList,
+  pathPlaceList,
+  pathSettingsDetail,
+} from "../paths"
 
 function NavigationMoreMenu() {
   return (
@@ -25,6 +30,9 @@ function NavigationMoreMenu() {
         More
       </MenuButton>
       <MenuList>
+        <MenuItem as={Link} to={pathMapList({})}>
+          Map
+        </MenuItem>
         <MenuItem as={Link} to={pathFriendsList({})}>
           Friends
         </MenuItem>

@@ -1,4 +1,3 @@
-import { Container } from "@chakra-ui/react"
 import { getFirestore } from "firebase/firestore"
 import {
   BrowserRouter as Router,
@@ -19,6 +18,7 @@ import { CheckInDetailView } from "./pages/CheckInDetailView.page"
 import { CheckInEditView } from "./pages/CheckInEditView.page"
 import { FriendsCreateView } from "./pages/FriendsCreateView.page"
 import { FriendsListView } from "./pages/FriendsListView.page"
+import { MapListView } from "./pages/MapListView.page"
 import { MenuItemDetailView } from "./pages/MenuItemDetailView.page"
 import { MenuItemEditView } from "./pages/MenuItemEditView.page"
 import { NoMatch } from "./pages/NoMatchView.page"
@@ -34,6 +34,7 @@ import {
   pathFriendsCreate,
   pathFriendsList,
   pathLogin,
+  pathMapList,
   pathMenuItemDetail,
   pathMenuItemEdit,
   pathPasswordForgot,
@@ -76,6 +77,11 @@ const routes: (
     authed: true,
     path: pathCheckinDetail.pattern,
     element: <CheckInDetailView />,
+  },
+  {
+    authed: true,
+    path: pathMapList.pattern,
+    element: <MapListView />,
   },
   {
     authed: true,
@@ -149,28 +155,26 @@ function App() {
   return (
     <ErrorBoundary>
       <FirestoreProvider sdk={firestoreInstance}>
-        <Container padding={2}>
-          <Router>
-            <Switch>
-              {routes.map((r) => {
-                if ("redirect" in r) {
-                  return <Redirect key={r.path} from={r.path} to={r.redirect} />
-                }
-                if (r.authed === true && authStatus === "unauthed") {
-                  return <Redirect key={r.path} to={pathLogin({})} />
-                }
-                return (
-                  <Route
-                    key={r.path}
-                    path={r.path}
-                    children={r.element}
-                    exact={r.exact}
-                  />
-                )
-              })}
-            </Switch>
-          </Router>
-        </Container>
+        <Router>
+          <Switch>
+            {routes.map((r) => {
+              if ("redirect" in r) {
+                return <Redirect key={r.path} from={r.path} to={r.redirect} />
+              }
+              if (r.authed === true && authStatus === "unauthed") {
+                return <Redirect key={r.path} to={pathLogin({})} />
+              }
+              return (
+                <Route
+                  key={r.path}
+                  path={r.path}
+                  children={r.element}
+                  exact={r.exact}
+                />
+              )
+            })}
+          </Switch>
+        </Router>
       </FirestoreProvider>
     </ErrorBoundary>
   )
