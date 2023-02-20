@@ -21,6 +21,7 @@ function InternalLocationImage({ places }: { places: Place[] }) {
       zoom: 10,
       // food businesses are hidden with this style.
       mapId: "f7a404ec743f468f",
+      gestureHandling: "greedy",
     })
 
     places.forEach((place) => {
@@ -69,10 +70,7 @@ function InternalLocationImage({ places }: { places: Place[] }) {
   }, [places])
 
   return (
-    <div
-      style={{ width: "100%", height: "calc(100vh - 48px - 8px)" }}
-      ref={ref}
-    />
+    <div style={{ width: "100%", height: "100%", flexGrow: "1" }} ref={ref} />
   )
 }
 
