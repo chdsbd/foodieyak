@@ -17,7 +17,8 @@ function InternalLocationImage({ places }: { places: Place[] }) {
     }
     const bounds = new google.maps.LatLngBounds()
     const map = new window.google.maps.Map(ref.current, {
-      center: { lat: 40.7128, lng: 74.006 },
+      // NYC
+      center: { lat: 40.7128, lng: -74.006 },
       zoom: 10,
       // food businesses are hidden with this style.
       mapId: "f7a404ec743f468f",
@@ -66,7 +67,24 @@ function InternalLocationImage({ places }: { places: Place[] }) {
         })
       })
     })
-    map.fitBounds(bounds)
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        function (position) {
+          const initialLocation = new google.maps.LatLng(
+            position.coords.latitude,
+            position.coords.longitude,
+          )
+          map.setCenter(initialLocation)
+          map.setZoom(12)
+        },
+        () => {
+          map.fitBounds(bounds)
+        },
+      )
+    } else {
+      map.fitBounds(bounds)
+    }
   }, [places])
 
   return (
