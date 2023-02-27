@@ -34,10 +34,7 @@ export function GoogleMapsSelectInput({
 
   useEffect(() => {
     const service = autoCompleteService.current
-    if (!service) {
-      return
-    }
-    service.addListener("place_changed", () => {
+    const eventListener = service?.addListener("place_changed", () => {
       const place = service.getPlace()
       const latLng = place.geometry?.location?.toJSON()
       if (
@@ -57,6 +54,14 @@ export function GoogleMapsSelectInput({
         })
       }
     })
+    return () => {
+      // cleanup the search input
+      // https://stackoverflow.com/a/33587253/3720597
+      eventListener?.remove()
+      document.querySelectorAll(".pac-container").forEach((x) => {
+        x.remove()
+      })
+    }
   }, [onSelect])
 
   return (
