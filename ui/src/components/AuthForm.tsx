@@ -23,6 +23,7 @@ export function AuthForm({
       spacing={4}
       marginX="auto"
       maxWidth={400}
+      paddingX={2}
       as="form"
       onSubmit={(e) => {
         e.preventDefault()
