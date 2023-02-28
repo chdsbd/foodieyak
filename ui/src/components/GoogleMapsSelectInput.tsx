@@ -1,6 +1,6 @@
 import { Input } from "@chakra-ui/react"
 import { Wrapper } from "@googlemaps/react-wrapper"
-import { useCallback, useEffect, useRef } from "react"
+import { useEffect, useRef } from "react"
 
 import { Place } from "../api-schemas"
 import { GOOGLE_MAPS_API_KEY } from "../config"
@@ -11,7 +11,7 @@ type GMapsPlace = {
   geoInfo: Place["geoInfo"]
 }
 
-export function GoogleMapsSelectInput({
+function SelectInputInner({
   value,
   onChange,
   onSelect,
@@ -23,16 +23,25 @@ export function GoogleMapsSelectInput({
   onSelect: (_: GMapsPlace | null) => void
 }) {
   const autoCompleteService = useRef<google.maps.places.Autocomplete>()
-  const autoCompleteCallback = useCallback((node: HTMLInputElement | null) => {
-    if (node !== null) {
-      const service = new google.maps.places.Autocomplete(node, {
-        types: ["food"],
-      })
-      autoCompleteService.current = service
-    }
-  }, [])
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  // Avoid having the Google Maps setup code run more than once. This prevents
+  // us from having onSelect as a useEffect dependency
+  const handleSelect = useRef(onSelect)
+  useEffect(() => {
+    handleSelect.current = onSelect
+  }, [onSelect])
 
   useEffect(() => {
+    if (inputRef.current == null) {
+      return
+    }
+    autoCompleteService.current = new google.maps.places.Autocomplete(
+      inputRef.current,
+      {
+        types: ["food"],
+      },
+    )
     const service = autoCompleteService.current
     const eventListener = service?.addListener("place_changed", () => {
       const place = service.getPlace()
@@ -43,7 +52,7 @@ export function GoogleMapsSelectInput({
         place.place_id != null &&
         latLng != null
       ) {
-        onSelect({
+        handleSelect.current({
           name: place.name,
           address: place.formatted_address,
           geoInfo: {
@@ -62,23 +71,43 @@ export function GoogleMapsSelectInput({
         x.remove()
       })
     }
-  }, [onSelect])
+  }, [])
+  return (
+    <Input
+      type="text"
+      value={value}
+      ref={inputRef}
+      onChange={(e) => {
+        onChange(e.target.value)
+      }}
+      isDisabled={isDisabled}
+      isRequired
+    />
+  )
+}
 
+export function GoogleMapsSelectInput({
+  value,
+  onChange,
+  onSelect,
+  isDisabled,
+}: {
+  value: string
+  onChange: (_: string) => void
+  isDisabled: boolean
+  onSelect: (_: GMapsPlace | null) => void
+}) {
   return (
     <Wrapper
       apiKey={GOOGLE_MAPS_API_KEY}
       libraries={["places", "marker"]}
       version="beta"
     >
-      <Input
-        type="text"
+      <SelectInputInner
         value={value}
-        ref={autoCompleteCallback}
-        onChange={(e) => {
-          onChange(e.target.value)
-        }}
+        onSelect={onSelect}
         isDisabled={isDisabled}
-        isRequired
+        onChange={onChange}
       />
     </Wrapper>
   )
