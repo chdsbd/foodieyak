@@ -51,10 +51,10 @@ function InternalLocationImage({ places }: { places: Place[] }) {
           google.maps.CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY,
       })
       const infowindow = new google.maps.InfoWindow({
-        content: `<b>${place.name}</b><br/>
+        content: `<div style="color: rgb(71, 71, 71);"><b>${place.name}</b><br/>
         <u><a target="_blank" href="${pathPlaceDetail({
           placeId: place.id,
-        })}">open in foodieyak</a></u>`,
+        })}">open in foodieyak</a></u></div>`,
       })
       m.addListener("click", () => {
         infowindow.open({
