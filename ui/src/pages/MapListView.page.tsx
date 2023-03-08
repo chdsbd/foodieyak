@@ -10,6 +10,9 @@ import { pathPlaceDetail } from "../paths"
 
 function InternalLocationImage({ places }: { places: Place[] }) {
   const ref = useRef<HTMLDivElement | null>(null)
+  const infoWindows = useRef<
+    { infowindow: google.maps.InfoWindow; isOpen: boolean }[]
+  >([])
 
   useEffect(() => {
     if (!ref.current) {
@@ -56,11 +59,30 @@ function InternalLocationImage({ places }: { places: Place[] }) {
           placeId: place.id,
         })}">open in foodieyak</a></u></div>`,
       })
+
+      const info = { infowindow, isOpen: false }
+      infoWindows.current.push(info)
+
       m.addListener("click", () => {
-        infowindow.open({
-          anchor: m,
-          map,
+        // close all other info windows
+        infoWindows.current.forEach((w) => {
+          if (w.infowindow.getContent() !== info.infowindow.getContent()) {
+            w.infowindow.close()
+            w.isOpen = false
+          }
         })
+
+        // toggle our current info window
+        if (!info.isOpen) {
+          infowindow.open({
+            anchor: m,
+            map,
+          })
+          info.isOpen = true
+        } else {
+          infowindow.close()
+          info.isOpen = false
+        }
 
         map.addListener("click", () => {
           infowindow.close()
