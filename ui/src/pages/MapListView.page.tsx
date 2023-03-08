@@ -110,11 +110,7 @@ function InternalLocationImage({ places }: { places: Place[] }) {
   }, [places])
 
   return (
-    <div
-      name="blah"
-      style={{ width: "100%", height: "100%", flexGrow: "1" }}
-      ref={ref}
-    />
+    <div style={{ width: "100%", height: "100%", flexGrow: "1" }} ref={ref} />
   )
 }
 
