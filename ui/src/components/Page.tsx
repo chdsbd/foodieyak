@@ -16,7 +16,7 @@ export function Page({
       <VStack
         spacing={2}
         alignItems="start"
-        height={"-webkit-fill-available"}
+        height={window.innerWidth < 500 ? "-webkit-fill-available" : "100vh"}
         display={"flex"}
         flexDirection={"column"}
       >
