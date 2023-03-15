@@ -380,10 +380,3 @@ export const userBeforeCreate = functions.auth
     await setAlgoliaKeyForUser({ userId: user.uid })
     await updateUser(user)
   })
-
-export const userBeforeSignIn = functions.auth
-  .user()
-  .beforeSignIn(async (user, context) => {
-    await setAlgoliaKeyForUser({ userId: user.uid })
-    await updateUser(user)
-  })
