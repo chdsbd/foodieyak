@@ -20,7 +20,7 @@ import {
   useSearchBox,
   UseSearchBoxProps,
 } from "react-instantsearch-hooks-web"
-import { Link } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 
 import { Place } from "../api-schemas"
 import { EmptyStateText } from "../components/EmptyStateText"
@@ -252,10 +252,20 @@ function PlacesList({ userId }: { userId: string }) {
 
 export function PlacesListView() {
   const user = useUser()
+  const search = useLocation().search
+  const params = new URLSearchParams(search)
+  const query = params.get("search")
+  params.delete("search")
+  if (query) {
+    params.append("default_name", query)
+  }
+  const newParams = params.toString()
+  const urlParams = newParams ? `?${newParams}` : ""
+
   return (
     <Page
       action={
-        <Link to={pathPlaceCreate({})}>
+        <Link to={pathPlaceCreate({}) + urlParams}>
           <Button size="sm">Add Place</Button>
         </Link>
       }
