@@ -13,6 +13,7 @@ import {
   VStack,
 } from "@chakra-ui/react"
 import { Timestamp } from "firebase/firestore"
+import { startCase } from "lodash-es"
 import first from "lodash-es/first"
 import orderBy from "lodash-es/orderBy"
 import { Link, useHistory, useLocation, useParams } from "react-router-dom"
@@ -181,7 +182,7 @@ export function PlacesDetailView() {
                 to={pathMenuItemDetail({ placeId, menuItemId: m.id })}
               >
                 <HStack w="full">
-                  <Text fontSize={"lg"}>{m.name}</Text>
+                  <Text fontSize={"lg"}>{startCase(m.name)}</Text>
                   <Spacer />
                   <ButtonGroup>
                     <Upvote

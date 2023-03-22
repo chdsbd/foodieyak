@@ -19,7 +19,7 @@ import {
   VStack,
 } from "@chakra-ui/react"
 import { FirebaseError } from "firebase/app"
-import { sortBy } from "lodash-es"
+import { sortBy, startCase } from "lodash-es"
 import React, { useEffect, useState } from "react"
 
 import * as api from "../../api"
@@ -147,7 +147,7 @@ export function SelectMenuItemModal({
                       }
                     >
                       <HStack as={CardBody} w="full">
-                        <Text>{mir.name}</Text>
+                        <Text>{startCase(mir.name)}</Text>
                         <Spacer />
                         {!selectedMenuItemIds.includes(mir.id) ? (
                           <Button
