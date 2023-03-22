@@ -14,6 +14,7 @@ import { Link, useParams } from "react-router-dom"
 import { calculateCheckinCountsByMenuItem } from "../api-transforms"
 import { DelayedLoader } from "../components/DelayedLoader"
 import { EmptyStateText } from "../components/EmptyStateText"
+import { ErrorStateText } from "../components/ErrorStateText"
 import { Page } from "../components/Page"
 import { Downvote, Upvote } from "../components/Ratings"
 import { formatHumanDate } from "../date"
@@ -44,6 +45,21 @@ export function MenuItemDetailView() {
     return (
       <Page>
         <DelayedLoader />
+      </Page>
+    )
+  }
+
+  if (
+    currentUser.data == null ||
+    place === "error" ||
+    menuItem === "error" ||
+    checkIns === "error"
+  ) {
+    return (
+      <Page>
+        <ErrorStateText>
+          Problem loading place with id: {placeId}
+        </ErrorStateText>
       </Page>
     )
   }

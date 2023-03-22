@@ -23,6 +23,7 @@ import { calculateCheckinCountsByMenuItem } from "../api-transforms"
 import { CheckInCommentCard } from "../components/CheckInCommentCard"
 import { DelayedLoader } from "../components/DelayedLoader"
 import { EmptyStateText } from "../components/EmptyStateText"
+import { ErrorStateText } from "../components/ErrorStateText"
 import { GoogleMapsJSMap } from "../components/GoogleMapsJSMap"
 import { Page } from "../components/Page"
 import { PlaceInfoPanel } from "../components/PlaceInfoPanel"
@@ -94,8 +95,18 @@ export function PlacesDetailView() {
     )
   }
 
+  if (place === "error" || menuitems === "error" || checkins === "error") {
+    return (
+      <Page>
+        <ErrorStateText>
+          Problem loading place with id: {placeId}
+        </ErrorStateText>
+      </Page>
+    )
+  }
+
   function ratingForUser(m: PlaceMenuItem, userId: string) {
-    if (checkins === "loading") {
+    if (checkins === "loading" || checkins === "error") {
       return null
     }
 

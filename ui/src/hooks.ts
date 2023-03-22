@@ -34,38 +34,50 @@ import { db, remoteConfig, RemoteConfigKey } from "./db"
 function useQuery<T extends z.ZodType>(
   query: Query<DocumentData> | null,
   schema: T,
-): z.output<T>[] | "loading"
+): z.output<T>[] | "loading" | "error"
 function useQuery<T extends z.ZodType>(
   query: DocumentReference<DocumentData> | null,
   schema: T,
-): z.output<T> | "loading"
+): z.output<T> | "loading" | "error"
 function useQuery<T extends z.ZodType>(
   query: Query<DocumentData> | DocumentReference<DocumentData> | null,
   schema: T,
-): z.output<T> | z.output<T>[] | "loading" {
-  const [state, setState] = useState<T | T[] | "loading">("loading")
+): z.output<T> | z.output<T>[] | "loading" | "error" {
+  const [state, setState] = useState<T | T[] | "loading" | "error">("loading")
   useEffect(() => {
     if (query == null) {
       return
     }
     if (query.type === "document") {
-      return onSnapshot(query, (doc) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const parsed = schema.parse({ id: doc.id, ...doc.data() })
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        setState(parsed)
-      })
-    } else {
-      return onSnapshot(query, (querySnapshot) => {
-        const out: T[] = []
-        querySnapshot.forEach((doc) => {
+      return onSnapshot(
+        query,
+        (doc) => {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           const parsed = schema.parse({ id: doc.id, ...doc.data() })
           // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          out.push(parsed)
-        })
-        setState(out)
-      })
+          setState(parsed)
+        },
+        () => {
+          setState("error")
+        },
+      )
+    } else {
+      return onSnapshot(
+        query,
+        (querySnapshot) => {
+          const out: T[] = []
+          querySnapshot.forEach((doc) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            const parsed = schema.parse({ id: doc.id, ...doc.data() })
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+            out.push(parsed)
+          })
+          setState(out)
+        },
+        () => {
+          setState("error")
+        },
+      )
     }
   }, [query, schema])
 
@@ -138,7 +150,7 @@ export function useUser(): QueryResult {
   return state
 }
 
-export function usePlace(placeId: string): Place | "loading" {
+export function usePlace(placeId: string): Place | "loading" | "error" {
   const q = useMemo(() => {
     return doc(db, "places", placeId)
   }, [placeId])
