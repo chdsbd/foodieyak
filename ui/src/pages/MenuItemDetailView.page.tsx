@@ -8,7 +8,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react"
-import { sortBy } from "lodash-es"
+import { sortBy, startCase } from "lodash-es"
 import { Link, useParams } from "react-router-dom"
 
 import { calculateCheckinCountsByMenuItem } from "../api-transforms"
@@ -88,7 +88,7 @@ export function MenuItemDetailView() {
           <VStack alignItems="start" spacing={0}>
             <HStack>
               <Heading alignSelf={"start"} as="h1" size="lg">
-                {menuItem.name}
+                {startCase(menuItem.name)}
               </Heading>
             </HStack>
             <Text

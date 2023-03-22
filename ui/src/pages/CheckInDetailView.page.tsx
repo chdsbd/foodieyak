@@ -8,6 +8,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react"
+import { startCase } from "lodash-es"
 import { Link, useParams } from "react-router-dom"
 
 import { PlaceMenuItem } from "../api-schemas"
@@ -112,7 +113,7 @@ export function CheckInDetailView() {
         >
           <HStack w="full" alignItems="start">
             <VStack w="full" alignItems={"start"}>
-              <Text>{menuItemMap[m.menuItemId]?.name}</Text>
+              <Text>{startCase(menuItemMap[m.menuItemId]?.name)}</Text>
               {m.comment.trim().length > 0 && (
                 <Text marginRight="4">{m.comment}</Text>
               )}
