@@ -18,6 +18,7 @@ import { Link, useHistory, useParams } from "react-router-dom"
 
 import * as api from "../api"
 import { Place } from "../api-schemas"
+import { ErrorStateText } from "../components/ErrorStateText"
 import { GoogleMapsJSMap } from "../components/GoogleMapsJSMap"
 import { GoogleMapsSelectInput } from "../components/GoogleMapsSelectInput"
 import { Page } from "../components/Page"
@@ -33,6 +34,15 @@ export function PlacesEditView() {
     return (
       <Page>
         <div />
+      </Page>
+    )
+  }
+  if (place === "error") {
+    return (
+      <Page>
+        <ErrorStateText>
+          Problem loading place with id: {placeId}
+        </ErrorStateText>
       </Page>
     )
   }

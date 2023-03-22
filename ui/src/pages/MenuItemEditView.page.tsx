@@ -17,6 +17,7 @@ import { Link, useHistory, useParams } from "react-router-dom"
 
 import * as api from "../api"
 import { DelayedLoader } from "../components/DelayedLoader"
+import { ErrorStateText } from "../components/ErrorStateText"
 import { Page } from "../components/Page"
 import { ReadonlyInput } from "../components/ReadonlyInput"
 import { useCheckins, useMenuItem, usePlace, useUser } from "../hooks"
@@ -41,7 +42,7 @@ export function MenuItemEditView() {
   const history = useHistory()
 
   useEffect(() => {
-    if (menuItem === "loading") {
+    if (menuItem === "loading" || menuItem === "error") {
       return
     }
     setName(menuItem?.name ?? "")
@@ -57,6 +58,21 @@ export function MenuItemEditView() {
     return (
       <Page>
         <DelayedLoader />
+      </Page>
+    )
+  }
+
+  if (
+    currentUser.data == null ||
+    place === "error" ||
+    menuItem === "error" ||
+    checkIns === "error"
+  ) {
+    return (
+      <Page>
+        <ErrorStateText>
+          Problem loading place with id: {placeId}
+        </ErrorStateText>
       </Page>
     )
   }

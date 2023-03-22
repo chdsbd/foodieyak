@@ -13,6 +13,7 @@ import { Link, useParams } from "react-router-dom"
 import { PlaceMenuItem } from "../api-schemas"
 import { DelayedLoader } from "../components/DelayedLoader"
 import { EmptyStateText } from "../components/EmptyStateText"
+import { ErrorStateText } from "../components/ErrorStateText"
 import { Page } from "../components/Page"
 import { Downvote, Upvote } from "../components/Ratings"
 import { formatHumanDate } from "../date"
@@ -32,6 +33,16 @@ export function CheckInDetailView() {
     return (
       <Page>
         <DelayedLoader />
+      </Page>
+    )
+  }
+
+  if (place === "error" || checkIn === "error" || menuItems === "error") {
+    return (
+      <Page>
+        <ErrorStateText>
+          Problem loading place with id: {placeId}
+        </ErrorStateText>
       </Page>
     )
   }
@@ -73,7 +84,6 @@ export function CheckInDetailView() {
         )}
       </HStack>
 
-      {/* <CheckInCommentCard checkIn={checkIn} /> */}
       <HStack w="full" justifyContent={"space-between"}>
         <Text as="span" fontWeight={"bold"}>
           <UserIdToName userId={checkIn.createdById} />

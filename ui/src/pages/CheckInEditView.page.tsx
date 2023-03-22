@@ -23,6 +23,7 @@ import { Link, useHistory, useParams } from "react-router-dom"
 import * as api from "../api"
 import { Place, PlaceCheckIn, PlaceMenuItem } from "../api-schemas"
 import { DelayedLoader } from "../components/DelayedLoader"
+import { ErrorStateText } from "../components/ErrorStateText"
 import { Page } from "../components/Page"
 import { ReadonlyInput } from "../components/ReadonlyInput"
 import { toISODateString } from "../date"
@@ -45,6 +46,16 @@ export function CheckInEditView() {
     return (
       <Page>
         <DelayedLoader />
+      </Page>
+    )
+  }
+
+  if (place === "error" || menuItems === "error" || checkIn === "error") {
+    return (
+      <Page>
+        <ErrorStateText>
+          Problem loading checkin with id: {checkInId}
+        </ErrorStateText>
       </Page>
     )
   }

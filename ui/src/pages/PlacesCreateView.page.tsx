@@ -62,7 +62,10 @@ export function PlacesCreateView() {
               location,
               geoInfo,
               userId: user.data.uid,
-              friendIds: friends !== "loading" ? friends.map((f) => f.id) : [],
+              friendIds:
+                friends !== "loading" && friends !== "error"
+                  ? friends.map((f) => f.id)
+                  : [],
             })
             .then((docId) => {
               history.push(pathPlaceDetail({ placeId: docId }))

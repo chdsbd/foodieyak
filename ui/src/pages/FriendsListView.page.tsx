@@ -14,6 +14,7 @@ import * as api from "../api"
 import { Friend } from "../api-schemas"
 import { DelayedLoader } from "../components/DelayedLoader"
 import { EmptyStateText } from "../components/EmptyStateText"
+import { ErrorStateText } from "../components/ErrorStateText"
 import { Page } from "../components/Page"
 import { formatHumanDateTime } from "../date"
 import { useFriends, useUser } from "../hooks"
@@ -172,6 +173,13 @@ export function FriendsListView() {
     return (
       <Page>
         <DelayedLoader />
+      </Page>
+    )
+  }
+  if (friends === "error") {
+    return (
+      <Page>
+        <ErrorStateText>Problem loading friends</ErrorStateText>
       </Page>
     )
   }

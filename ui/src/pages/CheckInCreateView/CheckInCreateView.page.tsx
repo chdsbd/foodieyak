@@ -25,6 +25,7 @@ import { Link, useHistory, useParams } from "react-router-dom"
 import * as api from "../../api"
 import { DelayedLoader } from "../../components/DelayedLoader"
 import { EmptyStateText } from "../../components/EmptyStateText"
+import { ErrorStateText } from "../../components/ErrorStateText"
 import { Page } from "../../components/Page"
 import { Downvote, Upvote } from "../../components/Ratings"
 import { ReadonlyInput } from "../../components/ReadonlyInput"
@@ -113,6 +114,16 @@ export function CheckInCreateView() {
     return (
       <Page>
         <DelayedLoader />
+      </Page>
+    )
+  }
+
+  if (place === "error" || menuItems === "error") {
+    return (
+      <Page>
+        <ErrorStateText>
+          Problem loading place with id: {placeId}
+        </ErrorStateText>
       </Page>
     )
   }
