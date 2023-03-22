@@ -1,3 +1,4 @@
+import { VStack } from "@chakra-ui/react"
 import { useEffect, useState } from "react"
 
 export function DelayedLoader() {
@@ -13,5 +14,9 @@ export function DelayedLoader() {
   if (!showLoading) {
     return null
   }
-  return <div>loading...</div>
+  return (
+    <VStack w="full" align="center">
+      <div>loading...</div>
+    </VStack>
+  )
 }
