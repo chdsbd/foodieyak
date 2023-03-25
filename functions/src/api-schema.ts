@@ -1,4 +1,4 @@
-import { Timestamp } from "firebase/firestore"
+import { Timestamp } from "firebase-admin/firestore"
 import { z } from "zod"
 
 const TimestampSchema = z.instanceof(Timestamp)
@@ -108,6 +108,8 @@ const ActivityAction = z.union([
     menuitemId: z.string(),
   }),
 ])
+
+export type ActivityAction = z.infer<typeof ActivityAction>
 
 export const ActivitySchema = BaseSchema.and(ActivityAction).and(
   z.object({

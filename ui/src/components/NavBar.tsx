@@ -12,6 +12,7 @@ import {
 import { Link } from "react-router-dom"
 
 import {
+  pathActivityList,
   pathFriendsList,
   pathMapList,
   pathPlaceList,
@@ -30,6 +31,9 @@ function NavigationMoreMenu() {
         More
       </MenuButton>
       <MenuList>
+        <MenuItem as={Link} to={pathActivityList({})}>
+          Activity
+        </MenuItem>
         <MenuItem as={Link} to={pathMapList({})}>
           Map
         </MenuItem>

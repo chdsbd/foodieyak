@@ -122,6 +122,11 @@ service cloud.firestore {
           && resource.data.createdById == request.auth.uid
       }
     }
+    
+    match /activities/{activity} {
+      allow read: if request.auth != null && request.auth.uid in resource.data.viewerIds
+      allow create, update, delete: if false
+    }
 
      match /users/{user} {
       allow read: if request.auth != null

@@ -22,6 +22,7 @@ import {
   PlaceCheckIn,
   PlaceCheckInSchema,
   PlaceMenuItem,
+  PlaceSchema,
   User,
   UserSchema,
 } from "./api-schemas"
@@ -297,4 +298,13 @@ export async function userById({ userId }: { userId: string }): Promise<User> {
   // /users/{target}/friends/{user}
   const res = await getDoc(doc(db, "users", userId))
   return UserSchema.parse({ id: res.id, ...res.data() })
+}
+
+export async function placeById({
+  placeId,
+}: {
+  placeId: string
+}): Promise<Place> {
+  const res = await getDoc(doc(db, "places", placeId))
+  return PlaceSchema.parse({ id: res.id, ...res.data() })
 }
