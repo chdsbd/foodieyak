@@ -8,6 +8,7 @@ import {
   VStack,
 } from "@chakra-ui/react"
 import { format, formatISO } from "date-fns"
+import { chain } from "lodash-es"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 
@@ -59,14 +60,14 @@ function updateDescription({
     if (update === "create") {
       return (
         <>
+          created a{" "}
           <Text
             as={Link}
             {...linkStyled}
             to={pathCheckinDetail({ placeId, checkInId: activity.checkinId })}
           >
-            checked
+            checkin
           </Text>{" "}
-          in at
         </>
       )
     }
@@ -141,31 +142,6 @@ function usePlaceName({ placeId }: { placeId: string }): string {
   return name
 }
 
-function Action({
-  update,
-  placeId,
-  activity,
-}: {
-  update: ActivityType
-  placeId: string
-  activity: Activity
-}) {
-  const description = updateDescription({
-    update,
-    placeId,
-    activity,
-  })
-  const placeName = usePlaceName({ placeId })
-  return (
-    <>
-      {description}{" "}
-      <Text as={Link} {...linkStyled} to={pathPlaceDetail({ placeId })}>
-        {placeName}
-      </Text>{" "}
-    </>
-  )
-}
-
 function Activity({
   type,
   activity,
@@ -173,42 +149,53 @@ function Activity({
   type: ActivityType
   activity: Activity
 }) {
+  const description = updateDescription({
+    update: type,
+    placeId: activity.placeId,
+    activity,
+  })
   return (
     <HStack spacing={1} width="100%" justifyContent={"space-between"}>
       <div>
         <span style={{ fontWeight: "bold" }}>
           <UserIdToName userId={activity.createdById} />
         </span>{" "}
-        <Action update={type} placeId={activity.placeId} activity={activity} />
+        {description}{" "}
       </div>
       <Box>{format(activity.createdAt.toDate(), "h:mmaaa")}</Box>
     </HStack>
   )
 }
 
-function convertActivities(
-  orderedActivities: Activity[],
-): { date: string; activities: Activity[] }[] {
-  let currentDayBucket: Activity[] = []
-  let currentDay: string | null = null
-
-  const allDays: { date: string; activities: Activity[] }[] = []
-  for (const activity of orderedActivities) {
-    const day = formatISO(activity.createdAt.toDate(), {
-      representation: "date",
+function convertActivities(orderedActivities: Activity[]): {
+  date: string
+  placesWithActivities: { placeId: string; activities: Activity[] }[]
+}[] {
+  const res = chain(orderedActivities)
+    .groupBy((x) =>
+      formatISO(x.createdAt.toDate(), {
+        representation: "date",
+      }),
+    )
+    .map((activities, date) => {
+      const placeActivities = chain(activities)
+        .groupBy((x) => x.placeId)
+        .map((activities, placeId) => ({ activities, placeId }))
+        .value()
+      return { placesWithActivities: placeActivities, date }
     })
-    if (currentDay !== day) {
-      if (currentDayBucket.length) {
-        if (currentDay != null) {
-          allDays.push({ date: currentDay, activities: currentDayBucket })
-        }
-        currentDayBucket = []
-      }
-      currentDay = day
-    }
-    currentDayBucket.push(activity)
-  }
-  return allDays
+    .value()
+  return res
+}
+
+function PlaceIdToName({ placeId }: { placeId: string }) {
+  const placeName = usePlaceName({ placeId })
+
+  return (
+    <Text as={Link} {...linkStyled} to={pathPlaceDetail({ placeId })}>
+      {placeName}
+    </Text>
+  )
 }
 
 export function ActivityView() {
@@ -242,15 +229,22 @@ export function ActivityView() {
         </Select>
       </HStack>
       <VStack spacing={6} align="start" width="100%">
-        {activityDays.map((x) => (
-          <Box key={x.date} width={"100%"}>
+        {activityDays.map((day) => (
+          <Box key={day.date} width={"100%"}>
             <Box borderBottomWidth={"1px"} marginBottom={2}>
-              {formatHumanDate(new Date(x.date))}
+              {formatHumanDate(new Date(day.date))}
             </Box>
             <VStack spacing={3} width="100%" alignItems={"start"}>
-              {x.activities.map((a) => {
-                return <Activity key={a.id} type={a.type} activity={a} />
-              })}
+              {day.placesWithActivities.map((place) => (
+                <Box key={place.placeId} w="100%">
+                  <Box>
+                    <PlaceIdToName placeId={place.placeId} />
+                  </Box>
+                  {place.activities.map((a) => {
+                    return <Activity key={a.id} type={a.type} activity={a} />
+                  })}
+                </Box>
+              ))}
             </VStack>
           </Box>
         ))}
