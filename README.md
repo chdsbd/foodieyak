@@ -2,6 +2,14 @@
 
 > Keep track of good and bad food
 
+[site](https://foodieyak.com) | [staging site](https://staging.foodieyak.com)
+
+## Prior Art / Alternatives
+
+| name                        | created                                               |
+| --------------------------- | ----------------------------------------------------- |
+| [Beli](https://beliapp.com) | [2019-07-26](https://www.whois.com/whois/trybeli.com) |
+
 ## dev
 
 ### ui

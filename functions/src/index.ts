@@ -43,6 +43,12 @@ async function createAuditLog({
 }: ActivityAction & {
   actorId: string
 }) {
+  functions.logger.info("activity log", {
+    createdById: actorId,
+    inprogress: true,
+    doc: rest.document,
+    type: rest.type,
+  })
   const friendIds = await getFriends({ userId: actorId })
   const auditLog: Omit<Activity, "id"> & { viewerIds: string[] } = {
     createdById: actorId,
@@ -56,6 +62,12 @@ async function createAuditLog({
     .firestore()
     .collection(`/users/${actorId}/activities`)
     .add(auditLog)
+  functions.logger.info("activity log", {
+    createdById: actorId,
+    success: true,
+    doc: rest.document,
+    type: rest.type,
+  })
 }
 
 /** For each place created by User, add Friend as a viewer. */
