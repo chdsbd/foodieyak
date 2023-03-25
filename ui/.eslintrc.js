@@ -59,7 +59,17 @@ module.exports = {
         paths: [
           {
             name: "lodash",
-            message: "Please impor from 'lodash-es' instead.",
+            message: "Please import from 'lodash-es' instead.",
+          },
+
+          {
+            name: "lodash-es",
+            importNames: ["chain"],
+            message: "Chain does not work with 'lodash-es'",
+          },
+          {
+            name: "lodash-es/chain",
+            message: "Chain does not work with 'lodash-es'",
           },
           {
             name: "react-hot-toast",
