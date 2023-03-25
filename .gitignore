@@ -2,3 +2,4 @@
 .eslintcache
 build
 .env*
+firebase-debug.log

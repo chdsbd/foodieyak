@@ -1,0 +1,2 @@
+yarn build
+$(yarn bin)/firebase deploy -p foodieyak-ef36d --only functions

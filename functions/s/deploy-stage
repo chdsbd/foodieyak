@@ -1,0 +1,1 @@
+firebase deploy --only functions -p foodieyak-staging
