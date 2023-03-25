@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
+    "dev-prod": "VITE_PROJECT=foodieyak-ef36d vite",
     "json-schema": "./node_modules/.bin/esbuild src/bin/json-schema.ts --platform=node --log-level=warning --bundle  --outfile=build/bin/index.js && node build/bin/index.js | tee build/schema.json && echo Created ./build/schema.json",
     "build": "VITE_PROJECT=$GCLOUD_PROJECT vite build",
     "preview": "vite preview"

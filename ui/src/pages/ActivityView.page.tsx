@@ -8,7 +8,7 @@ import {
   VStack,
 } from "@chakra-ui/react"
 import { format, formatISO } from "date-fns"
-import { chain } from "lodash-es"
+import { groupBy, map } from "lodash-es"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 
@@ -171,21 +171,21 @@ function convertActivities(orderedActivities: Activity[]): {
   date: string
   placesWithActivities: { placeId: string; activities: Activity[] }[]
 }[] {
-  const res = chain(orderedActivities)
-    .groupBy((x) =>
+  return map(
+    groupBy(orderedActivities, (x) =>
       formatISO(x.createdAt.toDate(), {
         representation: "date",
       }),
-    )
-    .map((activities, date) => {
-      const placeActivities = chain(activities)
-        .groupBy((x) => x.placeId)
-        .map((activities, placeId) => ({ activities, placeId }))
-        .value()
+    ),
+    (activities, date) => {
+      const placeActivities = map(
+        groupBy(activities, (x) => x.placeId),
+        (activities, placeId) => ({ activities, placeId }),
+      )
+
       return { placesWithActivities: placeActivities, date }
-    })
-    .value()
-  return res
+    },
+  )
 }
 
 function PlaceIdToName({ placeId }: { placeId: string }) {
