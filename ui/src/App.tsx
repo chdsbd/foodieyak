@@ -9,6 +9,7 @@ import { FirestoreProvider, useFirebaseApp } from "reactfire"
 
 import { ErrorBoundary } from "./components/ErrorBoundary"
 import { useIsAuthed } from "./hooks"
+import { ActivityView } from "./pages/ActivityView.page"
 import { AuthForgotPassword } from "./pages/AuthForgotPassword"
 import { AuthLoginView } from "./pages/AuthLoginView.page"
 import { AuthPasswordReset } from "./pages/AuthPasswordReset.page"
@@ -28,6 +29,7 @@ import { PlacesEditView } from "./pages/PlacesEditView.page"
 import { PlacesListView } from "./pages/PlacesListView.page"
 import { SettingsView } from "./pages/SettingsView.page"
 import {
+  pathActivityList,
   pathCheckinCreate,
   pathCheckinDetail,
   pathCheckinEdit,
@@ -82,6 +84,11 @@ const routes: (
     authed: true,
     path: pathMapList.pattern,
     element: <MapListView />,
+  },
+  {
+    authed: true,
+    path: pathActivityList.pattern,
+    element: <ActivityView />,
   },
   {
     authed: true,

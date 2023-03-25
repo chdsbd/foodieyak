@@ -2,5 +2,19 @@
     "eslint.alwaysShowStatus": true,
     "eslint.packageManager": "yarn",
     "editor.formatOnSave": true,
-    "prettier.requireConfig": true
+    "prettier.requireConfig": true,
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "[typescript]": {
+      "editor.tabSize": 2
+    },
+    "[typescriptreact]": {
+      "editor.tabSize": 2
+    },
+    "[javascript]": {
+      "editor.tabSize": 2
+    },
+    "[javascriptreact]": {
+      "editor.tabSize": 2
+    }
 }

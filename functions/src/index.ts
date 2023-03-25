@@ -6,6 +6,8 @@ import algoliasearch from "algoliasearch"
 import * as identity from "firebase-functions/lib/common/providers/identity"
 import { first, uniq } from "lodash"
 import { z } from "zod"
+import { Timestamp } from "firebase-admin/firestore"
+import { Activity, ActivityAction } from "./api-schema"
 const algoliaSearchApiKey = defineString("ALGOLIA_SEARCH_API_KEY")
 
 admin.initializeApp()
@@ -22,6 +24,43 @@ export const helloWorld = functions.https.onRequest((request, response) => {
 export const userOnCreate = functions.auth.user().onCreate((user, context) => {
   // TODO
 })
+
+function getAuthId(context: { auth?: { uid: string } }): string {
+  return context.auth!.uid
+}
+
+async function getFriends({ userId }: { userId: string }): Promise<string[]> {
+  const friendDocs = await admin
+    .firestore()
+    .collection(`/users/${userId}/friends`)
+    .get()
+  let friendIds: string[] = []
+  friendDocs.forEach((doc) => {
+    friendIds.push(doc.id)
+  })
+  return friendIds
+}
+
+async function createAuditLog({
+  actorId,
+  ...rest
+}: ActivityAction & {
+  actorId: string
+}) {
+  const friendIds = await getFriends({ userId: actorId })
+  const auditLog: Omit<Activity, "id"> & { viewerIds: string[] } = {
+    createdById: actorId,
+    createdAt: Timestamp.now(),
+    lastModifiedAt: Timestamp.now(),
+    lastModifiedById: null,
+    viewerIds: [actorId, ...friendIds],
+    ...rest,
+  }
+  await admin
+    .firestore()
+    .collection(`/users/${actorId}/activities`)
+    .add(auditLog)
+}
 
 /** For each place created by User, add Friend as a viewer. */
 async function addFriendToUserPlaces({
@@ -50,6 +89,32 @@ async function addFriendToUserPlaces({
   await Promise.all(queries)
 }
 
+/** backfill friend into the user's activities */
+async function addFriendToActivity({
+  friendId,
+  userId,
+}: {
+  friendId: string
+  userId: string
+}) {
+  const activities = await admin
+    .firestore()
+    .collection(`/users/${userId}/activities`)
+    .get()
+  const queries: Promise<unknown>[] = []
+  activities.forEach((activity) => {
+    queries.push(
+      admin
+        .firestore()
+        .doc(activity.ref.path)
+        .update({
+          viewerIds: admin.firestore.FieldValue.arrayUnion(friendId),
+        }),
+    )
+  })
+  await Promise.all(queries)
+}
+
 export const friendOnChange = functions.firestore
   .document("/users/{userId}/friends/{friendId}")
   .onWrite(async (change, context) => {
@@ -58,7 +123,25 @@ export const friendOnChange = functions.firestore
     }
     if (!change.after.exists) {
       // friend deleted
-      // TODO: Copy all related check-ins
+      // Update Places
+      // TODO: Copy all related check-ins & remove from places
+      // await removeFriendFromPlaces({
+      //   userId: context.params.userId,
+      //   friendId: context.params.friendId,
+      // })
+      // await removeFriendFromPlaces({
+      //   userId: context.params.friendId,
+      //   friendId: context.params.userId,
+      // })
+      // Update Activity
+      // await removeFriendFromActivity({
+      //   userId: context.params.userId,
+      //   friendId: context.params.friendId,
+      // })
+      // await removeFriendFromActivity({
+      //   userId: context.params.friendId,
+      //   friendId: context.params.userId,
+      // })
     }
     if (change.before.exists && change.after.exists) {
       // friend updated
@@ -72,12 +155,24 @@ export const friendOnChange = functions.firestore
           userId: context.params.friendId,
           friendId: context.params.userId,
         })
+
+        // Add to Activity
+        await addFriendToActivity({
+          userId: context.params.friendId,
+          friendId: context.params.userId,
+        })
+        await addFriendToActivity({
+          userId: context.params.userId,
+          friendId: context.params.friendId,
+        })
       }
     }
   })
+
 export const placeOnChange = functions.firestore
   .document("/places/{placeId}")
   .onWrite(async (change, context) => {
+    const { placeId } = context.params
     if (!change.before.exists && change.after.exists) {
       // created
       const userId = change.after.data()?.createdById
@@ -102,12 +197,31 @@ export const placeOnChange = functions.firestore
         .update({
           viewerIds: admin.firestore.FieldValue.arrayUnion(...friendIds),
         })
+
+      await createAuditLog({
+        actorId: getAuthId(context),
+        document: "place",
+        placeId,
+        type: "create",
+      })
     }
     if (!change.after.exists) {
       // deleted
+      await createAuditLog({
+        actorId: getAuthId(context),
+        document: "place",
+        placeId,
+        type: "delete",
+      })
     }
     if (change.before.exists && change.after.exists) {
-      //  updated
+      // updated
+      await createAuditLog({
+        actorId: getAuthId(context),
+        document: "place",
+        placeId,
+        type: "update",
+      })
     }
   })
 
@@ -306,45 +420,98 @@ export const mergePlaceIntoPlace = functions.https.onCall(
       targetPlaceId: res.data.targetPlaceId,
       userId: context.auth.uid,
     })
+    await createAuditLog({
+      actorId: context.auth.uid,
+      document: "place",
+      type: "merge",
+      movedPlaceId: res.data.oldPlaceId,
+      placeId: res.data.targetPlaceId,
+    })
   },
 )
 
 export const checkinOnChange = functions.firestore
   .document("/places/{placeId}/checkins/{checkin}")
   .onWrite(async (change, context) => {
-    const { placeId } = context.params
+    const { placeId, checkin: checkinId } = context.params
     await updateLastCheckinAt({ placeId })
     if (!change.before.exists && change.after.exists) {
+      // create
       await updateSubcollectionCounts({
         placeId,
+      })
+      await createAuditLog({
+        actorId: getAuthId(context),
+        document: "checkin",
+        checkinId,
+        placeId,
+        type: "create",
       })
     }
     if (!change.after.exists) {
+      // delete
       await updateSubcollectionCounts({
         placeId,
       })
+      await createAuditLog({
+        actorId: getAuthId(context),
+        document: "checkin",
+        checkinId,
+        placeId,
+        type: "delete",
+      })
     }
     if (change.before.exists && change.after.exists) {
-      //  updated
+      // updated
+      await createAuditLog({
+        actorId: getAuthId(context),
+        document: "checkin",
+        checkinId,
+        placeId,
+        type: "update",
+      })
     }
     await updateMenuItemsForCheckIn({ change, placeId })
   })
 export const menuitemOnChange = functions.firestore
   .document("/places/{placeId}/menuitems/{menuItemId}")
   .onWrite(async (change, context) => {
-    const { placeId } = context.params
+    const { placeId, menuItemId: menuitemId } = context.params
     if (!change.before.exists && change.after.exists) {
+      // create
       await updateSubcollectionCounts({
         placeId,
+      })
+      await createAuditLog({
+        actorId: getAuthId(context),
+        document: "menuitem",
+        menuitemId,
+        placeId,
+        type: "create",
       })
     }
     if (!change.after.exists) {
+      // delete
       await updateSubcollectionCounts({
         placeId,
       })
+      await createAuditLog({
+        actorId: getAuthId(context),
+        document: "menuitem",
+        menuitemId,
+        placeId,
+        type: "delete",
+      })
     }
     if (change.before.exists && change.after.exists) {
-      //  updated
+      // updated
+      await createAuditLog({
+        actorId: getAuthId(context),
+        document: "menuitem",
+        menuitemId,
+        placeId,
+        type: "update",
+      })
     }
   })
 

@@ -22,6 +22,7 @@ import { useFirestoreCollectionData, useFirestoreDocData } from "reactfire"
 import { z } from "zod"
 
 import {
+  ActivitySchema,
   FriendSchema,
   Place,
   PlaceCheckInSchema,
@@ -29,6 +30,7 @@ import {
   PlaceSchema,
   UserPersonalInfoSchema,
 } from "./api-schemas"
+import { assertNever } from "./assertNever"
 import { db, remoteConfig, RemoteConfigKey } from "./db"
 
 function useQuery<T extends z.ZodType>(
@@ -57,7 +59,9 @@ function useQuery<T extends z.ZodType>(
           // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           setState(parsed)
         },
-        () => {
+        (error) => {
+          // eslint-disable-next-line no-console
+          console.error(error)
           setState("error")
         },
       )
@@ -74,7 +78,9 @@ function useQuery<T extends z.ZodType>(
           })
           setState(out)
         },
-        () => {
+        (error) => {
+          // eslint-disable-next-line no-console
+          console.error(error)
           setState("error")
         },
       )
@@ -205,6 +211,39 @@ export function usePlaces(userId: string) {
     return "loading"
   }
   return data.map((x) => PlaceSchema.parse(x))
+}
+
+export function useActivities({
+  filter,
+  userId,
+}: {
+  filter: "everything" | "checkins"
+  userId: string
+}) {
+  const q = useMemo(() => {
+    if (filter === "everything") {
+      return query(
+        collection(db, "activities"),
+        where("viewerIds", "array-contains", userId),
+        orderBy("createdAt", "desc"),
+      )
+    } else if (filter === "checkins") {
+      return query(
+        collection(db, "activities"),
+        where("viewerIds", "array-contains", userId),
+        where("document", "==", "checkin"),
+        where("type", "==", "create"),
+        orderBy("createdAt", "desc"),
+      )
+    } else {
+      assertNever(filter)
+    }
+  }, [userId, filter])
+  const res = useQuery(q, ActivitySchema)
+  if (res === "error" || res === "loading") {
+    return []
+  }
+  return res
 }
 
 export function useFriends(userId: string | null) {
