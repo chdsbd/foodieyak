@@ -199,16 +199,17 @@ export const placeOnChange = functions.firestore
         })
 
       await createAuditLog({
-        actorId: getAuthId(context),
+        actorId: userId,
         document: "place",
         placeId,
         type: "create",
       })
     }
     if (!change.after.exists) {
+      const userId = change.before.data()?.createdById
       // deleted
       await createAuditLog({
-        actorId: getAuthId(context),
+        actorId: userId,
         document: "place",
         placeId,
         type: "delete",
@@ -216,8 +217,9 @@ export const placeOnChange = functions.firestore
     }
     if (change.before.exists && change.after.exists) {
       // updated
+      const userId = change.before.data()?.createdById
       await createAuditLog({
-        actorId: getAuthId(context),
+        actorId: userId,
         document: "place",
         placeId,
         type: "update",
@@ -440,8 +442,10 @@ export const checkinOnChange = functions.firestore
       await updateSubcollectionCounts({
         placeId,
       })
+
+      const createdById = change.before.data()?.createdById
       await createAuditLog({
-        actorId: getAuthId(context),
+        actorId: createdById,
         document: "checkin",
         checkinId,
         placeId,
@@ -453,8 +457,9 @@ export const checkinOnChange = functions.firestore
       await updateSubcollectionCounts({
         placeId,
       })
+      const createdById = change.before.data()?.createdById
       await createAuditLog({
-        actorId: getAuthId(context),
+        actorId: createdById,
         document: "checkin",
         checkinId,
         placeId,
@@ -462,9 +467,10 @@ export const checkinOnChange = functions.firestore
       })
     }
     if (change.before.exists && change.after.exists) {
+      const createdById = change.before.data()?.createdById
       // updated
       await createAuditLog({
-        actorId: getAuthId(context),
+        actorId: createdById,
         document: "checkin",
         checkinId,
         placeId,
@@ -482,8 +488,9 @@ export const menuitemOnChange = functions.firestore
       await updateSubcollectionCounts({
         placeId,
       })
+      const createdById = change.after.data()?.createdById
       await createAuditLog({
-        actorId: getAuthId(context),
+        actorId: createdById,
         document: "menuitem",
         menuitemId,
         placeId,
@@ -495,8 +502,9 @@ export const menuitemOnChange = functions.firestore
       await updateSubcollectionCounts({
         placeId,
       })
+      const createdById = change.before.data()?.createdById
       await createAuditLog({
-        actorId: getAuthId(context),
+        actorId: createdById,
         document: "menuitem",
         menuitemId,
         placeId,
@@ -504,9 +512,10 @@ export const menuitemOnChange = functions.firestore
       })
     }
     if (change.before.exists && change.after.exists) {
+      const createdById = change.before.data()?.createdById
       // updated
       await createAuditLog({
-        actorId: getAuthId(context),
+        actorId: createdById,
         document: "menuitem",
         menuitemId,
         placeId,
