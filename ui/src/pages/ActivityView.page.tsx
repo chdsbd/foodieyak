@@ -1,11 +1,4 @@
 import {
-  AddIcon,
-  CheckIcon,
-  CloseIcon,
-  RepeatIcon,
-  WarningIcon,
-} from "@chakra-ui/icons"
-import {
   Box,
   Heading,
   HStack,
@@ -14,6 +7,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react"
+import { format, formatISO } from "date-fns"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 
@@ -21,7 +15,7 @@ import { placeById } from "../api"
 import { Activity } from "../api-schemas"
 import { assertNever } from "../assertNever"
 import { Page } from "../components/Page"
-import { formatHumanDateTime } from "../date"
+import { formatHumanDate } from "../date"
 import { useActivities, useUser } from "../hooks"
 import {
   pathCheckinDetail,
@@ -29,67 +23,6 @@ import {
   pathPlaceDetail,
 } from "../paths"
 import { UserIdToName } from "./FriendsListView.page"
-
-function Profile({ children }: { children: React.ReactNode }) {
-  const size = 32
-  return (
-    <Box
-      style={{
-        height: size,
-        minHeight: size,
-        minWidth: size,
-        width: size,
-        borderWidth: "1px",
-        border: "1px solid gray",
-        color: "inherit",
-        borderRadius: "100%",
-        justifyContent: "center",
-        display: "flex",
-        fontWeight: "bold",
-        alignItems: "center",
-      }}
-    >
-      {children}
-    </Box>
-  )
-}
-
-function ActionIcon({
-  type,
-  document,
-}: {
-  type: "create" | "delete" | "update" | "merge"
-  document: Activity["document"]
-}) {
-  // TODO: better icons
-  if (type === "create") {
-    if (document === "checkin") {
-      return (
-        <Profile>
-          <CheckIcon color="green.400" />
-        </Profile>
-      )
-    }
-    return (
-      <Profile>
-        <AddIcon color="green.400" />
-      </Profile>
-    )
-  }
-  return (
-    <Profile>
-      {type === "delete" ? (
-        <CloseIcon boxSize={3} color="red.400" />
-      ) : type === "update" ? (
-        <RepeatIcon color="blue.400" />
-      ) : type === "merge" ? (
-        <WarningIcon color="yellow.400" />
-      ) : (
-        assertNever(type)
-      )}
-    </Profile>
-  )
-}
 
 type ActivityType = "create" | "delete" | "update" | "merge"
 
@@ -111,7 +44,6 @@ function updateTypeToStr(type: ActivityType): string {
 
 const linkStyled = {
   fontWeight: "500",
-  textDecoration: "underline",
 }
 
 function updateDescription({
@@ -124,6 +56,20 @@ function updateDescription({
   activity: Activity
 }) {
   if (activity.document === "checkin") {
+    if (update === "create") {
+      return (
+        <>
+          <Text
+            as={Link}
+            {...linkStyled}
+            to={pathCheckinDetail({ placeId, checkInId: activity.checkinId })}
+          >
+            checked
+          </Text>{" "}
+          in at
+        </>
+      )
+    }
     return (
       <>
         {updateTypeToStr(update)} a{" "}
@@ -215,65 +161,54 @@ function Action({
       {description}{" "}
       <Text as={Link} {...linkStyled} to={pathPlaceDetail({ placeId })}>
         {placeName}
-      </Text>
+      </Text>{" "}
     </>
   )
 }
 
-function Description({
-  update,
-  placeId,
+function Activity({
+  type,
   activity,
 }: {
-  placeId: string
-  update: ActivityType
+  type: ActivityType
   activity: Activity
 }) {
   return (
-    <HStack spacing={1}>
+    <HStack spacing={1} width="100%" justifyContent={"space-between"}>
       <div>
         <span style={{ fontWeight: "bold" }}>
           <UserIdToName userId={activity.createdById} />
         </span>{" "}
-        <Action update={update} placeId={placeId} activity={activity} />
+        <Action update={type} placeId={activity.placeId} activity={activity} />
       </div>
+      <Box>{format(activity.createdAt.toDate(), "h:mmaaa")}</Box>
     </HStack>
   )
 }
 
-function ActivityTimestamp({
-  timestamp,
-}: {
-  timestamp: Activity["createdAt"]
-}) {
-  return <div>{formatHumanDateTime(timestamp)}</div>
-}
+function convertActivities(
+  orderedActivities: Activity[],
+): { date: string; activities: Activity[] }[] {
+  let currentDayBucket: Activity[] = []
+  let currentDay: string | null = null
 
-function Activity({
-  document,
-  type,
-  timestamp,
-  activity,
-}: {
-  document: Activity["document"]
-  type: ActivityType
-  timestamp: Activity["createdAt"]
-  activity: Activity
-}) {
-  return (
-    <HStack spacing={3}>
-      <ActionIcon type={type} document={document} />
-
-      <VStack align="start" spacing={0}>
-        <Description
-          update={type}
-          placeId={activity.placeId}
-          activity={activity}
-        />
-        <ActivityTimestamp timestamp={timestamp} />
-      </VStack>
-    </HStack>
-  )
+  const allDays: { date: string; activities: Activity[] }[] = []
+  for (const activity of orderedActivities) {
+    const day = formatISO(activity.createdAt.toDate(), {
+      representation: "date",
+    })
+    if (currentDay !== day) {
+      if (currentDayBucket.length) {
+        if (currentDay != null) {
+          allDays.push({ date: currentDay, activities: currentDayBucket })
+        }
+        currentDayBucket = []
+      }
+      currentDay = day
+    }
+    currentDayBucket.push(activity)
+  }
+  return allDays
 }
 
 export function ActivityView() {
@@ -281,6 +216,8 @@ export function ActivityView() {
   const [filter, setFilter] = useState<SelectOption>("checkins")
   const user = useUser()
   const activities = useActivities({ filter, userId: user.data?.uid ?? "" })
+  const activityDays = convertActivities(activities)
+
   return (
     <Page>
       <HStack w="100%" alignItems={"center"}>
@@ -304,18 +241,19 @@ export function ActivityView() {
           <option value="everything">Everything</option>
         </Select>
       </HStack>
-      <VStack spacing={4} align="start">
-        {activities.map((a) => {
-          return (
-            <Activity
-              key={a.id}
-              document={a.document}
-              type={a.type}
-              timestamp={a.createdAt}
-              activity={a}
-            />
-          )
-        })}
+      <VStack spacing={6} align="start" width="100%">
+        {activityDays.map((x) => (
+          <Box key={x.date} width={"100%"}>
+            <Box borderBottomWidth={"1px"} marginBottom={2}>
+              {formatHumanDate(new Date(x.date))}
+            </Box>
+            <VStack spacing={3} width="100%" alignItems={"start"}>
+              {x.activities.map((a) => {
+                return <Activity key={a.id} type={a.type} activity={a} />
+              })}
+            </VStack>
+          </Box>
+        ))}
       </VStack>
     </Page>
   )
