@@ -58,10 +58,7 @@ async function createAuditLog({
     viewerIds: [actorId, ...friendIds],
     ...rest,
   }
-  await admin
-    .firestore()
-    .collection(`/users/${actorId}/activities`)
-    .add(auditLog)
+  await admin.firestore().collection(`/activities`).add(auditLog)
   functions.logger.info("activity log", {
     createdById: actorId,
     success: true,
@@ -107,7 +104,8 @@ async function addFriendToActivity({
 }) {
   const activities = await admin
     .firestore()
-    .collection(`/users/${userId}/activities`)
+    .collection(`/activities`)
+    .where("createdById", "==", userId)
     .get()
   const queries: Promise<unknown>[] = []
   activities.forEach((activity) => {
