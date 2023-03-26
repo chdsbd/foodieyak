@@ -1,1 +1,10 @@
-firebase deploy --only functions -p foodieyak-staging
+#!/usr/bin/env bash
+set -e
+
+FIREBASE_PROJECT=foodieyak-staging
+
+main() {
+  "$(yarn bin)"/firebase --project $FIREBASE_PROJECT deploy --only functions
+}
+
+main "$@"

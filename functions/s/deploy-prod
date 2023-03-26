@@ -1,2 +1,10 @@
-yarn build
-$(yarn bin)/firebase deploy -p foodieyak-ef36d --only functions
+#!/usr/bin/env bash
+set -e
+
+FIREBASE_PROJECT=foodieyak-ef36d
+
+main() {
+  "$(yarn bin)"/firebase --project $FIREBASE_PROJECT deploy --only functions
+}
+
+main "$@"
