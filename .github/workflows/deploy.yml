@@ -1,8 +1,5 @@
 name: Deploy Functions
-"on":
-  push:
-    branches:
-      - main
+"on": pull_request
 jobs:
   staging:
     runs-on: ubuntu-latest
