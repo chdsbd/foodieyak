@@ -42,5 +42,4 @@ jobs:
           cache: "yarn"
           cache-dependency-path: "./functions/yarn.lock"
       - run: yarn install --frozen-lockfile
-      - run: s/login-ci
       - run: s/deploy-prod
