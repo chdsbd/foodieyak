@@ -3,10 +3,10 @@ import * as functions from "firebase-functions"
 import { defineString } from "firebase-functions/params"
 
 import algoliasearch from "algoliasearch"
+import { Timestamp } from "firebase-admin/firestore"
 import * as identity from "firebase-functions/lib/common/providers/identity"
 import { first, isEqual, pick, uniq } from "lodash"
 import { z } from "zod"
-import { Timestamp } from "firebase-admin/firestore"
 import { Activity, ActivityAction } from "./api-schema"
 const algoliaSearchApiKey = defineString("ALGOLIA_SEARCH_API_KEY")
 
