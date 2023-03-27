@@ -1,0 +1,50 @@
+name: Deploy Functions
+"on":
+  push:
+    branches:
+      - main
+jobs:
+  staging:
+    runs-on: ubuntu-latest
+
+    environment: staging
+
+    defaults:
+      run:
+        working-directory: "./functions"
+
+    env:
+      FIREBASE_TOKEN: ${{ secrets.FIREBASE_CI_LOGIN_TOKEN }}
+      ALGOLIA_SEARCH_API_KEY: ${{ secrets.ALGOLIA_SEARCH_API_KEY }}
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: "./functions/package.json"
+          cache: "yarn"
+          cache-dependency-path: "./functions/yarn.lock"
+      - run: yarn install --frozen-lockfile
+      - run: s/deploy-stage
+  production:
+    runs-on: ubuntu-latest
+
+    environment: production
+
+    defaults:
+      run:
+        working-directory: "./functions"
+
+    env:
+      FIREBASE_TOKEN: ${{ secrets.FIREBASE_CI_LOGIN_TOKEN }}
+      ALGOLIA_SEARCH_API_KEY: ${{ secrets.ALGOLIA_SEARCH_API_KEY }}
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: "./functions/package.json"
+          cache: "yarn"
+          cache-dependency-path: "./functions/yarn.lock"
+      - run: yarn install --frozen-lockfile
+      - run: s/deploy-prod
