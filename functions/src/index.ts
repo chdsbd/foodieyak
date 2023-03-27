@@ -5,7 +5,7 @@ import { defineString } from "firebase-functions/params"
 import algoliasearch from "algoliasearch"
 import { Timestamp } from "firebase-admin/firestore"
 import * as identity from "firebase-functions/lib/common/providers/identity"
-import { first, uniq } from "lodash"
+import { first, isEqual, pick, uniq } from "lodash"
 import { z } from "zod"
 import { Activity, ActivityAction } from "./api-schema"
 const algoliaSearchApiKey = defineString("ALGOLIA_SEARCH_API_KEY")
@@ -24,6 +24,15 @@ export const helloWorld = functions.https.onRequest((request, response) => {
 export const userOnCreate = functions.auth.user().onCreate((user, context) => {
   // TODO
 })
+
+function fieldsChanged(
+  change: functions.Change<functions.firestore.DocumentSnapshot>,
+  fields: string[],
+): boolean {
+  const beforeObj = pick(change.before.data(), fields)
+  const afterObj = pick(change.after.data(), fields)
+  return !isEqual(beforeObj, afterObj)
+}
 
 async function getFriends({ userId }: { userId: string }): Promise<string[]> {
   const friendDocs = await admin
@@ -224,12 +233,14 @@ export const placeOnChange = functions.firestore
     if (change.before.exists && change.after.exists) {
       // updated
       const userId = change.before.data()?.createdById
-      await createAuditLog({
-        actorId: userId,
-        document: "place",
-        placeId,
-        type: "update",
-      })
+      if (fieldsChanged(change, ["name", "location", "geoInfo"])) {
+        await createAuditLog({
+          actorId: userId,
+          document: "place",
+          placeId,
+          type: "update",
+        })
+      }
     }
   })
 
@@ -449,7 +460,7 @@ export const checkinOnChange = functions.firestore
         placeId,
       })
 
-      const createdById = change.before.data()?.createdById
+      const createdById = change.after.data()?.createdById
       await createAuditLog({
         actorId: createdById,
         document: "checkin",
@@ -473,15 +484,19 @@ export const checkinOnChange = functions.firestore
       })
     }
     if (change.before.exists && change.after.exists) {
-      const createdById = change.before.data()?.createdById
       // updated
-      await createAuditLog({
-        actorId: createdById,
-        document: "checkin",
-        checkinId,
-        placeId,
-        type: "update",
-      })
+      const createdById = change.before.data()?.createdById
+      if (
+        fieldsChanged(change, ["checkedInAt", "comment", "ratingsMenuItemIds"])
+      ) {
+        await createAuditLog({
+          actorId: createdById,
+          document: "checkin",
+          checkinId,
+          placeId,
+          type: "update",
+        })
+      }
     }
     await updateMenuItemsForCheckIn({ change, placeId })
   })
@@ -518,15 +533,17 @@ export const menuitemOnChange = functions.firestore
       })
     }
     if (change.before.exists && change.after.exists) {
-      const createdById = change.before.data()?.createdById
       // updated
-      await createAuditLog({
-        actorId: createdById,
-        document: "menuitem",
-        menuitemId,
-        placeId,
-        type: "update",
-      })
+      const createdById = change.before.data()?.createdById
+      if (fieldsChanged(change, ["name"])) {
+        await createAuditLog({
+          actorId: createdById,
+          document: "menuitem",
+          menuitemId,
+          placeId,
+          type: "update",
+        })
+      }
     }
   })
 
