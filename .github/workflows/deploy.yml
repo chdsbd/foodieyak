@@ -22,7 +22,6 @@ jobs:
           cache: "yarn"
           cache-dependency-path: "./functions/yarn.lock"
       - run: yarn install --frozen-lockfile
-      - run: echo "ALGOLIA_SEARCH_API_KEY=$ALGOLIA_SEARCH_API_KEY" > .env.foodieyak-staging
       - run: s/deploy-stage
   production:
     runs-on: ubuntu-latest
