@@ -12,6 +12,7 @@ jobs:
 
     env:
       FIREBASE_TOKEN: ${{ secrets.FIREBASE_CI_LOGIN_TOKEN }}
+      ALGOLIA_SEARCH_API_KEY: ${{ secrets.ALGOLIA_SEARCH_API_KEY }}
 
     steps:
       - uses: actions/checkout@v3
@@ -33,6 +34,7 @@ jobs:
 
     env:
       FIREBASE_TOKEN: ${{ secrets.FIREBASE_CI_LOGIN_TOKEN }}
+      ALGOLIA_SEARCH_API_KEY: ${{ secrets.ALGOLIA_SEARCH_API_KEY }}
 
     steps:
       - uses: actions/checkout@v3
