@@ -4,6 +4,8 @@ jobs:
   staging:
     runs-on: ubuntu-latest
 
+    environment: staging
+
     defaults:
       run:
         working-directory: "./functions"
@@ -22,6 +24,8 @@ jobs:
       - run: s/deploy-stage
   production:
     runs-on: ubuntu-latest
+
+    environment: production
 
     defaults:
       run:
