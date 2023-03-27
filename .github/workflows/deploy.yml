@@ -13,10 +13,9 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version-file: "./functions/package.json"
-      - name: install
-        run: yarn install
-      - name: install
-        run: s/deploy-stage
+          cache: "yarn"
+      - run: yarn install --frozen-lockfile
+      - run: s/deploy-stage
   production:
     runs-on: ubuntu-latest
 
@@ -29,7 +28,6 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version-file: "./functions/package.json"
-      - name: install
-        run: yarn install
-      - name: install
-        run: s/deploy-prod
+          cache: "yarn"
+      - run: yarn install --frozen-lockfile
+      - run: s/deploy-prod
