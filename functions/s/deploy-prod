@@ -4,6 +4,9 @@ set -e
 FIREBASE_PROJECT=foodieyak-ef36d
 
 main() {
+  if [ "$CI" ];then
+    echo "ALGOLIA_SEARCH_API_KEY=$ALGOLIA_SEARCH_API_KEY" > .env.$FIREBASE_PROJECT
+  fi
   "$(yarn bin)"/firebase --project $FIREBASE_PROJECT deploy --only functions
 }
 

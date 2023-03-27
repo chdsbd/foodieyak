@@ -45,4 +45,4 @@ jobs:
           cache: "yarn"
           cache-dependency-path: "./functions/yarn.lock"
       - run: yarn install --frozen-lockfile
-      - run: ALGOLIA_SEARCH_API_KEY=$ALGOLIA_SEARCH_API_KEY s/deploy-prod
+      - run: s/deploy-prod
