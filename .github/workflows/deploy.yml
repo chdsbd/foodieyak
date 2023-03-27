@@ -8,6 +8,9 @@ jobs:
       run:
         working-directory: "./functions"
 
+    env:
+      FIREBASE_TOKEN: ${{ secrets.FIREBASE_CI_LOGIN_TOKEN }}
+
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -24,6 +27,9 @@ jobs:
       run:
         working-directory: "./functions"
 
+    env:
+      FIREBASE_TOKEN: ${{ secrets.FIREBASE_CI_LOGIN_TOKEN }}
+
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -32,4 +38,5 @@ jobs:
           cache: "yarn"
           cache-dependency-path: "./functions/yarn.lock"
       - run: yarn install --frozen-lockfile
+      - run: s/login-ci
       - run: s/deploy-prod
