@@ -4,7 +4,6 @@ import {
   Card,
   CardBody,
   FormControl,
-  FormErrorMessage,
   FormLabel,
   Heading,
   HStack,
@@ -105,7 +104,6 @@ export function CheckInCreateView() {
   const [date, setDate] = useState<string>(toISODateString(new Date()))
   const [isDateEnabled, setIsDateEnabled] = useState(true)
   const [comment, setComment] = useState<string>("")
-  const [showHelperText, setShowHelperText] = useState(false)
   const [isCreating, setCreatingCheckin] = useState(false)
 
   const [menuItemRatings, setMenutItemRatings] = useState<MenuItemRating[]>([])
@@ -281,17 +279,13 @@ export function CheckInCreateView() {
       </FormControl>
 
       <Spacer />
-      <FormControl isInvalid={menuItemRatings.length === 0 && showHelperText}>
+      <FormControl>
         <Button
           width="100%"
           loadingText="Creating check-in"
           isLoading={isCreating}
           onClick={() => {
             if (user.data == null) {
-              return
-            }
-            if (menuItemRatings.length === 0) {
-              setShowHelperText(true)
               return
             }
             setCreatingCheckin(true)
@@ -319,11 +313,6 @@ export function CheckInCreateView() {
         >
           Create Check-In
         </Button>
-        {showHelperText && (
-          <FormErrorMessage>
-            Review at least one menu item to save check-in.
-          </FormErrorMessage>
-        )}
       </FormControl>
     </Page>
   )
