@@ -46,7 +46,7 @@ async function getFriends({ userId }: { userId: string }): Promise<string[]> {
   return friendIds
 }
 
-async function createAuditLog({
+async function createActivity({
   actorId,
   ...rest
 }: ActivityAction & {
@@ -59,21 +59,28 @@ async function createAuditLog({
     type: rest.type,
   })
   const friendIds = await getFriends({ userId: actorId })
-  const auditLog: Omit<Activity, "id"> & { viewerIds: string[] } = {
+  const activity: Omit<Activity, "id"> & { viewerIds: string[] } = {
     createdById: actorId,
     createdAt: Timestamp.now(),
     lastModifiedAt: Timestamp.now(),
     lastModifiedById: null,
     viewerIds: [actorId, ...friendIds],
+    deleted: false,
     ...rest,
   }
-  await admin.firestore().collection(`/activities`).add(auditLog)
+  const writeResult = await admin
+    .firestore()
+    .collection(`/activities`)
+    .add(activity)
+
   functions.logger.info("activity log", {
     createdById: actorId,
     success: true,
     doc: rest.document,
     type: rest.type,
+    id: writeResult.path,
   })
+  return writeResult.path
 }
 
 /** For each place created by User, add Friend as a viewer. */
@@ -92,12 +99,9 @@ async function addFriendToUserPlaces({
   const queries: Promise<unknown>[] = []
   places.forEach((place) => {
     queries.push(
-      admin
-        .firestore()
-        .doc(place.ref.path)
-        .update({
-          viewerIds: admin.firestore.FieldValue.arrayUnion(friendId),
-        }),
+      place.ref.update({
+        viewerIds: admin.firestore.FieldValue.arrayUnion(friendId),
+      }),
     )
   })
   await Promise.all(queries)
@@ -119,12 +123,9 @@ async function addFriendToActivity({
   const queries: Promise<unknown>[] = []
   activities.forEach((activity) => {
     queries.push(
-      admin
-        .firestore()
-        .doc(activity.ref.path)
-        .update({
-          viewerIds: admin.firestore.FieldValue.arrayUnion(friendId),
-        }),
+      activity.ref.update({
+        viewerIds: admin.firestore.FieldValue.arrayUnion(friendId),
+      }),
     )
   })
   await Promise.all(queries)
@@ -206,24 +207,26 @@ export const placeOnChange = functions.firestore
         friendIds.push(friend.id)
       })
       functions.logger.info({ friendIds })
-      await admin
-        .firestore()
-        .doc(change.after.ref.path)
-        .update({
-          viewerIds: admin.firestore.FieldValue.arrayUnion(...friendIds),
-        })
+      await change.after.ref.update({
+        viewerIds: admin.firestore.FieldValue.arrayUnion(...friendIds),
+      })
 
-      await createAuditLog({
+      const activityId = await createActivity({
         actorId: userId,
         document: "place",
         placeId,
         type: "create",
       })
+
+      // Activity Deletion Tracking: Part 2
+      // store the activityId so if the checkin is deleted, we can update all
+      // the related ids to also be deleted.
+      await change.after.ref.update({ activityId })
     }
     if (!change.after.exists) {
       const userId = change.before.data()?.createdById
       // deleted
-      await createAuditLog({
+      await createActivity({
         actorId: userId,
         document: "place",
         placeId,
@@ -234,7 +237,7 @@ export const placeOnChange = functions.firestore
       // updated
       const userId = change.before.data()?.createdById
       if (fieldsChanged(change, ["name", "location", "geoInfo"])) {
-        await createAuditLog({
+        await createActivity({
           actorId: userId,
           document: "place",
           placeId,
@@ -439,7 +442,7 @@ export const mergePlaceIntoPlace = functions.https.onCall(
       targetPlaceId: res.data.targetPlaceId,
       userId: context.auth.uid,
     })
-    await createAuditLog({
+    await createActivity({
       actorId: context.auth.uid,
       document: "place",
       type: "merge",
@@ -461,7 +464,7 @@ export const checkinOnChange = functions.firestore
       })
 
       const createdById = change.after.data()?.createdById
-      await createAuditLog({
+      await createActivity({
         actorId: createdById,
         document: "checkin",
         checkinId,
@@ -474,8 +477,17 @@ export const checkinOnChange = functions.firestore
       await updateSubcollectionCounts({
         placeId,
       })
+
+      // Activity Deletion Tracking: Part 2
+      const activityPath = change.before.data()?.activityId
+      if (activityPath != null) {
+        await admin.firestore().doc(activityPath).update({
+          deleted: true,
+        })
+      }
+
       const createdById = change.before.data()?.createdById
-      await createAuditLog({
+      await createActivity({
         actorId: createdById,
         document: "checkin",
         checkinId,
@@ -489,7 +501,7 @@ export const checkinOnChange = functions.firestore
       if (
         fieldsChanged(change, ["checkedInAt", "comment", "ratingsMenuItemIds"])
       ) {
-        await createAuditLog({
+        await createActivity({
           actorId: createdById,
           document: "checkin",
           checkinId,
@@ -510,7 +522,7 @@ export const menuitemOnChange = functions.firestore
         placeId,
       })
       const createdById = change.after.data()?.createdById
-      await createAuditLog({
+      await createActivity({
         actorId: createdById,
         document: "menuitem",
         menuitemId,
@@ -524,7 +536,7 @@ export const menuitemOnChange = functions.firestore
         placeId,
       })
       const createdById = change.before.data()?.createdById
-      await createAuditLog({
+      await createActivity({
         actorId: createdById,
         document: "menuitem",
         menuitemId,
@@ -536,7 +548,7 @@ export const menuitemOnChange = functions.firestore
       // updated
       const createdById = change.before.data()?.createdById
       if (fieldsChanged(change, ["name"])) {
-        await createAuditLog({
+        await createActivity({
           actorId: createdById,
           document: "menuitem",
           menuitemId,

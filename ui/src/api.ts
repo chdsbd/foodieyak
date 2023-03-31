@@ -119,7 +119,10 @@ export const checkin = {
     comment: string
     reviews: { menuItemId: string; rating: -1 | 1; comment: string }[]
   }) {
-    const checkin: Omit<PlaceCheckIn, "id" | "createdById" | "createdAt"> = {
+    const checkin: Omit<
+      PlaceCheckIn,
+      "id" | "createdById" | "createdAt" | "deleted"
+    > = {
       checkedInAt: date != null ? Timestamp.fromDate(date) : null,
       lastModifiedAt: Timestamp.now(),
       lastModifiedById: userId,
