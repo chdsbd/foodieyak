@@ -97,6 +97,7 @@ export const checkin = {
       comment,
       ratings: reviews,
       ratingsMenuItemIds: reviews.map((x) => x.menuItemId),
+      deleted: false,
     }
     const res = await addDoc(
       collection(db, "places", placeId, "checkins"),
@@ -119,7 +120,10 @@ export const checkin = {
     comment: string
     reviews: { menuItemId: string; rating: -1 | 1; comment: string }[]
   }) {
-    const checkin: Omit<PlaceCheckIn, "id" | "createdById" | "createdAt"> = {
+    const checkin: Omit<
+      PlaceCheckIn,
+      "id" | "createdById" | "createdAt" | "deleted"
+    > = {
       checkedInAt: date != null ? Timestamp.fromDate(date) : null,
       lastModifiedAt: Timestamp.now(),
       lastModifiedById: userId,

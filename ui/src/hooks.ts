@@ -231,6 +231,7 @@ export function useActivities({
       return query(
         collection(db, "activities"),
         where("viewerIds", "array-contains", userId),
+        where("deleted", "==", false),
         where("document", "==", "checkin"),
         where("type", "==", "create"),
         orderBy("createdAt", "desc"),

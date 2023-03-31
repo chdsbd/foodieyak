@@ -114,6 +114,7 @@ export type ActivityAction = z.infer<typeof ActivityAction>
 export const ActivitySchema = BaseSchema.and(ActivityAction).and(
   z.object({
     viewerIds: z.array(z.string()),
+    deleted: z.boolean().default(false),
   }),
 )
 
