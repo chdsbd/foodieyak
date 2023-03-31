@@ -97,7 +97,6 @@ export const checkin = {
       comment,
       ratings: reviews,
       ratingsMenuItemIds: reviews.map((x) => x.menuItemId),
-      deleted: false,
     }
     const res = await addDoc(
       collection(db, "places", placeId, "checkins"),
