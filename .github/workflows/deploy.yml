@@ -7,7 +7,9 @@ jobs:
   staging:
     runs-on: ubuntu-latest
 
-    environment: staging
+    environment:
+      name: staging
+      url: https://staging.foodieyak.com
 
     defaults:
       run:
@@ -29,7 +31,9 @@ jobs:
   production:
     runs-on: ubuntu-latest
 
-    environment: production
+    environment:
+      name: production
+      url: https://foodieyak.com
 
     defaults:
       run:
