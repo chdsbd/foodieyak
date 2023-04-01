@@ -66,7 +66,7 @@ jobs:
         working-directory: "./ui"
       - run: yarn build
         working-directory: "./ui"
-      - uses: chdsbd/action-hosting-deploy@chris/disable-comments
+      - uses: chdsbd/action-hosting-deploy@9bf421a4f4c960899e5072c1340ee90e98a9c545
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_FOODIEYAK_EF36D }}"
@@ -87,7 +87,7 @@ jobs:
         working-directory: "./ui"
       - run: yarn build
         working-directory: "./ui"
-      - uses: chdsbd/action-hosting-deploy@chris/disable-comments
+      - uses: chdsbd/action-hosting-deploy@9bf421a4f4c960899e5072c1340ee90e98a9c545
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_FOODIEYAK_EF36D }}"
