@@ -6,17 +6,13 @@
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
   "[typescript]": {
-    "editor.tabSize": 2,
-    "editor.codeActionsOnSave": {
-      "source.organizeImports": true
-    }
+    "editor.tabSize": 2
   },
   "[typescriptreact]": {
     "editor.tabSize": 2
   },
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true,
-    "source.organizeImports": true
   },
   "[javascript]": {
     "editor.tabSize": 2
