@@ -1,0 +1,5 @@
+#!/bin/sh
+
+set -ex
+
+exec ./node_modules/.bin/tsc $@

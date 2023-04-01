@@ -6,3 +6,4 @@ coverage/
 .mypy_cache/
 .terraform/
 .pytest_cache/
+lib/

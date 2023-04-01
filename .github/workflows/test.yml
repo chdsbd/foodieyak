@@ -4,7 +4,7 @@ on:
    pull_request:
 
 jobs:
-  typecheck:
+  typecheck_ui:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -19,7 +19,7 @@ jobs:
         working-directory: "./ui"
         run: ./s/typecheck
 
-  lint:
+  lint_ui:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -34,7 +34,7 @@ jobs:
         working-directory: "./ui"
         run: ./s/lint
 
-  fmt:
+  fmt_ui:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -47,4 +47,49 @@ jobs:
         run: yarn install
       - name: Check Formatting
         working-directory: "./ui"
+        run: ./s/fmt
+
+  typecheck_functions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: "16.x"
+      - name: Install dependencies
+        working-directory: "./functions"
+        run: yarn install
+      - name: Typescript
+        working-directory: "./functions"
+        run: ./s/typecheck
+
+  lint_functions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: "16.x"
+      - name: Install dependencies
+        working-directory: "./functions"
+        run: yarn install
+      - name: Lint
+        working-directory: "./functions"
+        run: ./s/lint
+
+  fmt_functions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: "16.x"
+      - name: Install dependencies
+        working-directory: "./functions"
+        run: yarn install
+      - name: Check Formatting
+        working-directory: "./functions"
         run: ./s/fmt

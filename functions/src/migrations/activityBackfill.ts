@@ -3,6 +3,7 @@
 
 import * as admin from "firebase-admin"
 import { Timestamp } from "firebase-admin/firestore"
+
 import { Activity, ActivityAction } from "../api-schema"
 
 const config = {
@@ -20,7 +21,7 @@ async function getFriends({ userId }: { userId: string }): Promise<string[]> {
     .firestore()
     .collection(`/users/${userId}/friends`)
     .get()
-  let friendIds: string[] = []
+  const friendIds: string[] = []
   friendDocs.forEach((doc) => {
     friendIds.push(doc.id)
   })
@@ -42,6 +43,7 @@ async function createAuditLog({
     lastModifiedAt: createdAt,
     lastModifiedById: null,
     viewerIds: [actorId, ...friendIds],
+    deleted: false,
     ...rest,
   }
   await admin.firestore().collection(`/activities`).add(auditLog)
@@ -53,10 +55,12 @@ async function backfillPlacesAndCheckinsAndMenuitems() {
     places.docs.map(async (place) => {
       const placeId = place.id
       await createAuditLog({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         actorId: place.data().createdById,
         document: "place",
         type: "create",
         placeId,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         createdAt: place.data().createdAt,
       })
 
@@ -67,11 +71,13 @@ async function backfillPlacesAndCheckinsAndMenuitems() {
       await Promise.all(
         checkins.docs.map(async (checkin) => {
           await createAuditLog({
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             actorId: checkin.data().createdById,
             document: "checkin",
             type: "create",
             placeId,
             checkinId: checkin.id,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             createdAt: checkin.data().createdAt,
           })
         }),
@@ -85,11 +91,13 @@ async function backfillPlacesAndCheckinsAndMenuitems() {
         menuitems.docs.map(async (menuitem) => {
           const menuitemId = menuitem.id
           await createAuditLog({
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             actorId: menuitem.data().createdById,
             document: "menuitem",
             type: "create",
             placeId,
             menuitemId,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             createdAt: menuitem.data().createdAt,
           })
         }),
@@ -102,4 +110,7 @@ async function main() {
   await backfillPlacesAndCheckinsAndMenuitems()
 }
 
-main().catch((e) => console.error(e))
+main().catch((e) => {
+  // eslint-disable-next-line no-console
+  console.error(e)
+})

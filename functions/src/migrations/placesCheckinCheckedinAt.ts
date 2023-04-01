@@ -22,22 +22,32 @@ const db = admin.firestore()
 async function main() {
   const queryResult = await db.collection("places").orderBy("createdAt").get()
   queryResult.forEach(async (placeDoc) => {
+    // eslint-disable-next-line no-console
     console.log("place_id", placeDoc.id)
+    // eslint-disable-next-line no-console
     console.log("place", placeDoc.data().name)
     const checkins = await db.collection(`places/${placeDoc.id}/checkins`).get()
     checkins.forEach(async (checkinDoc) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const createdAt = checkinDoc.data().createdAt
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const checkedInAt = checkinDoc.data().checkedInAt
       if (checkedInAt == null) {
+        // eslint-disable-next-line no-console
         console.log("updating...", checkinDoc.ref.path)
         const update = {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           checkedInAt: createdAt,
         }
         await db.doc(checkinDoc.ref.path).update(update)
+        // eslint-disable-next-line no-console
         console.log("updated!", checkinDoc.ref.path)
       }
     })
   })
 }
 
-main().catch((e) => console.error(e))
+main().catch((e) => {
+  // eslint-disable-next-line no-console
+  console.error(e)
+})
