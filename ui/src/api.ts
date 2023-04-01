@@ -1,5 +1,6 @@
 import { getAuth, updateProfile } from "firebase/auth"
 import {
+  Timestamp,
   addDoc,
   collection,
   deleteDoc,
@@ -9,7 +10,6 @@ import {
   limit,
   orderBy,
   query,
-  Timestamp,
   updateDoc,
   where,
   writeBatch,
@@ -88,12 +88,13 @@ export const checkin = {
     comment: string
     reviews: { menuItemId: string; rating: -1 | 1; comment: string }[]
   }) {
+    const x: number = "123"
     const checkin: Omit<PlaceCheckIn, "id"> = {
       createdAt: Timestamp.now(),
       checkedInAt: date != null ? Timestamp.fromDate(date) : null,
       createdById: userId,
       lastModifiedAt: null,
-      lastModifiedById: null,
+      lastModifiedById: x,
       comment,
       ratings: reviews,
       ratingsMenuItemIds: reviews.map((x) => x.menuItemId),
