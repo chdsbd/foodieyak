@@ -5,7 +5,7 @@ main() {
   if [ "$CI" ]; then
     ./node_modules/.bin/tsc | awk -v prefix="$PWD" '{print prefix "/" $0}'
   else
-    ./node_modules/.bin/tsc --pretty
+    ./node_modules/.bin/tsc
   fi
 }
 
