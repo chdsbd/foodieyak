@@ -88,13 +88,12 @@ export const checkin = {
     comment: string
     reviews: { menuItemId: string; rating: -1 | 1; comment: string }[]
   }) {
-    const x: number = "123"
     const checkin: Omit<PlaceCheckIn, "id"> = {
       createdAt: Timestamp.now(),
       checkedInAt: date != null ? Timestamp.fromDate(date) : null,
       createdById: userId,
       lastModifiedAt: null,
-      lastModifiedById: x,
+      lastModifiedById: null,
       comment,
       ratings: reviews,
       ratingsMenuItemIds: reviews.map((x) => x.menuItemId),
