@@ -31,6 +31,13 @@ function fieldsChanged(
   return !isEqual(beforeObj, afterObj)
 }
 
+function unwrap<T>(val: T | undefined): T {
+  if (val == null) {
+    throw new TypeError(`expected non-nil value, got ${val}`)
+  }
+  return val
+}
+
 async function getFriends({ userId }: { userId: string }): Promise<string[]> {
   const friendDocs = await admin
     .firestore()
@@ -188,7 +195,8 @@ export const placeOnChange = functions.firestore
     const { placeId } = context.params
     if (!change.before.exists && change.after.exists) {
       // created
-      const userId = change.after.data()?.createdById
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const userId: string = unwrap(change.after.data()?.createdById)
       functions.logger.info({
         change,
         context,
@@ -221,7 +229,8 @@ export const placeOnChange = functions.firestore
       await change.after.ref.update({ activityId })
     }
     if (!change.after.exists) {
-      const userId = change.before.data()?.createdById
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const userId: string = unwrap(change.before.data()?.createdById)
       // deleted
       await createActivity({
         actorId: userId,
@@ -232,7 +241,8 @@ export const placeOnChange = functions.firestore
     }
     if (change.before.exists && change.after.exists) {
       // updated
-      const userId = change.before.data()?.createdById
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const userId: string = unwrap(change.before.data()?.createdById)
       if (fieldsChanged(change, ["name", "location", "geoInfo"])) {
         await createActivity({
           actorId: userId,
@@ -281,6 +291,7 @@ async function updateLastCheckinAt({ placeId }: { placeId: string }) {
     .get()
   const lastestCheckIn = first(lastestCheckIns.docs)
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const lastCheckInAt: admin.firestore.Timestamp | undefined | null =
     lastestCheckIn?.data().checkedInAt
 
@@ -350,7 +361,9 @@ async function mergePlaces({
     }
 
     if (
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
       !oldPlaceData.viewerIds.includes(userId) ||
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
       !targetPlaceData.viewerIds.includes(userId)
     ) {
       throw new functions.https.HttpsError(
@@ -398,8 +411,11 @@ async function updateMenuItemsForCheckIn({
   placeId: string
   change: functions.Change<functions.firestore.DocumentSnapshot>
 }) {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const menuItemIds: string[] = uniq([
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     ...(change.before.data()?.ratingsMenuItemIds ?? []),
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     ...(change.after.data()?.ratingsMenuItemIds ?? []),
   ])
   functions.logger.info("menuItemIds", {
@@ -460,7 +476,8 @@ export const checkinOnChange = functions.firestore
         placeId,
       })
 
-      const createdById = change.after.data()?.createdById
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const createdById: string = unwrap(change.after.data()?.createdById)
       await createActivity({
         actorId: createdById,
         document: "checkin",
@@ -476,14 +493,16 @@ export const checkinOnChange = functions.firestore
       })
 
       // Activity Deletion Tracking: Part 2
-      const activityPath = change.before.data()?.activityId
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const activityPath: string | undefined = change.before.data()?.activityId
       if (activityPath != null) {
         await admin.firestore().doc(activityPath).update({
           deleted: true,
         })
       }
 
-      const createdById = change.before.data()?.createdById
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const createdById: string = unwrap(change.before.data()?.createdById)
       await createActivity({
         actorId: createdById,
         document: "checkin",
@@ -494,7 +513,8 @@ export const checkinOnChange = functions.firestore
     }
     if (change.before.exists && change.after.exists) {
       // updated
-      const createdById = change.before.data()?.createdById
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const createdById: string = unwrap(change.before.data()?.createdById)
       if (
         fieldsChanged(change, ["checkedInAt", "comment", "ratingsMenuItemIds"])
       ) {
@@ -518,7 +538,8 @@ export const menuitemOnChange = functions.firestore
       await updateSubcollectionCounts({
         placeId,
       })
-      const createdById = change.after.data()?.createdById
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const createdById: string = unwrap(change.after.data()?.createdById)
       await createActivity({
         actorId: createdById,
         document: "menuitem",
@@ -532,7 +553,8 @@ export const menuitemOnChange = functions.firestore
       await updateSubcollectionCounts({
         placeId,
       })
-      const createdById = change.before.data()?.createdById
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const createdById: string = unwrap(change.before.data()?.createdById)
       await createActivity({
         actorId: createdById,
         document: "menuitem",
@@ -543,7 +565,8 @@ export const menuitemOnChange = functions.firestore
     }
     if (change.before.exists && change.after.exists) {
       // updated
-      const createdById = change.before.data()?.createdById
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const createdById: string = unwrap(change.before.data()?.createdById)
       if (fieldsChanged(change, ["name"])) {
         await createActivity({
           actorId: createdById,
@@ -584,7 +607,7 @@ async function setAlgoliaKeyForUser({ userId }: { userId: string }) {
 
 export const userBeforeCreate = functions.auth
   .user()
-  .beforeCreate(async (user, context) => {
+  .beforeCreate(async (user) => {
     await setAlgoliaKeyForUser({ userId: user.uid })
     await updateUser(user)
   })
