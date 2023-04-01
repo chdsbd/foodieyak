@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     environment:
-      name: production
+      name: Staging Preview
       url: ${{ steps.firebase-hosting-deploy.outputs.details_url }}
 
     steps:
@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
 
     environment:
-      name: production
+      name: Production Preview
       url: ${{ steps.firebase-hosting-deploy.outputs.details_url }}
 
     steps:
