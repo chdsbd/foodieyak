@@ -1,5 +1,12 @@
 #!/bin/sh
 
-set -ex
+set -e
+main() {
+  if [ "$CI" ]; then
+    ./node_modules/.bin/tsc | awk -v prefix="$PWD" '{print prefix "/" $0}'
+  else
+    ./node_modules/.bin/tsc --pretty
+  fi
+}
 
-exec ./node_modules/.bin/tsc $@
+main "$@"
