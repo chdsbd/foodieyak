@@ -1,6 +1,5 @@
 import { getAuth, updateProfile } from "firebase/auth"
 import {
-  Timestamp,
   addDoc,
   collection,
   deleteDoc,
@@ -10,6 +9,7 @@ import {
   limit,
   orderBy,
   query,
+  Timestamp,
   updateDoc,
   where,
   writeBatch,
