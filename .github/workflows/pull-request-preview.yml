@@ -14,7 +14,7 @@ jobs:
           node-version-file: "./ui/package.json"
           cache: "yarn"
           cache-dependency-path: "./ui/yarn.lock"
-      - run: yarn install
+      - run: yarn install --frozen-lockfile
         working-directory: "./ui"
       - run: yarn build
         working-directory: "./ui"
@@ -35,7 +35,7 @@ jobs:
           node-version-file: "./ui/package.json"
           cache: "yarn"
           cache-dependency-path: "./ui/yarn.lock"
-      - run: yarn install
+      - run: yarn install --frozen-lockfile
         working-directory: "./ui"
       - run: yarn build
         working-directory: "./ui"
