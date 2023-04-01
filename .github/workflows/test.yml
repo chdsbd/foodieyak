@@ -1,4 +1,4 @@
-name: Javascript
+name: Test
 
 on:
   pull_request:
@@ -15,7 +15,7 @@ jobs:
           cache: "yarn"
       - name: Install dependencies
         working-directory: "./ui"
-        run: yarn install
+        run: yarn install --frozen-lockfile
       - name: Typescript
         working-directory: "./ui"
         run: ./s/typecheck
@@ -31,7 +31,7 @@ jobs:
           cache: "yarn"
       - name: Install dependencies
         working-directory: "./ui"
-        run: yarn install
+        run: yarn install --frozen-lockfile
       - name: Lint
         working-directory: "./ui"
         run: ./s/lint
@@ -47,7 +47,7 @@ jobs:
           cache: "yarn"
       - name: Install dependencies
         working-directory: "./ui"
-        run: yarn install
+        run: yarn install --frozen-lockfile
       - name: Check Formatting
         working-directory: "./ui"
         run: ./s/fmt
@@ -63,7 +63,7 @@ jobs:
           cache: "yarn"
       - name: Install dependencies
         working-directory: "./functions"
-        run: yarn install
+        run: yarn install --frozen-lockfile
       - name: Typescript
         working-directory: "./functions"
         run: ./s/typecheck
@@ -79,7 +79,7 @@ jobs:
           cache: "yarn"
       - name: Install dependencies
         working-directory: "./functions"
-        run: yarn install
+        run: yarn install --frozen-lockfile
       - name: Lint
         working-directory: "./functions"
         run: ./s/lint
@@ -95,7 +95,7 @@ jobs:
           cache: "yarn"
       - name: Install dependencies
         working-directory: "./functions"
-        run: yarn install
+        run: yarn install --frozen-lockfile
       - name: Check Formatting
         working-directory: "./functions"
         run: ./s/fmt
