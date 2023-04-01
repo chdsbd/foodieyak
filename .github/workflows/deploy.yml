@@ -53,12 +53,16 @@ jobs:
       - run: yarn install --frozen-lockfile
       - run: s/deploy-prod
 
-  ui_staging_and_production:
+  ui_staging:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: install and build
-        run: yarn install && yarn build
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: "./ui/package.json"
+          cache: "yarn"
+          cache-dependency-path: "./ui/yarn.lock"
+      - run: yarn build
         working-directory: "./ui"
       # staging deploy
       - uses: FirebaseExtended/action-hosting-deploy@v0
@@ -68,6 +72,25 @@ jobs:
           channelId: live
           projectId: foodieyak-staging
           entryPoint: "./ui"
+      # production deploy
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_FOODIEYAK_EF36D }}"
+          channelId: live
+          projectId: foodieyak-ef36d
+          entryPoint: "./ui"
+  ui_production:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: "./ui/package.json"
+          cache: "yarn"
+          cache-dependency-path: "./ui/yarn.lock"
+      - run: yarn build
+        working-directory: "./ui"
       # production deploy
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
