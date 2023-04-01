@@ -2,7 +2,7 @@
   "name": "functions",
   "scripts": {
     "lint": "eslint --ext .js,.ts .",
-    "build": "tsc",
+    "build": "esbuild src/index.ts --bundle --minify --sourcemap --platform=node --target=node16 --outdir=lib",
     "build:watch": "tsc --watch",
     "serve": "yarn build && firebase emulators:start --only functions",
     "shell": "yarn build && firebase functions:shell",
