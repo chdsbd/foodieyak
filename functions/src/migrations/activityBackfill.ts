@@ -3,6 +3,7 @@
 
 import * as admin from "firebase-admin"
 import { Timestamp } from "firebase-admin/firestore"
+
 import { Activity, ActivityAction } from "../api-schema"
 
 const config = {
@@ -20,7 +21,7 @@ async function getFriends({ userId }: { userId: string }): Promise<string[]> {
     .firestore()
     .collection(`/users/${userId}/friends`)
     .get()
-  let friendIds: string[] = []
+  const friendIds: string[] = []
   friendDocs.forEach((doc) => {
     friendIds.push(doc.id)
   })
@@ -42,6 +43,7 @@ async function createAuditLog({
     lastModifiedAt: createdAt,
     lastModifiedById: null,
     viewerIds: [actorId, ...friendIds],
+    deleted: false,
     ...rest,
   }
   await admin.firestore().collection(`/activities`).add(auditLog)
@@ -102,4 +104,6 @@ async function main() {
   await backfillPlacesAndCheckinsAndMenuitems()
 }
 
-main().catch((e) => console.error(e))
+main().catch((e) => {
+  console.error(e)
+})

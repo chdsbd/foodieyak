@@ -1,13 +1,14 @@
-import * as admin from "firebase-admin"
-import * as functions from "firebase-functions"
-import { defineString } from "firebase-functions/params"
-
 import algoliasearch from "algoliasearch"
+import * as admin from "firebase-admin"
 import { Timestamp } from "firebase-admin/firestore"
+import * as functions from "firebase-functions"
 import * as identity from "firebase-functions/lib/common/providers/identity"
+import { defineString } from "firebase-functions/params"
 import { first, isEqual, pick, uniq } from "lodash"
 import { z } from "zod"
+
 import { Activity, ActivityAction } from "./api-schema"
+
 const algoliaSearchApiKey = defineString("ALGOLIA_SEARCH_API_KEY")
 
 admin.initializeApp()
@@ -16,13 +17,9 @@ admin.firestore().settings({ ignoreUndefinedProperties: true })
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript
 
-export const helloWorld = functions.https.onRequest((request, response) => {
+export const helloWorld = functions.https.onRequest((_request, response) => {
   functions.logger.info("Hello logs!", { structuredData: true })
   response.send("Hello from Firebase!")
-})
-
-export const userOnCreate = functions.auth.user().onCreate((user, context) => {
-  // TODO
 })
 
 function fieldsChanged(
@@ -39,7 +36,7 @@ async function getFriends({ userId }: { userId: string }): Promise<string[]> {
     .firestore()
     .collection(`/users/${userId}/friends`)
     .get()
-  let friendIds: string[] = []
+  const friendIds: string[] = []
   friendDocs.forEach((doc) => {
     friendIds.push(doc.id)
   })

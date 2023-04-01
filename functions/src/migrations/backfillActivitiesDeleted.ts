@@ -58,4 +58,4 @@ async function main() {
   await backfillPlacesAndCheckinsAndMenuitems()
 }
 
-main().catch((e) => console.error(e))
+main().catch((e) => { console.error(e); })
