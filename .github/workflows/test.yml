@@ -90,8 +90,8 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v3
         with:
-          node-version-file: "./fucntions/package.json"
-          cache-dependency-path: "./fucntions/yarn.lock"
+          node-version-file: "./functions/package.json"
+          cache-dependency-path: "./functions/yarn.lock"
           cache: "yarn"
       - name: Install dependencies
         working-directory: "./functions"
