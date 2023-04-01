@@ -64,15 +64,6 @@ jobs:
           cache-dependency-path: "./ui/yarn.lock"
       - run: yarn build
         working-directory: "./ui"
-      # staging deploy
-      - uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: "${{ secrets.GITHUB_TOKEN }}"
-          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_FOODIEYAK_STAGING }}"
-          channelId: live
-          projectId: foodieyak-staging
-          entryPoint: "./ui"
-      # production deploy
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
@@ -80,6 +71,7 @@ jobs:
           channelId: live
           projectId: foodieyak-ef36d
           entryPoint: "./ui"
+
   ui_production:
     runs-on: ubuntu-latest
     steps:
@@ -91,7 +83,6 @@ jobs:
           cache-dependency-path: "./ui/yarn.lock"
       - run: yarn build
         working-directory: "./ui"
-      # production deploy
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
