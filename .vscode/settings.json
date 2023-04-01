@@ -1,27 +1,29 @@
 {
-    "eslint.alwaysShowStatus": true,
-    "eslint.packageManager": "yarn",
-    "editor.formatOnSave": true,
-    "prettier.requireConfig": false,
+  "eslint.alwaysShowStatus": true,
+  "eslint.packageManager": "yarn",
+  "editor.formatOnSave": true,
+  "prettier.requireConfig": false,
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "[typescript]": {
     "editor.tabSize": 2,
-    "editor.insertSpaces": true,
-    "[typescript]": {
-      "editor.tabSize": 2,
-      "editor.codeActionsOnSave": {
-        "source.organizeImports": true
-      }
-    },
-    "[typescriptreact]": {
-      "editor.tabSize": 2,
-    },
     "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": true,
       "source.organizeImports": true
-    },
-    "[javascript]": {
-      "editor.tabSize": 2
-    },
-    "[javascriptreact]": {
-      "editor.tabSize": 2
     }
+  },
+  "[typescriptreact]": {
+    "editor.tabSize": 2
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true,
+    "source.organizeImports": true
+  },
+  "[javascript]": {
+    "editor.tabSize": 2
+  },
+  "[javascriptreact]": {
+    "editor.tabSize": 2
+  },
+  "eslint.lintTask.enable": true,
+  "eslint.format.enable": true
 }
