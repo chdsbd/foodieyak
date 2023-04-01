@@ -55,10 +55,12 @@ async function backfillPlacesAndCheckinsAndMenuitems() {
     places.docs.map(async (place) => {
       const placeId = place.id
       await createAuditLog({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         actorId: place.data().createdById,
         document: "place",
         type: "create",
         placeId,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         createdAt: place.data().createdAt,
       })
 
@@ -69,11 +71,13 @@ async function backfillPlacesAndCheckinsAndMenuitems() {
       await Promise.all(
         checkins.docs.map(async (checkin) => {
           await createAuditLog({
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             actorId: checkin.data().createdById,
             document: "checkin",
             type: "create",
             placeId,
             checkinId: checkin.id,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             createdAt: checkin.data().createdAt,
           })
         }),
@@ -87,11 +91,13 @@ async function backfillPlacesAndCheckinsAndMenuitems() {
         menuitems.docs.map(async (menuitem) => {
           const menuitemId = menuitem.id
           await createAuditLog({
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             actorId: menuitem.data().createdById,
             document: "menuitem",
             type: "create",
             placeId,
             menuitemId,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             createdAt: menuitem.data().createdAt,
           })
         }),
@@ -105,5 +111,6 @@ async function main() {
 }
 
 main().catch((e) => {
+  // eslint-disable-next-line no-console
   console.error(e)
 })
