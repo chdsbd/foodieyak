@@ -14,6 +14,8 @@ jobs:
           node-version-file: "./ui/package.json"
           cache: "yarn"
           cache-dependency-path: "./ui/yarn.lock"
+      - run: yarn install
+        working-directory: "./ui"
       - run: yarn build
         working-directory: "./ui"
       # staging deploy.
