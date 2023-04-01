@@ -49,7 +49,7 @@ jobs:
           cache-dependency-path: "./ui/yarn.lock"
       - run: yarn install --frozen-lockfile
         working-directory: "./ui"
-      - run: ./s/deploy-preview-stage
+      - run: yarn build
         working-directory: "./ui"
       - uses: chdsbd/action-hosting-deploy@chris/disable-comments
         id: firebase-hosting-deploy
