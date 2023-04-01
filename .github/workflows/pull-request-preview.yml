@@ -7,6 +7,11 @@ jobs:
   staging:
     if: "${{ github.event.pull_request.head.repo.full_name == github.repository }}"
     runs-on: ubuntu-latest
+
+    environment:
+      name: production
+      url: ${{ steps.firebase-hosting-deploy.outputs.details_url }}
+
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -20,6 +25,7 @@ jobs:
         working-directory: "./ui"
       # staging deploy.
       - uses: FirebaseExtended/action-hosting-deploy@v0
+        id: firebase-hosting-deploy
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_FOODIEYAK_STAGING }}"
@@ -28,6 +34,11 @@ jobs:
   production:
     if: "${{ github.event.pull_request.head.repo.full_name == github.repository }}"
     runs-on: ubuntu-latest
+
+    environment:
+      name: production
+      url: ${{ steps.firebase-hosting-deploy.outputs.details_url }}
+
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -40,6 +51,7 @@ jobs:
       - run: yarn build
         working-directory: "./ui"
       - uses: FirebaseExtended/action-hosting-deploy@v0
+        id: firebase-hosting-deploy
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_FOODIEYAK_EF36D }}"
