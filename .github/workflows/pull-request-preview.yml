@@ -24,7 +24,7 @@ jobs:
       - run: yarn build
         working-directory: "./ui"
       # staging deploy.
-      - uses: chdsbd/action-hosting-deploy@9bf421a4f4c960899e5072c1340ee90e98a9c545
+      - uses: chdsbd/action-hosting-deploy@chris/disable-comments
         id: firebase-hosting-deploy
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
@@ -51,7 +51,7 @@ jobs:
         working-directory: "./ui"
       - run: yarn build
         working-directory: "./ui"
-      - uses: chdsbd/action-hosting-deploy@9bf421a4f4c960899e5072c1340ee90e98a9c545
+      - uses: chdsbd/action-hosting-deploy@chris/disable-comments
         id: firebase-hosting-deploy
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
