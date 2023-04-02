@@ -20,6 +20,22 @@ jobs:
         working-directory: "./ui"
         run: ./s/typecheck
 
+  test_ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: "./ui/package.json"
+          cache-dependency-path: "./ui/yarn.lock"
+          cache: "yarn"
+      - name: Install dependencies
+        working-directory: "./ui"
+        run: yarn install --frozen-lockfile
+      - name: Test
+        working-directory: "./ui"
+        run: ./s/test
+
   lint_ui:
     runs-on: ubuntu-latest
     steps:
