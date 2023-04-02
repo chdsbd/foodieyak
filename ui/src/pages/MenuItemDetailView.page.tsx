@@ -8,7 +8,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react"
-import { sortBy, startCase } from "lodash-es"
+import { sortBy } from "lodash-es"
 import { Link, useParams } from "react-router-dom"
 
 import { calculateCheckinCountsByMenuItem } from "../api-transforms"
@@ -20,6 +20,7 @@ import { Downvote, Upvote } from "../components/Ratings"
 import { formatHumanDate } from "../date"
 import { useCheckins, useMenuItem, usePlace, useUser } from "../hooks"
 import { pathCheckinDetail, pathMenuItemEdit, pathPlaceDetail } from "../paths"
+import { startCase } from "../textutils"
 import { notUndefined } from "../type-guards"
 import { UserIdToName } from "./FriendsListView.page"
 

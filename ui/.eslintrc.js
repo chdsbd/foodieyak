@@ -71,6 +71,17 @@ module.exports = {
             name: "lodash-es/chain",
             message: "Chain does not work with 'lodash-es'",
           },
+
+          {
+            name: "lodash-es",
+            importNames: ["startCase"],
+            message: "startCase is buggy, import from textUtils instead",
+          },
+          {
+            name: "lodash-es/startCase",
+            message: "startCase is buggy, import from textUtils instead",
+          },
+
           {
             name: "react-hot-toast",
             message: "Please import from '@/toast' instead.",
