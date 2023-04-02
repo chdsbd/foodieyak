@@ -1,50 +1,101 @@
-name: Javascript
+name: Test
 
 on:
-   pull_request:
+  pull_request:
 
 jobs:
-  typecheck:
+  typecheck_ui:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js
-        uses: actions/setup-node@v1
+      - uses: actions/setup-node@v3
         with:
-          node-version: "16.x"
+          node-version-file: "./ui/package.json"
+          cache-dependency-path: "./ui/yarn.lock"
+          cache: "yarn"
       - name: Install dependencies
         working-directory: "./ui"
-        run: yarn install
+        run: yarn install --frozen-lockfile
       - name: Typescript
         working-directory: "./ui"
         run: ./s/typecheck
 
-  lint:
+  lint_ui:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js
-        uses: actions/setup-node@v1
+      - uses: actions/setup-node@v3
         with:
-          node-version: "16.x"
+          node-version-file: "./ui/package.json"
+          cache-dependency-path: "./ui/yarn.lock"
+          cache: "yarn"
       - name: Install dependencies
         working-directory: "./ui"
-        run: yarn install
+        run: yarn install --frozen-lockfile
       - name: Lint
         working-directory: "./ui"
         run: ./s/lint
 
-  fmt:
+  fmt_ui:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js
-        uses: actions/setup-node@v1
+      - uses: actions/setup-node@v3
         with:
-          node-version: "16.x"
+          node-version-file: "./ui/package.json"
+          cache-dependency-path: "./ui/yarn.lock"
+          cache: "yarn"
       - name: Install dependencies
         working-directory: "./ui"
-        run: yarn install
+        run: yarn install --frozen-lockfile
       - name: Check Formatting
         working-directory: "./ui"
+        run: ./s/fmt
+
+  typecheck_functions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: "./functions/package.json"
+          cache-dependency-path: "./functions/yarn.lock"
+          cache: "yarn"
+      - name: Install dependencies
+        working-directory: "./functions"
+        run: yarn install --frozen-lockfile
+      - name: Typescript
+        working-directory: "./functions"
+        run: ./s/typecheck
+
+  lint_functions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: "./functions/package.json"
+          cache-dependency-path: "./functions/yarn.lock"
+          cache: "yarn"
+      - name: Install dependencies
+        working-directory: "./functions"
+        run: yarn install --frozen-lockfile
+      - name: Lint
+        working-directory: "./functions"
+        run: ./s/lint
+
+  fmt_functions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: "./functions/package.json"
+          cache-dependency-path: "./functions/yarn.lock"
+          cache: "yarn"
+      - name: Install dependencies
+        working-directory: "./functions"
+        run: yarn install --frozen-lockfile
+      - name: Check Formatting
+        working-directory: "./functions"
         run: ./s/fmt

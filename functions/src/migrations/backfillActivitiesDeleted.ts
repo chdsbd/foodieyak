@@ -20,6 +20,7 @@ async function backfillPlacesAndCheckinsAndMenuitems() {
     .where("type", "==", "create")
     .get()
 
+  // eslint-disable-next-line no-console
   console.log("update activities...")
   await Promise.all(
     activities.docs.map(async (activity) => {
@@ -29,6 +30,7 @@ async function backfillPlacesAndCheckinsAndMenuitems() {
     }),
   )
 
+  // eslint-disable-next-line no-console
   console.log("update checkins...")
   await Promise.all(
     activities.docs.map(async (activity) => {
@@ -36,7 +38,9 @@ async function backfillPlacesAndCheckinsAndMenuitems() {
         deleted: false,
       })
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const checkinId = activity.data().checkinId
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const placeId = activity.data().placeId
       if (
         (await db.doc(`/places/${placeId}/checkins/${checkinId}`).get()).exists
@@ -45,6 +49,7 @@ async function backfillPlacesAndCheckinsAndMenuitems() {
           .doc(`/places/${placeId}/checkins/${checkinId}`)
           .update({ activityId: activity.id })
       } else {
+        // eslint-disable-next-line no-console
         console.log("checkin deleted", activity.id, checkinId)
         await activity.ref.update({
           deleted: true,
@@ -58,4 +63,7 @@ async function main() {
   await backfillPlacesAndCheckinsAndMenuitems()
 }
 
-main().catch((e) => console.error(e))
+main().catch((e) => {
+  // eslint-disable-next-line no-console
+  console.error(e)
+})

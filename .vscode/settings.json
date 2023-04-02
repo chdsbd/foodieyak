@@ -12,12 +12,14 @@
     "editor.tabSize": 2
   },
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
+    "source.fixAll.eslint": true,
   },
   "[javascript]": {
     "editor.tabSize": 2
   },
   "[javascriptreact]": {
     "editor.tabSize": 2
-  }
+  },
+  "eslint.lintTask.enable": true,
+  "eslint.format.enable": true
 }

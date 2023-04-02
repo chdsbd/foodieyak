@@ -1,13 +1,15 @@
-name: Deploy Functions
+name: Deploy
 "on":
   push:
     branches:
       - main
 jobs:
-  staging:
+  functions_staging:
     runs-on: ubuntu-latest
 
-    environment: staging
+    environment:
+      name: staging
+      url: https://staging.foodieyak.com
 
     defaults:
       run:
@@ -26,10 +28,12 @@ jobs:
           cache-dependency-path: "./functions/yarn.lock"
       - run: yarn install --frozen-lockfile
       - run: s/deploy-stage
-  production:
+  functions_production:
     runs-on: ubuntu-latest
 
-    environment: production
+    environment:
+      name: production
+      url: https://foodieyak.com
 
     defaults:
       run:
@@ -48,3 +52,45 @@ jobs:
           cache-dependency-path: "./functions/yarn.lock"
       - run: yarn install --frozen-lockfile
       - run: s/deploy-prod
+
+  ui_staging:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: "./ui/package.json"
+          cache: "yarn"
+          cache-dependency-path: "./ui/yarn.lock"
+      - run: yarn install --frozen-lockfile
+        working-directory: "./ui"
+      - run: yarn build
+        working-directory: "./ui"
+      - uses: chdsbd/action-hosting-deploy@chris/disable-comments
+        with:
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_FOODIEYAK_EF36D }}"
+          channelId: live
+          projectId: foodieyak-ef36d
+          entryPoint: "./ui"
+
+  ui_production:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: "./ui/package.json"
+          cache: "yarn"
+          cache-dependency-path: "./ui/yarn.lock"
+      - run: yarn install --frozen-lockfile
+        working-directory: "./ui"
+      - run: yarn build
+        working-directory: "./ui"
+      - uses: chdsbd/action-hosting-deploy@chris/disable-comments
+        with:
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_FOODIEYAK_EF36D }}"
+          channelId: live
+          projectId: foodieyak-ef36d
+          entryPoint: "./ui"
