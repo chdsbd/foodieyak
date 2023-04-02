@@ -1,0 +1,16 @@
+{
+  "problemMatcher": [
+    {
+      "owner": "vitest",
+      "pattern": [
+        {
+          "regexp": "^ FAIL .*\\s^(.*)$\\s ❯ (.*)\\:(\\d+)\\:(\\d+)",
+          "file": 2,
+          "line": 3,
+          "column": 4,
+          "message": 1
+        }
+      ]
+    }
+  ]
+}

@@ -32,6 +32,8 @@ jobs:
       - name: Install dependencies
         working-directory: "./ui"
         run: yarn install --frozen-lockfile
+      - name: Register matcher
+        run: echo "::add-matcher::.github/problem-matcher-vitest.json"
       - name: Test
         working-directory: "./ui"
         run: ./s/test
