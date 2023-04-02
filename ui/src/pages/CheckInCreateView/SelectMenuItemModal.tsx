@@ -19,11 +19,12 @@ import {
   VStack,
 } from "@chakra-ui/react"
 import { FirebaseError } from "firebase/app"
-import { sortBy, startCase } from "lodash-es"
+import { sortBy } from "lodash-es"
 import React, { useEffect, useState } from "react"
 
 import * as api from "../../api"
 import { PlaceMenuItem } from "../../api-schemas"
+import { startCase } from "../../textutils"
 
 export function SelectMenuItemModal({
   isOpen,

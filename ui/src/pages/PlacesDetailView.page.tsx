@@ -13,7 +13,6 @@ import {
   VStack,
 } from "@chakra-ui/react"
 import { Timestamp } from "firebase/firestore"
-import { startCase } from "lodash-es"
 import first from "lodash-es/first"
 import orderBy from "lodash-es/orderBy"
 import { Link, useHistory, useLocation, useParams } from "react-router-dom"
@@ -36,6 +35,7 @@ import {
   pathMenuItemDetail,
   pathPlaceEdit,
 } from "../paths"
+import { startCase } from "../textutils"
 
 function tabToIndex(tab: string | null): number {
   if (tab === "checkins") {
