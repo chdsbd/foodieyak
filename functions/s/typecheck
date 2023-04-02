@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -e
+set -euo pipefail
 main() {
   if [ "$CI" ]; then
     # Prefix typescript output to make relative paths absolute paths.
