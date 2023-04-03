@@ -2,7 +2,7 @@
 
 set -eoux pipefail
 main() {
-  ./node_modules/.bin/vitest  "$@" 2>&1 | sed "s#src/#$PWD/src/#"
+  NO_COLOR=1 ./node_modules/.bin/vitest  "$@" 2>&1 | sed "s#src/#$PWD/src/#"
 }
 
 main "$@"
