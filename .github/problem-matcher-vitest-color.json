@@ -1,0 +1,22 @@
+{
+  "problemMatcher": [
+    {
+      "owner": "vitest",
+      "pattern": [
+        {
+          "regexp": "^(\\x1b[\\w\\W]{3,4})+ FAIL (\\x1b[\\w\\W]{3,4})+ "
+        },
+        {
+          "regexp": "^(.*)",
+          "message": 1
+        },
+        {
+          "regexp": "(\\x1b[\\w\\W]{3,4})+ (\\x1b[\\w\\W]{3,4})+❯(\\x1b[\\w\\W]{3,4})+ (\\x1b[\\w\\W]{3,4})+(.*)\\:(\\d+)\\:(\\d+)",
+          "file": 5,
+          "line": 6,
+          "column": 7
+        }
+      ]
+    }
+  ]
+}
