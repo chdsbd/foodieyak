@@ -478,13 +478,20 @@ export const checkinOnChange = functions.firestore
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const createdById: string = unwrap(change.after.data()?.createdById)
-      await createActivity({
-        actorId: createdById,
-        document: "checkin",
-        checkinId,
-        placeId,
-        type: "create",
-      })
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const checkedInAt: string | null | undefined =
+        change.after.data()?.checkedInAt
+
+      // skip checkins that are created without a date aka manual backfill ones
+      if (checkedInAt != null) {
+        await createActivity({
+          actorId: createdById,
+          document: "checkin",
+          checkinId,
+          placeId,
+          type: "create",
+        })
+      }
     }
     if (!change.after.exists) {
       // delete
