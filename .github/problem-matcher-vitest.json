@@ -4,11 +4,17 @@
       "owner": "vitest",
       "pattern": [
         {
-          "regexp": "^ FAIL .*\\s^(.*)$\\s ❯ (.*)\\:(\\d+)\\:(\\d+)",
-          "file": 2,
-          "line": 3,
-          "column": 4,
+          "regexp": "^ FAIL  .+"
+        },
+        {
+          "regexp": "^(.*)",
           "message": 1
+        },
+        {
+          "regexp": " ❯ (.*)\\:(\\d+)\\:(\\d+)",
+          "file": 1,
+          "line": 2,
+          "column": 3
         }
       ]
     }
