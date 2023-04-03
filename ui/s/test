@@ -2,7 +2,11 @@
 
 set -eoux pipefail
 main() {
-  exec ./node_modules/.bin/vitest "$@"
+  if [ "$CI" ]; then
+  NO_COLOR=1 ./node_modules/.bin/vitest "$@" 2>&1 | sed "s#src/#$PWD/src/#"
+  else
+  ./node_modules/.bin/vitest "$@"
+  fi
 }
 
 main "$@"
