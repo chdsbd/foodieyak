@@ -28,8 +28,7 @@ export function PlacesCreateView() {
   const [location, setLocation] = useState("")
   const [geoInfo, setGeoInfo] = useState<Place["geoInfo"] | null>(null)
   const user = useUser()
-  const x = "123"
-  const friends = useFriends(user.data?.uid)
+  const friends = useFriends(user.data?.uid ?? null)
   const history = useHistory()
   const toast = useToast()
   const [name, setName] = useState(() => {
