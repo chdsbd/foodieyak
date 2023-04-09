@@ -88,10 +88,13 @@ export function MenuItemDetailView() {
         <HStack w="full">
           <VStack alignItems="start" spacing={0}>
             <HStack>
-              <Heading alignSelf={"start"} as="h1" size="lg">
-                {startCase(menuItem.name)}
+              <Heading alignSelf={"start"} as="h1" size="md">
+                Menu Item
               </Heading>
             </HStack>
+            <Heading alignSelf={"start"} as="h1" size="lg">
+              {startCase(menuItem.name)}
+            </Heading>
             <Text
               as={Link}
               fontSize="md"
