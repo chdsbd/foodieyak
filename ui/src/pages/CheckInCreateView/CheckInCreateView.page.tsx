@@ -31,6 +31,7 @@ import { ReadonlyInput } from "../../components/ReadonlyInput"
 import { toISODateString } from "../../date"
 import { useMenuItems, usePlace, useUser } from "../../hooks"
 import { pathCheckinDetail, pathPlaceDetail } from "../../paths"
+import { startCase } from "../../textutils"
 import { SelectMenuItemModal } from "./SelectMenuItemModal"
 
 export function MenuItem(props: {
@@ -46,7 +47,9 @@ export function MenuItem(props: {
       <CardBody>
         <VStack w="100%">
           <FormControl>
-            <FormLabel fontSize={"lg"}>{props.menuItemName}</FormLabel>
+            <FormLabel fontSize={"lg"}>
+              {startCase(props.menuItemName)}
+            </FormLabel>
             <ButtonGroup w="100%">
               <Upvote
                 showColor={props.rating > 0}
