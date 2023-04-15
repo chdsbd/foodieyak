@@ -199,8 +199,10 @@ async function convertActivities(
 
   Object.entries(dayToActivities).forEach(([day, value]) => {
     value.forEach((activity) => {
-      if (dayToPlaceToActivities?.[day]?.[activity.placeId] == null) {
+      if (dayToPlaceToActivities[day] == null) {
         dayToPlaceToActivities[day] = {}
+      }
+      if (dayToPlaceToActivities[day][activity.placeId] == null) {
         dayToPlaceToActivities[day][activity.placeId] = {
           placeName: "",
           activities: [],
