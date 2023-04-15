@@ -8,11 +8,10 @@ import {
   VStack,
 } from "@chakra-ui/react"
 import { format, formatISO } from "date-fns"
-import { groupBy, map } from "lodash-es"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 
-import { placeById } from "../api"
+import { placeById, userById } from "../api"
 import { Activity } from "../api-schemas"
 import { assertNever } from "../assertNever"
 import { Page } from "../components/Page"
@@ -23,7 +22,6 @@ import {
   pathMenuItemDetail,
   pathPlaceDetail,
 } from "../paths"
-import { UserIdToName } from "./FriendsListView.page"
 
 type ActivityType = "create" | "delete" | "update" | "merge"
 
@@ -120,34 +118,12 @@ function updateDescription({
   return assertNever(activity)
 }
 
-function usePlaceName({ placeId }: { placeId: string }): string {
-  const [name, setName] = useState("")
-  useEffect(() => {
-    let unmount = false
-    placeById({ placeId })
-      .then((data) => {
-        if (unmount) {
-          return
-        }
-        setName(data.name)
-      })
-      .catch(() => {
-        // todo
-      })
-    return () => {
-      unmount = true
-    }
-  }, [placeId])
-
-  return name
-}
-
 function Activity({
   type,
   activity,
 }: {
   type: ActivityType
-  activity: Activity
+  activity: ActivityJoined
 }) {
   const description = updateDescription({
     update: type,
@@ -157,9 +133,7 @@ function Activity({
   return (
     <HStack spacing={1} width="100%" justifyContent={"space-between"}>
       <div>
-        <span style={{ fontWeight: "bold" }}>
-          <UserIdToName userId={activity.createdById} />
-        </span>{" "}
+        <span style={{ fontWeight: "bold" }}>{activity.createdByName}</span>{" "}
         {description}{" "}
       </div>
       <Box>{format(activity.createdAt.toDate(), "h:mmaaa")}</Box>
@@ -167,30 +141,100 @@ function Activity({
   )
 }
 
-function convertActivities(orderedActivities: Activity[]): {
-  date: string
-  placesWithActivities: { placeId: string; activities: Activity[] }[]
-}[] {
-  return map(
-    groupBy(orderedActivities, (x) =>
-      formatISO(x.createdAt.toDate(), {
-        representation: "date",
-      }),
-    ),
-    (activities, date) => {
-      const placeActivities = map(
-        groupBy(activities, (x) => x.placeId),
-        (activities, placeId) => ({ activities, placeId }),
-      )
-
-      return { placesWithActivities: placeActivities, date }
-    },
+async function getUserNameMapping(
+  userIds: Array<string>,
+): Promise<Record<string, string>> {
+  const results = await Promise.all(
+    userIds.map((userId) => userById({ userId })),
   )
+  let mapping: Record<string, string> = {}
+  results.forEach((element) => {
+    mapping[element.uid] = element.displayName || element.email
+  })
+  return mapping
 }
 
-function PlaceIdToName({ placeId }: { placeId: string }) {
-  const placeName = usePlaceName({ placeId })
+async function getPlaceNameMapping(
+  placeIds: Array<string>,
+): Promise<Record<string, string>> {
+  const results = await Promise.all(
+    placeIds.map((placeId) => placeById({ placeId })),
+  )
+  let mapping: Record<string, string> = {}
+  results.forEach((element) => {
+    mapping[element.id] = element.name
+  })
+  return mapping
+}
 
+type ActivityJoined = Activity & { createdByName: string; placeName: string }
+type PlaceId = string
+type DayStr = string
+
+type ActivitiesAggregated = Record<
+  DayStr,
+  Record<PlaceId, { activities: ActivityJoined[]; placeName: string }>
+>
+
+async function convertActivities(
+  orderedActivities: Activity[],
+): Promise<ActivitiesAggregated> {
+  let dayToActivities: Record<DayStr, ActivityJoined[]> = {}
+  let createdByIds = new Set<string>()
+  let placeIds = new Set<string>()
+  orderedActivities.forEach((activity) => {
+    let key = formatISO(activity.createdAt.toDate(), {
+      representation: "date",
+    })
+    if (dayToActivities[key] == null) {
+      dayToActivities[key] = []
+    }
+    dayToActivities[key].push({ ...activity, createdByName: "", placeName: "" })
+
+    createdByIds.add(activity.createdById)
+    placeIds.add(activity.placeId)
+  })
+
+  let dayToPlaceToActivities: ActivitiesAggregated = {}
+
+  Object.entries(dayToActivities).forEach(([day, value]) => {
+    value.forEach((activity) => {
+      if (dayToPlaceToActivities?.[day]?.[activity.placeId] == null) {
+        dayToPlaceToActivities[day] = {}
+        dayToPlaceToActivities[day][activity.placeId] = {
+          placeName: "",
+          activities: [],
+        }
+      }
+      dayToPlaceToActivities[day][activity.placeId].activities.push(activity)
+    })
+  })
+
+  const [userNameMapping, placeNameMapping] = await Promise.all([
+    getUserNameMapping([...createdByIds]),
+    getPlaceNameMapping([...placeIds]),
+  ])
+
+  Object.values(dayToPlaceToActivities).forEach((placeIdToActivities) => {
+    Object.values(placeIdToActivities).forEach((place) => {
+      place.activities.forEach((activity) => {
+        activity.createdByName = userNameMapping[activity.createdById]
+        activity.placeName = placeNameMapping[activity.placeId]
+        place.placeName = placeNameMapping[activity.placeId]
+      })
+    })
+  })
+
+  return dayToPlaceToActivities
+}
+
+function PlaceName({
+  placeId,
+  placeName,
+}: {
+  placeId: string
+  placeName: string
+}) {
   return (
     <Text as={Link} {...linkStyled} to={pathPlaceDetail({ placeId })}>
       {placeName}
@@ -198,12 +242,62 @@ function PlaceIdToName({ placeId }: { placeId: string }) {
   )
 }
 
+function useActivitiesMapping({
+  filter,
+  userId,
+}: {
+  filter: "everything" | "checkins"
+  userId: string
+}) {
+  // NOTE: this doesn't handle caching.
+  //
+  // When we unmount and then mount we should show the most recent data we have,
+  // instead we end up in a loading state.
+  //
+  // onSnapshot will retrieve data from the cache on mount but we then have to
+  // join that to other data which isn't in the cache.
+  //
+  // Ideally Firebase would support some sort of join / expansion mechanism and
+  // handle all the caching internally, but I think we'll have to roll our own
+  // to support this.
+  const [state, setState] = useState<
+    ActivitiesAggregated | "loading" | "error"
+  >("loading")
+  const activities = useActivities({ filter, userId })
+
+  useEffect(() => {
+    let cancel = false
+    if (activities === "error" || activities === "loading") {
+      return
+    }
+    convertActivities(activities)
+      .then((res) => {
+        if (cancel) {
+          return
+        }
+        setState(res)
+      })
+      .catch(() => {
+        setState("error")
+      })
+
+    return () => {
+      cancel = true
+    }
+  }, [activities])
+
+  return state
+}
+
 export function ActivityView() {
   type SelectOption = "everything" | "checkins"
   const [filter, setFilter] = useState<SelectOption>("checkins")
   const user = useUser()
-  const activities = useActivities({ filter, userId: user.data?.uid ?? "" })
-  const activityDays = convertActivities(activities)
+
+  const activityDays = useActivitiesMapping({
+    filter,
+    userId: user.data?.uid ?? "",
+  })
 
   return (
     <Page>
@@ -229,25 +323,35 @@ export function ActivityView() {
         </Select>
       </HStack>
       <VStack spacing={6} align="start" width="100%">
-        {activityDays.map((day) => (
-          <Box key={day.date} width={"100%"}>
-            <Box borderBottomWidth={"1px"} marginBottom={2}>
-              {formatHumanDate(new Date(day.date))}
+        {activityDays === "error" ? (
+          <div>Error</div>
+        ) : activityDays === "loading" ? (
+          <div>Loading...</div>
+        ) : (
+          Object.entries(activityDays).map(([day, placesWithActivities]) => (
+            <Box key={day} width={"100%"}>
+              <Box borderBottomWidth={"1px"} marginBottom={2}>
+                {formatHumanDate(new Date(day))}
+              </Box>
+              <VStack spacing={3} width="100%" alignItems={"start"}>
+                {Object.entries(placesWithActivities).map(
+                  ([placeId, { activities, placeName }]) => (
+                    <Box key={placeId} w="100%">
+                      <Box>
+                        <PlaceName placeId={placeId} placeName={placeName} />
+                      </Box>
+                      {activities.map((a) => {
+                        return (
+                          <Activity key={a.id} type={a.type} activity={a} />
+                        )
+                      })}
+                    </Box>
+                  ),
+                )}
+              </VStack>
             </Box>
-            <VStack spacing={3} width="100%" alignItems={"start"}>
-              {day.placesWithActivities.map((place) => (
-                <Box key={place.placeId} w="100%">
-                  <Box>
-                    <PlaceIdToName placeId={place.placeId} />
-                  </Box>
-                  {place.activities.map((a) => {
-                    return <Activity key={a.id} type={a.type} activity={a} />
-                  })}
-                </Box>
-              ))}
-            </VStack>
-          </Box>
-        ))}
+          ))
+        )}
       </VStack>
     </Page>
   )

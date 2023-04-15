@@ -241,9 +241,6 @@ export function useActivities({
     }
   }, [userId, filter])
   const res = useQuery(q, ActivitySchema)
-  if (res === "error" || res === "loading") {
-    return []
-  }
   return res
 }
 
