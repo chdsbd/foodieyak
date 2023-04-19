@@ -1,4 +1,11 @@
 import {
+  AddIcon,
+  CheckIcon,
+  CloseIcon,
+  RepeatIcon,
+  WarningIcon,
+} from "@chakra-ui/icons"
+import {
   Box,
   Heading,
   HStack,
@@ -13,9 +20,10 @@ import { Link } from "react-router-dom"
 
 import { placeById, userById } from "../api"
 import { Activity } from "../api-schemas"
+import { assertCond } from "../assertCond"
 import { assertNever } from "../assertNever"
 import { Page } from "../components/Page"
-import { formatHumanDate } from "../date"
+import { formatHumanDate, formatHumanDateTime } from "../date"
 import { useActivities, useUser } from "../hooks"
 import {
   pathCheckinDetail,
@@ -43,6 +51,7 @@ function updateTypeToStr(type: ActivityType): string {
 
 const linkStyled = {
   fontWeight: "500",
+  textDecoration: "underline",
 }
 
 function updateDescription({
@@ -55,20 +64,6 @@ function updateDescription({
   activity: Activity
 }) {
   if (activity.document === "checkin") {
-    if (update === "create") {
-      return (
-        <>
-          created a{" "}
-          <Text
-            as={Link}
-            {...linkStyled}
-            to={pathCheckinDetail({ placeId, checkInId: activity.checkinId })}
-          >
-            checkin
-          </Text>{" "}
-        </>
-      )
-    }
     return (
       <>
         {updateTypeToStr(update)} a{" "}
@@ -118,23 +113,25 @@ function updateDescription({
   return assertNever(activity)
 }
 
-function Activity({
-  type,
-  activity,
-}: {
-  type: ActivityType
-  activity: ActivityJoined
-}) {
-  const description = updateDescription({
-    update: type,
-    placeId: activity.placeId,
-    activity,
-  })
+function CheckinCreated({ activity }: { activity: ActivityJoined }) {
+  assertCond(activity.document === "checkin")
   return (
     <HStack spacing={1} width="100%" justifyContent={"space-between"}>
       <div>
         <span style={{ fontWeight: "bold" }}>{activity.createdByName}</span>{" "}
-        {description}{" "}
+        created a{" "}
+        {
+          <Text
+            as={Link}
+            fontWeight={500}
+            to={pathCheckinDetail({
+              placeId: activity.placeId,
+              checkInId: activity.checkinId,
+            })}
+          >
+            checkin
+          </Text>
+        }{" "}
       </div>
       <Box>{format(activity.createdAt.toDate(), "h:mmaaa")}</Box>
     </HStack>
@@ -230,6 +227,29 @@ async function convertActivities(
   return dayToPlaceToActivities
 }
 
+async function joinActivitiesToNames(
+  orderedActivities: Activity[],
+): Promise<ActivityJoined[]> {
+  // do a join so we don't have denormalize a million things
+  let createdByIds = new Set<string>()
+  let placeIds = new Set<string>()
+  orderedActivities.forEach((activity) => {
+    createdByIds.add(activity.createdById)
+    placeIds.add(activity.placeId)
+  })
+
+  const [userNameMapping, placeNameMapping] = await Promise.all([
+    getUserNameMapping([...createdByIds]),
+    getPlaceNameMapping([...placeIds]),
+  ])
+
+  return orderedActivities.map((a): ActivityJoined => {
+    const placeName = placeNameMapping[a.placeId]
+    const createdByName = userNameMapping[a.createdById]
+    return { ...a, placeName, createdByName }
+  })
+}
+
 function PlaceName({
   placeId,
   placeName,
@@ -238,19 +258,13 @@ function PlaceName({
   placeName: string
 }) {
   return (
-    <Text as={Link} {...linkStyled} to={pathPlaceDetail({ placeId })}>
+    <Text as={Link} fontWeight={500} to={pathPlaceDetail({ placeId })}>
       {placeName}
     </Text>
   )
 }
 
-function useActivitiesMapping({
-  filter,
-  userId,
-}: {
-  filter: "everything" | "checkins"
-  userId: string
-}) {
+function useActivitiesMapping({ userId }: { userId: string }) {
   // NOTE: this doesn't handle caching.
   //
   // When we unmount and then mount we should show the most recent data we have,
@@ -265,7 +279,7 @@ function useActivitiesMapping({
   const [state, setState] = useState<
     ActivitiesAggregated | "loading" | "error"
   >("loading")
-  const activities = useActivities({ filter, userId })
+  const activities = useActivities({ filter: "checkins", userId })
 
   useEffect(() => {
     let cancel = false
@@ -291,15 +305,242 @@ function useActivitiesMapping({
   return state
 }
 
+function Profile({ children }: { children: React.ReactNode }) {
+  const size = 32
+  return (
+    <Box
+      style={{
+        height: size,
+        minHeight: size,
+        minWidth: size,
+        width: size,
+        borderWidth: "1px",
+        border: "1px solid gray",
+        color: "inherit",
+        borderRadius: "100%",
+        justifyContent: "center",
+        display: "flex",
+        fontWeight: "bold",
+        alignItems: "center",
+      }}
+    >
+      {children}
+    </Box>
+  )
+}
+
+function ActionIcon({
+  type,
+  document,
+}: {
+  type: "create" | "delete" | "update" | "merge"
+  document: Activity["document"]
+}) {
+  // TODO: better icons
+  if (type === "create") {
+    if (document === "checkin") {
+      return (
+        <Profile>
+          <CheckIcon color="green.400" />
+        </Profile>
+      )
+    }
+    return (
+      <Profile>
+        <AddIcon color="green.400" />
+      </Profile>
+    )
+  }
+  return (
+    <Profile>
+      {type === "delete" ? (
+        <CloseIcon boxSize={3} color="red.400" />
+      ) : type === "update" ? (
+        <RepeatIcon color="blue.400" />
+      ) : type === "merge" ? (
+        <WarningIcon color="yellow.400" />
+      ) : (
+        assertNever(type)
+      )}
+    </Profile>
+  )
+}
+
+function Action({
+  update,
+  placeId,
+  activity,
+}: {
+  update: ActivityType
+  placeId: string
+  activity: ActivityJoined
+}) {
+  const description = updateDescription({
+    update,
+    placeId,
+    activity,
+  })
+  return (
+    <>
+      {description}{" "}
+      <Text as={Link} {...linkStyled} to={pathPlaceDetail({ placeId })}>
+        {activity.placeName}
+      </Text>
+    </>
+  )
+}
+
+function ActivityDescription({
+  update,
+  placeId,
+  activity,
+}: {
+  placeId: string
+  update: ActivityType
+  activity: ActivityJoined
+}) {
+  return (
+    <HStack spacing={1}>
+      <div>
+        <span style={{ fontWeight: "bold" }}>{activity.createdByName}</span>{" "}
+        <Action update={update} placeId={placeId} activity={activity} />
+      </div>
+    </HStack>
+  )
+}
+
+function ActivityTimestamp({
+  timestamp,
+}: {
+  timestamp: Activity["createdAt"]
+}) {
+  return <div>{formatHumanDateTime(timestamp)}</div>
+}
+
+function AnyActivity({
+  document,
+  type,
+  timestamp,
+  activity,
+}: {
+  document: Activity["document"]
+  type: ActivityType
+  timestamp: Activity["createdAt"]
+  activity: ActivityJoined
+}) {
+  return (
+    <HStack spacing={3}>
+      <ActionIcon type={type} document={document} />
+
+      <VStack align="start" spacing={0}>
+        <ActivityDescription
+          update={type}
+          placeId={activity.placeId}
+          activity={activity}
+        />
+        <ActivityTimestamp timestamp={timestamp} />
+      </VStack>
+    </HStack>
+  )
+}
+
+function useAllActivities({ userId }: { userId: string }) {
+  const [state, setState] = useState<ActivityJoined[] | "loading" | "error">(
+    "loading",
+  )
+  const activities = useActivities({ filter: "everything", userId })
+
+  useEffect(() => {
+    let cancel = false
+    if (activities === "error" || activities === "loading") {
+      return
+    }
+    joinActivitiesToNames(activities)
+      .then((res) => {
+        if (cancel) {
+          return
+        }
+        setState(res)
+      })
+      .catch(() => {
+        setState("error")
+      })
+
+    return () => {
+      cancel = true
+    }
+  }, [activities])
+
+  return state
+}
+
+function AllActivities({ userId }: { userId: string }) {
+  const activities = useAllActivities({ userId })
+  return (
+    <VStack spacing={4} align="start">
+      {activities === "error" ? (
+        <div>error</div>
+      ) : activities === "loading" ? (
+        <div>loading...</div>
+      ) : (
+        activities.map((a) => {
+          return (
+            <AnyActivity
+              key={a.id}
+              document={a.document}
+              type={a.type}
+              timestamp={a.createdAt}
+              activity={a}
+            />
+          )
+        })
+      )}
+    </VStack>
+  )
+}
+
+function CheckinActivities({ userId }: { userId: string }) {
+  const activityDays = useActivitiesMapping({
+    userId,
+  })
+  return (
+    <VStack spacing={6} align="start" width="100%">
+      {activityDays === "error" ? (
+        <div>Error</div>
+      ) : activityDays === "loading" ? (
+        <div>Loading...</div>
+      ) : (
+        Object.entries(activityDays).map(([day, placesWithActivities]) => (
+          <Box key={day} width={"100%"}>
+            <Box borderBottomWidth={"1px"} marginBottom={2}>
+              {formatHumanDate(new Date(day))}
+            </Box>
+            <VStack spacing={3} width="100%" alignItems={"start"}>
+              {Object.entries(placesWithActivities).map(
+                ([placeId, { activities, placeName }]) => (
+                  <Box key={placeId} w="100%">
+                    <Box>
+                      <PlaceName placeId={placeId} placeName={placeName} />
+                    </Box>
+                    {activities.map((a) => {
+                      return <CheckinCreated key={a.id} activity={a} />
+                    })}
+                  </Box>
+                ),
+              )}
+            </VStack>
+          </Box>
+        ))
+      )}
+    </VStack>
+  )
+}
+
 export function ActivityView() {
   type SelectOption = "everything" | "checkins"
   const [filter, setFilter] = useState<SelectOption>("checkins")
   const user = useUser()
-
-  const activityDays = useActivitiesMapping({
-    filter,
-    userId: user.data?.uid ?? "",
-  })
+  const userId = user.data?.uid ?? ""
 
   return (
     <Page>
@@ -324,37 +565,12 @@ export function ActivityView() {
           <option value="everything">Everything</option>
         </Select>
       </HStack>
-      <VStack spacing={6} align="start" width="100%">
-        {activityDays === "error" ? (
-          <div>Error</div>
-        ) : activityDays === "loading" ? (
-          <div>Loading...</div>
-        ) : (
-          Object.entries(activityDays).map(([day, placesWithActivities]) => (
-            <Box key={day} width={"100%"}>
-              <Box borderBottomWidth={"1px"} marginBottom={2}>
-                {formatHumanDate(new Date(day))}
-              </Box>
-              <VStack spacing={3} width="100%" alignItems={"start"}>
-                {Object.entries(placesWithActivities).map(
-                  ([placeId, { activities, placeName }]) => (
-                    <Box key={placeId} w="100%">
-                      <Box>
-                        <PlaceName placeId={placeId} placeName={placeName} />
-                      </Box>
-                      {activities.map((a) => {
-                        return (
-                          <Activity key={a.id} type={a.type} activity={a} />
-                        )
-                      })}
-                    </Box>
-                  ),
-                )}
-              </VStack>
-            </Box>
-          ))
-        )}
-      </VStack>
+
+      {filter === "checkins" ? (
+        <CheckinActivities userId={userId} />
+      ) : (
+        <AllActivities userId={userId} />
+      )}
     </Page>
   )
 }
