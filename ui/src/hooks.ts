@@ -61,6 +61,8 @@ function useQuery<T extends z.ZodType>(
         },
         (error) => {
           // eslint-disable-next-line no-console
+          console.error("error with query")
+          // eslint-disable-next-line no-console
           console.error(error)
           setState("error")
         },
@@ -79,6 +81,8 @@ function useQuery<T extends z.ZodType>(
           setState(out)
         },
         (error) => {
+          // eslint-disable-next-line no-console
+          console.error("error with query")
           // eslint-disable-next-line no-console
           console.error(error)
           setState("error")

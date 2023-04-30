@@ -25,7 +25,7 @@ service cloud.firestore {
             && (data.lastModifiedAt == null || data.lastModifiedAt is timestamp)
     }
     match /places/{place} {
-    function placeData() {
+      function placeData() {
         return get(/databases/$(database)/documents/places/$(place))
       }
       function canViewPlace(request, resource) {
@@ -121,6 +121,11 @@ service cloud.firestore {
         allow delete: if canViewPlace(request, placeData())
           && resource.data.createdById == request.auth.uid
       }
+    }
+
+    match /{path=**}/checkins/{checkin} {
+      allow read: if request.auth.uid in resource.data.viewerIds
+      allow create, update, delete: if false
     }
     
     match /activities/{activity} {
