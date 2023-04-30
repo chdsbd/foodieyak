@@ -14,7 +14,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react"
-import { format, formatISO } from "date-fns"
+import { formatISO } from "date-fns"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 
