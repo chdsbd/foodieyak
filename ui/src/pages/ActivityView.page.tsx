@@ -20,7 +20,6 @@ import { Link } from "react-router-dom"
 
 import { placeById, userById } from "../api"
 import { Activity, PlaceCheckIn } from "../api-schemas"
-import { assertCond } from "../assertCond"
 import { assertNever } from "../assertNever"
 import { Page } from "../components/Page"
 import { formatHumanDate, formatHumanDateTime } from "../date"

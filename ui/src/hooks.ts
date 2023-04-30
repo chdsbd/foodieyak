@@ -31,7 +31,6 @@ import {
   PlaceSchema,
   UserPersonalInfoSchema,
 } from "./api-schemas"
-import { assertNever } from "./assertNever"
 import { db, remoteConfig, RemoteConfigKey } from "./db"
 
 function useQuery<T extends z.ZodType>(
