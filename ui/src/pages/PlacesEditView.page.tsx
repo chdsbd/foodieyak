@@ -8,6 +8,7 @@ import {
   HStack,
   Input,
   Spacer,
+  Switch,
   Tooltip,
   useToast,
   VStack,
@@ -58,6 +59,7 @@ export function PlacesEditViewInner({ place }: { place: Place }) {
   const [name, setName] = useState(place.name)
   const [geoInfo, setGeoInfo] = useState<Place["geoInfo"] | null>(place.geoInfo)
   const [location, setLocation] = useState(place.location)
+  const [isSkippable, setIsSkippable] = useState(place.isSkippableAt != null)
 
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -87,6 +89,7 @@ export function PlacesEditViewInner({ place }: { place: Place }) {
               name,
               location,
               userId: user.data.uid,
+              isSkippable,
             })
             .then(() => {
               history.push(pathPlaceDetail({ placeId }))
@@ -150,6 +153,18 @@ export function PlacesEditViewInner({ place }: { place: Place }) {
             geoInfo={geoInfo}
           />
         )}
+        <FormControl display="flex" alignItems="center">
+          <FormLabel htmlFor="is-skippable" sx={{ userSelect: "none" }} mb="0">
+            Skippable?
+          </FormLabel>
+          <Switch
+            id="is-skippable"
+            isChecked={isSkippable}
+            onChange={(e) => {
+              setIsSkippable(e.target.checked)
+            }}
+          />
+        </FormControl>
 
         <Spacer />
         <ButtonGroup w="100%">

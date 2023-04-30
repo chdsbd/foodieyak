@@ -51,7 +51,11 @@ export async function placeCreate(params: {
   return docRef.id
 }
 
-type DocUpdateFields = "lastModifiedAt" | "lastModifiedById"
+type DocUpdateFields =
+  | "lastModifiedAt"
+  | "lastModifiedById"
+  | "isSkippableAt"
+  | "isSkippableById"
 
 export async function placeUpdate(params: {
   placeId: string
@@ -59,6 +63,7 @@ export async function placeUpdate(params: {
   location: string
   geoInfo: Place["geoInfo"] | null
   userId: string
+  isSkippable: boolean
 }): Promise<void> {
   const place: Pick<Place, "name" | "location" | "geoInfo" | DocUpdateFields> =
     {
@@ -67,6 +72,8 @@ export async function placeUpdate(params: {
       geoInfo: params.geoInfo,
       lastModifiedAt: Timestamp.now(),
       lastModifiedById: params.userId,
+      isSkippableAt: params.isSkippable ? Timestamp.now() : null,
+      isSkippableById: params.isSkippable ? params.userId : null,
     }
   await updateDoc(doc(db, "places", params.placeId), place)
 }
