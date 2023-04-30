@@ -19,12 +19,12 @@ import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 
 import { placeById, userById } from "../api"
-import { Activity } from "../api-schemas"
+import { Activity, PlaceCheckIn } from "../api-schemas"
 import { assertCond } from "../assertCond"
 import { assertNever } from "../assertNever"
 import { Page } from "../components/Page"
 import { formatHumanDate, formatHumanDateTime } from "../date"
-import { useActivities, useUser } from "../hooks"
+import { useActivities, useCheckinActivities, useUser } from "../hooks"
 import {
   pathCheckinDetail,
   pathMenuItemDetail,
@@ -113,27 +113,26 @@ function updateDescription({
   return assertNever(activity)
 }
 
-function CheckinCreated({ activity }: { activity: ActivityJoined }) {
-  assertCond(activity.document === "checkin")
+function CheckinCreated({ checkin }: { checkin: PlaceCheckInJoined }) {
   return (
     <HStack spacing={1} width="100%" justifyContent={"space-between"}>
       <div>
-        <span style={{ fontWeight: "bold" }}>{activity.createdByName}</span>{" "}
+        <span style={{ fontWeight: "bold" }}>{checkin.createdByName}</span>{" "}
         created a{" "}
         {
           <Text
             as={Link}
             fontWeight={500}
             to={pathCheckinDetail({
-              placeId: activity.placeId,
-              checkInId: activity.checkinId,
+              placeId: checkin.placeId,
+              checkInId: checkin.id,
             })}
           >
             checkin
           </Text>
         }{" "}
       </div>
-      <Box>{format(activity.createdAt.toDate(), "h:mmaaa")}</Box>
+      <Box>{format(checkin.createdAt.toDate(), "h:mmaaa")}</Box>
     </HStack>
   )
 }
@@ -168,44 +167,51 @@ type ActivityJoined = Activity & { createdByName: string; placeName: string }
 type PlaceId = string
 type DayStr = string
 
-type ActivitiesAggregated = Record<
+type PlaceCheckInJoined = PlaceCheckIn & {
+  createdByName: string
+  placeName: string
+}
+type PlaceCheckinAggregated = Record<
   DayStr,
-  Record<PlaceId, { activities: ActivityJoined[]; placeName: string }>
+  Record<PlaceId, { activities: PlaceCheckInJoined[]; placeName: string }>
 >
 
-async function convertActivities(
-  orderedActivities: Activity[],
-): Promise<ActivitiesAggregated> {
-  let dayToActivities: Record<DayStr, ActivityJoined[]> = {}
+async function convertCheckins(
+  orderedCheckins: PlaceCheckIn[],
+): Promise<PlaceCheckinAggregated> {
+  let dayToCheckins: Record<DayStr, PlaceCheckInJoined[]> = {}
   let createdByIds = new Set<string>()
   let placeIds = new Set<string>()
-  orderedActivities.forEach((activity) => {
-    let key = formatISO(activity.createdAt.toDate(), {
+  orderedCheckins.forEach((checkin) => {
+    if (checkin.checkedInAt == null) {
+      return
+    }
+    let key = formatISO(checkin.checkedInAt.toDate(), {
       representation: "date",
     })
-    if (dayToActivities[key] == null) {
-      dayToActivities[key] = []
+    if (dayToCheckins[key] == null) {
+      dayToCheckins[key] = []
     }
-    dayToActivities[key].push({ ...activity, createdByName: "", placeName: "" })
+    dayToCheckins[key].push({ ...checkin, createdByName: "", placeName: "" })
 
-    createdByIds.add(activity.createdById)
-    placeIds.add(activity.placeId)
+    createdByIds.add(checkin.createdById)
+    placeIds.add(checkin.placeId)
   })
 
-  let dayToPlaceToActivities: ActivitiesAggregated = {}
+  let dayToPlaceCheckins: PlaceCheckinAggregated = {}
 
-  Object.entries(dayToActivities).forEach(([day, value]) => {
-    value.forEach((activity) => {
-      if (dayToPlaceToActivities[day] == null) {
-        dayToPlaceToActivities[day] = {}
+  Object.entries(dayToCheckins).forEach(([day, value]) => {
+    value.forEach((checkin) => {
+      if (dayToPlaceCheckins[day] == null) {
+        dayToPlaceCheckins[day] = {}
       }
-      if (dayToPlaceToActivities[day][activity.placeId] == null) {
-        dayToPlaceToActivities[day][activity.placeId] = {
+      if (dayToPlaceCheckins[day][checkin.placeId] == null) {
+        dayToPlaceCheckins[day][checkin.placeId] = {
           placeName: "",
           activities: [],
         }
       }
-      dayToPlaceToActivities[day][activity.placeId].activities.push(activity)
+      dayToPlaceCheckins[day][checkin.placeId].activities.push(checkin)
     })
   })
 
@@ -214,7 +220,7 @@ async function convertActivities(
     getPlaceNameMapping([...placeIds]),
   ])
 
-  Object.values(dayToPlaceToActivities).forEach((placeIdToActivities) => {
+  Object.values(dayToPlaceCheckins).forEach((placeIdToActivities) => {
     Object.values(placeIdToActivities).forEach((place) => {
       place.activities.forEach((activity) => {
         activity.createdByName = userNameMapping[activity.createdById]
@@ -224,7 +230,7 @@ async function convertActivities(
     })
   })
 
-  return dayToPlaceToActivities
+  return dayToPlaceCheckins
 }
 
 async function joinActivitiesToNames(
@@ -277,16 +283,16 @@ function useActivitiesMapping({ userId }: { userId: string }) {
   // handle all the caching internally, but I think we'll have to roll our own
   // to support this.
   const [state, setState] = useState<
-    ActivitiesAggregated | "loading" | "error"
+    PlaceCheckinAggregated | "loading" | "error"
   >("loading")
-  const activities = useActivities({ filter: "checkins", userId })
+  const checkins = useCheckinActivities({ userId })
 
   useEffect(() => {
     let cancel = false
-    if (activities === "error" || activities === "loading") {
+    if (checkins === "error" || checkins === "loading") {
       return
     }
-    convertActivities(activities)
+    convertCheckins(checkins)
       .then((res) => {
         if (cancel) {
           return
@@ -300,7 +306,7 @@ function useActivitiesMapping({ userId }: { userId: string }) {
     return () => {
       cancel = true
     }
-  }, [activities])
+  }, [checkins])
 
   return state
 }
@@ -448,7 +454,7 @@ function useAllActivities({ userId }: { userId: string }) {
   const [state, setState] = useState<ActivityJoined[] | "loading" | "error">(
     "loading",
   )
-  const activities = useActivities({ filter: "everything", userId })
+  const activities = useActivities({ userId })
 
   useEffect(() => {
     let cancel = false
@@ -500,30 +506,30 @@ function AllActivities({ userId }: { userId: string }) {
 }
 
 function CheckinActivities({ userId }: { userId: string }) {
-  const activityDays = useActivitiesMapping({
+  const checkins = useActivitiesMapping({
     userId,
   })
   return (
     <VStack spacing={6} align="start" width="100%">
-      {activityDays === "error" ? (
+      {checkins === "error" ? (
         <div>Error</div>
-      ) : activityDays === "loading" ? (
+      ) : checkins === "loading" ? (
         <div>Loading...</div>
       ) : (
-        Object.entries(activityDays).map(([day, placesWithActivities]) => (
+        Object.entries(checkins).map(([day, placesWithCheckins]) => (
           <Box key={day} width={"100%"}>
             <Box borderBottomWidth={"1px"} marginBottom={2}>
               {formatHumanDate(new Date(day))}
             </Box>
             <VStack spacing={3} width="100%" alignItems={"start"}>
-              {Object.entries(placesWithActivities).map(
-                ([placeId, { activities, placeName }]) => (
+              {Object.entries(placesWithCheckins).map(
+                ([placeId, { activities: checkins, placeName }]) => (
                   <Box key={placeId} w="100%">
                     <Box>
                       <PlaceName placeId={placeId} placeName={placeName} />
                     </Box>
-                    {activities.map((a) => {
-                      return <CheckinCreated key={a.id} activity={a} />
+                    {checkins.map((c) => {
+                      return <CheckinCreated key={c.id} checkin={c} />
                     })}
                   </Box>
                 ),
