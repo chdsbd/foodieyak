@@ -131,7 +131,6 @@ function CheckinCreated({ checkin }: { checkin: PlaceCheckInJoined }) {
           </Text>
         }{" "}
       </div>
-      <Box>{format(checkin.createdAt.toDate(), "h:mmaaa")}</Box>
     </HStack>
   )
 }
