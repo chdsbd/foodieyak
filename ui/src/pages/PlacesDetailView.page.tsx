@@ -6,7 +6,6 @@ import {
   Button,
   ButtonGroup,
   Divider,
-  Heading,
   HStack,
   Spacer,
   Tab,
