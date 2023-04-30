@@ -31,7 +31,6 @@ import {
   PlaceSchema,
   UserPersonalInfoSchema,
 } from "./api-schemas"
-import { assertNever } from "./assertNever"
 import { db, remoteConfig, RemoteConfigKey } from "./db"
 
 function useQuery<T extends z.ZodType>(
@@ -214,32 +213,26 @@ export function usePlaces(userId: string) {
   return data.map((x) => PlaceSchema.parse(x))
 }
 
-export function useActivities({
-  filter,
-  userId,
-}: {
-  filter: "everything" | "checkins"
-  userId: string
-}) {
+export function useActivities({ userId }: { userId: string }) {
   const q = useMemo(() => {
-    if (filter === "everything") {
-      return query(
-        collection(db, "activities"),
-        where("viewerIds", "array-contains", userId),
-        orderBy("createdAt", "desc"),
-      )
-    } else if (filter === "checkins") {
-      return query(
-        collectionGroup(db, "checkins"),
-        where("viewerIds", "array-contains", userId),
-        orderBy("checkedInAt", "desc"),
-      )
-    } else {
-      assertNever(filter)
-    }
-  }, [userId, filter])
-  const res = useQuery(q, ActivitySchema)
-  return res
+    return query(
+      collection(db, "activities"),
+      where("viewerIds", "array-contains", userId),
+      orderBy("createdAt", "desc"),
+    )
+  }, [userId])
+  return useQuery(q, ActivitySchema)
+}
+
+export function useCheckinActivities({ userId }: { userId: string }) {
+  const q = useMemo(() => {
+    return query(
+      collectionGroup(db, "checkins"),
+      where("viewerIds", "array-contains", userId),
+      orderBy("checkedInAt", "desc"),
+    )
+  }, [userId])
+  return useQuery(q, PlaceCheckInSchema)
 }
 
 export function useFriends(userId: string | null) {
