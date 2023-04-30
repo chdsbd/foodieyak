@@ -61,7 +61,7 @@ service cloud.firestore {
         ));
         return isValidDocUpdate(request)
         && data.diff(resource.data).affectedKeys().hasAny(
-        ['name', 'location', 'geoInfo'])
+        ['name', 'location', 'geoInfo', 'isSkippableAt'])
         && data.name is string && data.name.size() >= 1
         && data.location is string
         && isGeoInfoValid

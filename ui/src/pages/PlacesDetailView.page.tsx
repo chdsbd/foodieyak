@@ -1,4 +1,8 @@
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
   Button,
   ButtonGroup,
   Divider,
@@ -28,6 +32,7 @@ import { GoogleMapsJSMap } from "../components/GoogleMapsJSMap"
 import { Page } from "../components/Page"
 import { PlaceInfoPanel } from "../components/PlaceInfoPanel"
 import { Downvote, Upvote } from "../components/Ratings"
+import { formatHumanDateTime } from "../date"
 import { useCheckins, useMenuItems, usePlace, useUser } from "../hooks"
 import {
   pathCheckinCreate,
@@ -36,6 +41,7 @@ import {
   pathPlaceEdit,
 } from "../paths"
 import { startCase } from "../textutils"
+import { UserIdToName } from "./FriendsListView.page"
 
 function tabToIndex(tab: string | null): number {
   if (tab === "checkins") {
@@ -52,6 +58,41 @@ function indexToTab(index: number) {
 }
 
 const TAB_URL_PARAM = "tab"
+
+function SkippableBanner({
+  isSkippableAt,
+  isSkippableById,
+}: {
+  isSkippableAt: Timestamp
+  isSkippableById: string | null
+}) {
+  // This isn't great, ideally it would come with the query (joins!)
+  const actorName = isSkippableById ? (
+    <UserIdToName userId={isSkippableById} />
+  ) : (
+    ""
+  )
+  const markedAt =
+    isSkippableAt != null ? formatHumanDateTime(isSkippableAt) : null
+  return (
+    <Alert
+      status="warning"
+      variant="subtle"
+      flexDirection="column"
+      alignItems="center"
+      justifyContent="center"
+      height="150px"
+    >
+      <AlertIcon boxSize="40px" mr={0} />
+      <AlertTitle mt={1} mb={1} fontSize="lg" marginRight={0}>
+        Skippable
+      </AlertTitle>
+      <AlertDescription maxWidth="sm">
+        {actorName} marked this as skippable {markedAt}
+      </AlertDescription>
+    </Alert>
+  )
+}
 
 export function PlacesDetailView() {
   const { placeId }: { placeId: string } = useParams()
@@ -136,6 +177,12 @@ export function PlacesDetailView() {
 
   return (
     <Page>
+      {place.isSkippableAt != null ? (
+        <SkippableBanner
+          isSkippableAt={place.isSkippableAt}
+          isSkippableById={place.isSkippableById}
+        />
+      ) : null}
       <HStack w="100%" alignItems={"stretch"}>
         <PlaceInfoPanel place={place} />
         <Spacer />
