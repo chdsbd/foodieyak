@@ -112,7 +112,7 @@ async function addFriendToUserPlaces({
 }
 
 /** backfill friend into the user's activities */
-async function addFriendToActivity({
+async function addFriendToActivities({
   friendId,
   userId,
 }: {
@@ -126,6 +126,30 @@ async function addFriendToActivity({
     .get()
   const queries: Promise<unknown>[] = []
   activities.forEach((activity) => {
+    queries.push(
+      activity.ref.update({
+        viewerIds: admin.firestore.FieldValue.arrayUnion(friendId),
+      }),
+    )
+  })
+  await Promise.all(queries)
+}
+
+/** backfill friend into the user's checkins */
+async function addFriendToCheckins({
+  friendId,
+  userId,
+}: {
+  friendId: string
+  userId: string
+}) {
+  const checkins = await admin
+    .firestore()
+    .collectionGroup("checkins")
+    .where("createdById", "==", userId)
+    .get()
+  const queries: Promise<unknown>[] = []
+  checkins.forEach((activity) => {
     queries.push(
       activity.ref.update({
         viewerIds: admin.firestore.FieldValue.arrayUnion(friendId),
@@ -153,6 +177,7 @@ export const friendOnChange = functions.firestore
       //   userId: context.params.friendId,
       //   friendId: context.params.userId,
       // })
+      //
       // Update Activity
       // await removeFriendFromActivity({
       //   userId: context.params.userId,
@@ -166,7 +191,9 @@ export const friendOnChange = functions.firestore
     if (change.before.exists && change.after.exists) {
       // friend updated
       if (!change.before.data()?.accepted && change.after.data()?.accepted) {
-        // invite accepted. Update checkIns with access.
+        // Invite accepted
+
+        // Update CheckIns with access
         await addFriendToUserPlaces({
           userId: context.params.userId,
           friendId: context.params.friendId,
@@ -177,13 +204,23 @@ export const friendOnChange = functions.firestore
         })
 
         // Add to Activity
-        await addFriendToActivity({
+        await addFriendToActivities({
           userId: context.params.friendId,
           friendId: context.params.userId,
         })
-        await addFriendToActivity({
+        await addFriendToActivities({
           userId: context.params.userId,
           friendId: context.params.friendId,
+        })
+
+        // Add to Checkins
+        await addFriendToCheckins({
+          userId: context.params.userId,
+          friendId: context.params.friendId,
+        })
+        await addFriendToCheckins({
+          userId: context.params.friendId,
+          friendId: context.params.userId,
         })
       }
     }

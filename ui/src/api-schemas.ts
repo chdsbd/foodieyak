@@ -53,6 +53,7 @@ export const PlaceCheckInSchema = BaseSchema.extend({
   checkedInAt: z.nullable(TimestampSchema),
   comment: z.string(),
   ratingsMenuItemIds: z.array(z.string()).default([]),
+  viewerIds: z.array(z.string()),
   ratings: z.array(
     z.object({
       menuItemId: z.string(),

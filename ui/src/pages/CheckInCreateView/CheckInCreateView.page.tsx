@@ -298,6 +298,7 @@ export function CheckInCreateView() {
                 date: isDateEnabled ? parseISO(date) : null,
                 placeId: place.id,
                 comment,
+                viewerIds: place.viewerIds,
                 reviews: menuItemRatings,
               })
               .then((checkInId) => {

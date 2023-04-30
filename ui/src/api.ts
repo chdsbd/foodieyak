@@ -81,12 +81,14 @@ export const checkin = {
     userId,
     comment,
     reviews,
+    viewerIds,
   }: {
     placeId: string
     date: Date | null
     userId: string
     comment: string
     reviews: { menuItemId: string; rating: -1 | 1; comment: string }[]
+    viewerIds: string[]
   }) {
     const checkin: Omit<PlaceCheckIn, "id"> = {
       createdAt: Timestamp.now(),
@@ -95,6 +97,7 @@ export const checkin = {
       lastModifiedAt: null,
       lastModifiedById: null,
       comment,
+      viewerIds,
       ratings: reviews,
       ratingsMenuItemIds: reviews.map((x) => x.menuItemId),
     }
@@ -121,7 +124,7 @@ export const checkin = {
   }) {
     const checkin: Omit<
       PlaceCheckIn,
-      "id" | "createdById" | "createdAt" | "deleted"
+      "id" | "createdById" | "createdAt" | "deleted" | "viewerIds"
     > = {
       checkedInAt: date != null ? Timestamp.fromDate(date) : null,
       lastModifiedAt: Timestamp.now(),
