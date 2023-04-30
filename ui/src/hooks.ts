@@ -6,6 +6,7 @@ import {
 } from "firebase/auth"
 import {
   collection,
+  collectionGroup,
   doc,
   DocumentData,
   DocumentReference,
@@ -229,12 +230,9 @@ export function useActivities({
       )
     } else if (filter === "checkins") {
       return query(
-        collection(db, "activities"),
+        collectionGroup(db, "checkins"),
         where("viewerIds", "array-contains", userId),
-        where("deleted", "==", false),
-        where("document", "==", "checkin"),
-        where("type", "==", "create"),
-        orderBy("createdAt", "desc"),
+        orderBy("checkedInAt", "desc"),
       )
     } else {
       assertNever(filter)
