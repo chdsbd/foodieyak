@@ -87,7 +87,7 @@ function SkippableBanner({
       <AlertTitle mt={1} mb={1} fontSize="lg" marginRight={0}>
         Skippable
       </AlertTitle>
-      <AlertDescription maxWidth="sm">
+      <AlertDescription>
         {actorName} marked this as skippable {markedAt}
       </AlertDescription>
     </Alert>
