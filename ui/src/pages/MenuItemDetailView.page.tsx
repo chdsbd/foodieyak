@@ -19,7 +19,7 @@ import { Page } from "../components/Page"
 import { Downvote, Upvote } from "../components/Ratings"
 import { formatHumanDate } from "../date"
 import { useCheckins, useMenuItem, usePlace, useUser } from "../hooks"
-import { pathCheckinDetail, pathMenuItemEdit, pathPlaceDetail } from "../paths"
+import { pathMenuItemEdit, pathPlaceDetail } from "../paths"
 import { startCase } from "../textutils"
 import { notUndefined } from "../type-guards"
 import { UserIdToName } from "./FriendsListView.page"
@@ -97,7 +97,6 @@ export function MenuItemDetailView() {
             >
               {place.name}
             </Text>{" "}
-            / {startCase(menuItem.name)}
           </Heading>
 
           <Spacer />
@@ -111,9 +110,9 @@ export function MenuItemDetailView() {
         </HStack>
       </VStack>
 
-      <HStack w="full">
-        <Heading as="h2" size="sm" marginRight="auto">
-          Check-Ins
+      <HStack w="full" marginLeft={"auto"}>
+        <Heading as="h2" size="md" marginRight="auto">
+          {startCase(menuItem.name)}
         </Heading>
 
         <span>↑ {checkinCountsByMenuItem?.positive ?? 0}</span>
@@ -125,22 +124,19 @@ export function MenuItemDetailView() {
       )}
       {sortBy(checkInsForMenuItem, (x) => x.checkedInAt?.toMillis()).map(
         (menuItem) => (
-          <VStack
-            key={menuItem.id}
-            width="100%"
-            as={Link}
-            to={pathCheckinDetail({ checkInId: menuItem.id, placeId })}
-            alignItems={"start"}
-          >
+          <VStack key={menuItem.id} width="100%" alignItems={"start"}>
             <HStack w="full" alignItems={"start"}>
-              <VStack w="full" alignItems={"start"}>
+              <Box w="full" alignItems={"start"}>
                 <Text fontWeight={"bold"}>
                   <UserIdToName userId={menuItem.createdById} />
                 </Text>
+
                 {menuItem.rating.comment.length > 0 && (
-                  <Text paddingRight={"4"}>{menuItem.rating.comment}</Text>
+                  <Text paddingRight={"4"} marginTop={0}>
+                    {menuItem.rating.comment}
+                  </Text>
                 )}
-              </VStack>
+              </Box>
               <VStack alignItems={"end"}>
                 {menuItem.checkedInAt != null ? (
                   <Text whiteSpace={"pre"}>
@@ -156,7 +152,7 @@ export function MenuItemDetailView() {
               </VStack>
             </HStack>
 
-            <Divider />
+            {/* <Divider /> */}
           </VStack>
         ),
       )}

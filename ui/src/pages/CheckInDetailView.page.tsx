@@ -1,5 +1,4 @@
 import {
-  Box,
   Button,
   ButtonGroup,
   Divider,
@@ -22,21 +21,6 @@ import { useCheckIn, useMenuItems, usePlace, useUser } from "../hooks"
 import { pathCheckinEdit, pathPlaceDetail } from "../paths"
 import { startCase } from "../textutils"
 import { UserIdToName } from "./FriendsListView.page"
-
-function Comment({ children }: { children: string }) {
-  return (
-    <Box>
-      <Text
-        borderLeftWidth={"medium"}
-        paddingX="2"
-        paddingBottom="1"
-        whiteSpace={"pre-wrap"}
-      >
-        {children}
-      </Text>
-    </Box>
-  )
-}
 
 export function CheckInDetailView() {
   const { placeId, checkInId }: { placeId: string; checkInId: string } =
