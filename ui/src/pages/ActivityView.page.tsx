@@ -15,11 +15,12 @@ import {
   VStack,
 } from "@chakra-ui/react"
 import { formatISO } from "date-fns"
-import { useEffect, useState } from "react"
+import { orderBy } from "lodash-es"
+import React, { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 
 import { placeById, userById } from "../api"
-import { Activity, PlaceCheckIn } from "../api-schemas"
+import { Activity, Place, PlaceCheckIn } from "../api-schemas"
 import { assertNever } from "../assertNever"
 import { Page } from "../components/Page"
 import { formatHumanDate, formatHumanDateTime } from "../date"
@@ -112,29 +113,6 @@ function updateDescription({
   return assertNever(activity)
 }
 
-function CheckinCreated({ checkin }: { checkin: PlaceCheckInJoined }) {
-  return (
-    <HStack spacing={1} width="100%" justifyContent={"space-between"}>
-      <div>
-        <span style={{ fontWeight: "bold" }}>{checkin.createdByName}</span>{" "}
-        created a{" "}
-        {
-          <Text
-            as={Link}
-            fontWeight={500}
-            to={pathCheckinDetail({
-              placeId: checkin.placeId,
-              checkInId: checkin.id,
-            })}
-          >
-            checkin
-          </Text>
-        }{" "}
-      </div>
-    </HStack>
-  )
-}
-
 async function getUserNameMapping(
   userIds: Array<string>,
 ): Promise<Record<string, string>> {
@@ -148,30 +126,30 @@ async function getUserNameMapping(
   return mapping
 }
 
-async function getPlaceNameMapping(
+async function getPlaceMapping(
   placeIds: Array<string>,
-): Promise<Record<string, string>> {
+): Promise<Record<string, Place>> {
   const results = await Promise.all(
     placeIds.map((placeId) => placeById({ placeId })),
   )
-  let mapping: Record<string, string> = {}
+  let mapping: Record<string, Place> = {}
   results.forEach((element) => {
-    mapping[element.id] = element.name
+    mapping[element.id] = element
   })
   return mapping
 }
 
-type ActivityJoined = Activity & { createdByName: string; placeName: string }
+type ActivityJoined = Activity & { createdByName: string; place: Place }
 type PlaceId = string
 type DayStr = string
 
 type PlaceCheckInJoined = PlaceCheckIn & {
   createdByName: string
-  placeName: string
+  place: Place | null
 }
 type PlaceCheckinAggregated = Record<
   DayStr,
-  Record<PlaceId, { activities: PlaceCheckInJoined[]; placeName: string }>
+  Record<PlaceId, { activities: PlaceCheckInJoined[]; place: Place | null }>
 >
 
 async function convertCheckins(
@@ -190,7 +168,7 @@ async function convertCheckins(
     if (dayToCheckins[key] == null) {
       dayToCheckins[key] = []
     }
-    dayToCheckins[key].push({ ...checkin, createdByName: "", placeName: "" })
+    dayToCheckins[key].push({ ...checkin, createdByName: "", place: null })
 
     createdByIds.add(checkin.createdById)
     placeIds.add(checkin.placeId)
@@ -205,7 +183,7 @@ async function convertCheckins(
       }
       if (dayToPlaceCheckins[day][checkin.placeId] == null) {
         dayToPlaceCheckins[day][checkin.placeId] = {
-          placeName: "",
+          place: null,
           activities: [],
         }
       }
@@ -213,17 +191,17 @@ async function convertCheckins(
     })
   })
 
-  const [userNameMapping, placeNameMapping] = await Promise.all([
+  const [userNameMapping, placeMap] = await Promise.all([
     getUserNameMapping([...createdByIds]),
-    getPlaceNameMapping([...placeIds]),
+    getPlaceMapping([...placeIds]),
   ])
 
   Object.values(dayToPlaceCheckins).forEach((placeIdToActivities) => {
     Object.values(placeIdToActivities).forEach((place) => {
       place.activities.forEach((activity) => {
         activity.createdByName = userNameMapping[activity.createdById]
-        activity.placeName = placeNameMapping[activity.placeId]
-        place.placeName = placeNameMapping[activity.placeId]
+        activity.place = placeMap[activity.placeId]
+        place.place = placeMap[activity.placeId]
       })
     })
   })
@@ -242,30 +220,16 @@ async function joinActivitiesToNames(
     placeIds.add(activity.placeId)
   })
 
-  const [userNameMapping, placeNameMapping] = await Promise.all([
+  const [userNameMapping, placeMap] = await Promise.all([
     getUserNameMapping([...createdByIds]),
-    getPlaceNameMapping([...placeIds]),
+    getPlaceMapping([...placeIds]),
   ])
 
   return orderedActivities.map((a): ActivityJoined => {
-    const placeName = placeNameMapping[a.placeId]
+    const place = placeMap[a.placeId]
     const createdByName = userNameMapping[a.createdById]
-    return { ...a, placeName, createdByName }
+    return { ...a, place, createdByName }
   })
-}
-
-function PlaceName({
-  placeId,
-  placeName,
-}: {
-  placeId: string
-  placeName: string
-}) {
-  return (
-    <Text as={Link} fontWeight={500} to={pathPlaceDetail({ placeId })}>
-      {placeName}
-    </Text>
-  )
 }
 
 function useActivitiesMapping({ userId }: { userId: string }) {
@@ -388,7 +352,7 @@ function Action({
     <>
       {description}{" "}
       <Text as={Link} {...linkStyled} to={pathPlaceDetail({ placeId })}>
-        {activity.placeName}
+        {activity.place.name}
       </Text>
     </>
   )
@@ -520,18 +484,46 @@ function CheckinActivities({ userId }: { userId: string }) {
               {formatHumanDate(new Date(day))}
             </Box>
             <VStack spacing={3} width="100%" alignItems={"start"}>
-              {Object.entries(placesWithCheckins).map(
-                ([placeId, { activities: checkins, placeName }]) => (
-                  <Box key={placeId} w="100%">
-                    <Box>
-                      <PlaceName placeId={placeId} placeName={placeName} />
-                    </Box>
-                    {checkins.map((c) => {
-                      return <CheckinCreated key={c.id} checkin={c} />
-                    })}
+              {orderBy(
+                Object.entries(placesWithCheckins),
+                ([, { place }]) => place?.name,
+              ).map(([placeId, { activities: checkins, place }]) => (
+                <Box
+                  key={placeId}
+                  w="100%"
+                  color={place?.isSkippableAt ? "gray.600" : undefined}
+                >
+                  <Box>
+                    <Text
+                      as={Link}
+                      fontWeight={500}
+                      textDecorationLine={
+                        place?.isSkippableAt ? "line-through" : undefined
+                      }
+                      to={pathPlaceDetail({ placeId })}
+                    >
+                      {place?.name}
+                    </Text>
                   </Box>
-                ),
-              )}
+                  {orderBy(checkins, (c) => c.createdByName).map((c, index) => {
+                    return (
+                      <React.Fragment key={c.id}>
+                        <Text
+                          as={Link}
+                          fontWeight={"bold"}
+                          to={pathCheckinDetail({
+                            placeId: c.placeId,
+                            checkInId: c.id,
+                          })}
+                        >
+                          {c.createdByName}
+                        </Text>
+                        {index < checkins.length - 1 ? ", " : ""}
+                      </React.Fragment>
+                    )
+                  })}
+                </Box>
+              ))}
             </VStack>
           </Box>
         ))

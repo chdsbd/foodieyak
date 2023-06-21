@@ -74,12 +74,14 @@ function LastVisitedOn({
 
 function SearchHit({
   placeId,
+  skippable,
   name,
   location,
   userId,
   hit,
 }: {
   hit?: Hit
+  skippable: boolean
   placeId: string
   name: string
   location: string
@@ -87,31 +89,32 @@ function SearchHit({
 }) {
   return (
     <HStack as={Link} to={pathPlaceDetail({ placeId })} w="full">
-      <Card w="full" size="sm">
+      <Card w="full" size="sm" color={skippable ? "gray.600" : undefined}>
         <CardBody>
-          <div>
-            <Text fontSize="xl" fontWeight={"bold"}>
-              {hit != null ? <Highlight hit={hit} attribute="name" /> : name}
-            </Text>
+          <Text
+            fontSize="xl"
+            textDecorationLine={skippable ? "line-through" : undefined}
+          >
+            {hit != null ? <Highlight hit={hit} attribute="name" /> : name}
+          </Text>
 
-            <HStack>
-              <Text>
-                {location ? (
-                  hit != null ? (
-                    <Highlight hit={hit} attribute="location" />
-                  ) : (
-                    location
-                  )
+          <HStack>
+            <Text>
+              {location ? (
+                hit != null ? (
+                  <Highlight hit={hit} attribute="location" />
                 ) : (
-                  " "
-                )}
-              </Text>
-              <Spacer />
-              <HackErrorBoundary>
-                <LastVisitedOn placeId={placeId} userId={userId} />
-              </HackErrorBoundary>
-            </HStack>
-          </div>
+                  location
+                )
+              ) : (
+                " "
+              )}
+            </Text>
+            <Spacer />
+            <HackErrorBoundary>
+              <LastVisitedOn placeId={placeId} userId={userId} />
+            </HackErrorBoundary>
+          </HStack>
         </CardBody>
       </Card>
     </HStack>
@@ -188,6 +191,7 @@ function SearchHits(props: UseHitsProps & { userId: string; places: Place[] }) {
       )}
       {filteredPlaces.map((place) => (
         <SearchHit
+          skippable={!!place.isSkippableAt}
           location={place.location}
           name={place.name}
           placeId={place.id}
