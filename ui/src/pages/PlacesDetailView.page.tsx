@@ -75,21 +75,16 @@ function SkippableBanner({
   const markedAt =
     isSkippableAt != null ? formatHumanDateTime(isSkippableAt) : null
   return (
-    <Alert
-      status="warning"
-      variant="subtle"
-      flexDirection="column"
-      alignItems="center"
-      justifyContent="center"
-      height="150px"
-    >
-      <AlertIcon boxSize="40px" mr={0} />
-      <AlertTitle mt={1} mb={1} fontSize="lg" marginRight={0}>
-        Skippable
-      </AlertTitle>
-      <AlertDescription>
-        {actorName} marked this as skippable {markedAt}
-      </AlertDescription>
+    <Alert status="warning" variant="subtle" display={"flex"} padding={4}>
+      <HStack>
+        <AlertIcon boxSize="40px" />
+        <VStack alignItems={"start"}>
+          <AlertTitle fontSize="lg">Skippable</AlertTitle>
+          <AlertDescription marginTop="0">
+            {actorName} marked this as skippable {markedAt}
+          </AlertDescription>
+        </VStack>
+      </HStack>
     </Alert>
   )
 }
