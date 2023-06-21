@@ -6,6 +6,7 @@ import {
   HStack,
   Spacer,
   Text,
+  Textarea,
   VStack,
 } from "@chakra-ui/react"
 import { Link, useParams } from "react-router-dom"
@@ -95,8 +96,25 @@ export function CheckInDetailView() {
         )}
       </HStack>
       {checkIn.comment && (
-        <Text whiteSpace={"pre-wrap"}>{checkIn.comment}</Text>
+        <>
+          <Text
+            borderWidth={"thin"}
+            borderRadius="md"
+            paddingX="2"
+            paddingTop="1"
+            paddingBottom="4"
+            marginTop="0"
+            width="full"
+            // rows={1}
+            // readOnly
+            whiteSpace={"pre-wrap"}
+          >
+            {checkIn.comment}
+          </Text>
+          <Spacer />
+        </>
       )}
+
       <Divider />
 
       {checkIn.ratings.length === 0 && (
@@ -106,11 +124,10 @@ export function CheckInDetailView() {
         <VStack
           key={m.menuItemId}
           w="full"
-          alignItems={"start"}
           as={Link}
           to={pathMenuItemDetail({ placeId, menuItemId: m.menuItemId })}
         >
-          <HStack w="full" alignItems="start">
+          <HStack w="full" alignItems="end">
             <VStack w="full" alignItems={"start"}>
               <Text>{startCase(menuItemMap[m.menuItemId]?.name ?? "")}</Text>
               {m.comment.trim().length > 0 && (
