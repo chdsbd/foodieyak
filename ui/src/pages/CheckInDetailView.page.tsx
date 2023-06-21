@@ -58,21 +58,20 @@ export function CheckInDetailView() {
   return (
     <Page>
       <HStack w="full" alignItems={"star"}>
-        <VStack spacing={0} alignItems="start" w="full">
-          <Heading as="h1" size="md">
-            Check-In
-          </Heading>
-
+        <Heading size="md" fontWeight={500}>
           <Text
             as={Link}
+            color={place?.isSkippableAt ? "gray.600" : undefined}
+            textDecorationLine={
+              place?.isSkippableAt ? "line-through" : undefined
+            }
             to={pathPlaceDetail({ placeId })}
-            fontSize="md"
-            fontWeight={500}
           >
-            <div>{place.name}</div>
-            <div>{place.location}</div>
-          </Text>
-        </VStack>
+            {place.name}
+          </Text>{" "}
+          / Check-In
+        </Heading>
+
         <Spacer />
         {checkIn.createdById === user.data?.uid && (
           <VStack alignItems={"start"}>

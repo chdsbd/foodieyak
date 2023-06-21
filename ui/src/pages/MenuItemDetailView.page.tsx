@@ -86,25 +86,20 @@ export function MenuItemDetailView() {
     <Page>
       <VStack alignItems="start" spacing={2} w="full">
         <HStack w="full">
-          <VStack alignItems="start" spacing={0}>
-            <HStack>
-              <Heading alignSelf={"start"} as="h1" size="md">
-                Menu Item
-              </Heading>
-            </HStack>
-            <Heading alignSelf={"start"} as="h1" size="lg">
-              {startCase(menuItem.name)}
-            </Heading>
+          <Heading size="md" fontWeight={500}>
             <Text
               as={Link}
-              fontSize="md"
-              fontWeight={500}
+              color={place?.isSkippableAt ? "gray.600" : undefined}
+              textDecorationLine={
+                place?.isSkippableAt ? "line-through" : undefined
+              }
               to={pathPlaceDetail({ placeId })}
             >
-              <div>{place.name}</div>
-              <div>{place.location}</div>
-            </Text>
-          </VStack>
+              {place.name}
+            </Text>{" "}
+            / {startCase(menuItem.name)}
+          </Heading>
+
           <Spacer />
           <Box alignSelf={"start"}>
             <Link to={pathMenuItemEdit({ menuItemId, placeId })}>
@@ -117,7 +112,7 @@ export function MenuItemDetailView() {
       </VStack>
 
       <HStack w="full">
-        <Heading as="h2" size="md" marginRight="auto">
+        <Heading as="h2" size="sm" marginRight="auto">
           Check-Ins
         </Heading>
 
