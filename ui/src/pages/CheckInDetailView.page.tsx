@@ -18,7 +18,7 @@ import { Page } from "../components/Page"
 import { Downvote, Upvote } from "../components/Ratings"
 import { formatHumanDate } from "../date"
 import { useCheckIn, useMenuItems, usePlace, useUser } from "../hooks"
-import { pathCheckinEdit, pathMenuItemDetail, pathPlaceDetail } from "../paths"
+import { pathCheckinEdit, pathPlaceDetail } from "../paths"
 import { startCase } from "../textutils"
 import { UserIdToName } from "./FriendsListView.page"
 
@@ -58,21 +58,20 @@ export function CheckInDetailView() {
   return (
     <Page>
       <HStack w="full" alignItems={"star"}>
-        <VStack spacing={0} alignItems="start" w="full">
-          <Heading as="h1" size="md">
-            Check-In
-          </Heading>
-
+        <Heading size="md" fontWeight={500}>
           <Text
             as={Link}
+            color={place?.isSkippableAt ? "gray.600" : undefined}
+            textDecorationLine={
+              place?.isSkippableAt ? "line-through" : undefined
+            }
             to={pathPlaceDetail({ placeId })}
-            fontSize="md"
-            fontWeight={500}
           >
-            <div>{place.name}</div>
-            <div>{place.location}</div>
-          </Text>
-        </VStack>
+            {place.name}
+          </Text>{" "}
+          / Check-In
+        </Heading>
+
         <Spacer />
         {checkIn.createdById === user.data?.uid && (
           <VStack alignItems={"start"}>
@@ -95,34 +94,30 @@ export function CheckInDetailView() {
           </Text>
         )}
       </HStack>
-      {checkIn.comment && (
-        <Text whiteSpace={"pre-wrap"}>{checkIn.comment}</Text>
-      )}
+      {checkIn.comment && <Text>{checkIn.comment}</Text>}
+
       <Divider />
+      <Spacer />
 
       {checkIn.ratings.length === 0 && (
         <EmptyStateText>No Ratings</EmptyStateText>
       )}
       {checkIn.ratings.map((m) => (
-        <VStack
-          key={m.menuItemId}
-          w="full"
-          alignItems={"start"}
-          as={Link}
-          to={pathMenuItemDetail({ placeId, menuItemId: m.menuItemId })}
-        >
+        <VStack key={m.menuItemId} w="full">
           <HStack w="full" alignItems="start">
             <VStack w="full" alignItems={"start"}>
-              <Text>{startCase(menuItemMap[m.menuItemId]?.name ?? "")}</Text>
+              <Text fontWeight="semibold">
+                {startCase(menuItemMap[m.menuItemId]?.name ?? "")}
+              </Text>
               {m.comment.trim().length > 0 && (
-                <Text marginRight="4">{m.comment}</Text>
+                <Text marginTop="0">{m.comment}</Text>
               )}
             </VStack>
             <ButtonGroup>
               {m.rating > 0 ? <Upvote /> : <Downvote />}
             </ButtonGroup>
           </HStack>
-          <Divider />
+          <Spacer />
         </VStack>
       ))}
     </Page>

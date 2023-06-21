@@ -19,7 +19,7 @@ import { Page } from "../components/Page"
 import { Downvote, Upvote } from "../components/Ratings"
 import { formatHumanDate } from "../date"
 import { useCheckins, useMenuItem, usePlace, useUser } from "../hooks"
-import { pathCheckinDetail, pathMenuItemEdit, pathPlaceDetail } from "../paths"
+import { pathMenuItemEdit, pathPlaceDetail } from "../paths"
 import { startCase } from "../textutils"
 import { notUndefined } from "../type-guards"
 import { UserIdToName } from "./FriendsListView.page"
@@ -86,25 +86,19 @@ export function MenuItemDetailView() {
     <Page>
       <VStack alignItems="start" spacing={2} w="full">
         <HStack w="full">
-          <VStack alignItems="start" spacing={0}>
-            <HStack>
-              <Heading alignSelf={"start"} as="h1" size="md">
-                Menu Item
-              </Heading>
-            </HStack>
-            <Heading alignSelf={"start"} as="h1" size="lg">
-              {startCase(menuItem.name)}
-            </Heading>
+          <Heading size="md" fontWeight={500}>
             <Text
               as={Link}
-              fontSize="md"
-              fontWeight={500}
+              color={place?.isSkippableAt ? "gray.600" : undefined}
+              textDecorationLine={
+                place?.isSkippableAt ? "line-through" : undefined
+              }
               to={pathPlaceDetail({ placeId })}
             >
-              <div>{place.name}</div>
-              <div>{place.location}</div>
-            </Text>
-          </VStack>
+              {place.name}
+            </Text>{" "}
+          </Heading>
+
           <Spacer />
           <Box alignSelf={"start"}>
             <Link to={pathMenuItemEdit({ menuItemId, placeId })}>
@@ -116,9 +110,9 @@ export function MenuItemDetailView() {
         </HStack>
       </VStack>
 
-      <HStack w="full">
+      <HStack w="full" marginLeft={"auto"}>
         <Heading as="h2" size="md" marginRight="auto">
-          Check-Ins
+          {startCase(menuItem.name)}
         </Heading>
 
         <span>↑ {checkinCountsByMenuItem?.positive ?? 0}</span>
@@ -130,22 +124,19 @@ export function MenuItemDetailView() {
       )}
       {sortBy(checkInsForMenuItem, (x) => x.checkedInAt?.toMillis()).map(
         (menuItem) => (
-          <VStack
-            key={menuItem.id}
-            width="100%"
-            as={Link}
-            to={pathCheckinDetail({ checkInId: menuItem.id, placeId })}
-            alignItems={"start"}
-          >
+          <VStack key={menuItem.id} width="100%" alignItems={"start"}>
             <HStack w="full" alignItems={"start"}>
-              <VStack w="full" alignItems={"start"}>
+              <Box w="full" alignItems={"start"}>
                 <Text fontWeight={"bold"}>
                   <UserIdToName userId={menuItem.createdById} />
                 </Text>
+
                 {menuItem.rating.comment.length > 0 && (
-                  <Text paddingRight={"4"}>{menuItem.rating.comment}</Text>
+                  <Text paddingRight={"4"} marginTop={0}>
+                    {menuItem.rating.comment}
+                  </Text>
                 )}
-              </VStack>
+              </Box>
               <VStack alignItems={"end"}>
                 {menuItem.checkedInAt != null ? (
                   <Text whiteSpace={"pre"}>
@@ -161,7 +152,7 @@ export function MenuItemDetailView() {
               </VStack>
             </HStack>
 
-            <Divider />
+            {/* <Divider /> */}
           </VStack>
         ),
       )}
