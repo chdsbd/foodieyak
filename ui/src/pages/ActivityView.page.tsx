@@ -232,20 +232,6 @@ async function joinActivitiesToNames(
   })
 }
 
-function PlaceName({
-  placeId,
-  placeName,
-}: {
-  placeId: string
-  placeName: string
-}) {
-  return (
-    <Text as={Link} fontWeight={500} to={pathPlaceDetail({ placeId })}>
-      {placeName}
-    </Text>
-  )
-}
-
 function useActivitiesMapping({ userId }: { userId: string }) {
   // NOTE: this doesn't handle caching.
   //
