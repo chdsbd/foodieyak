@@ -6,6 +6,7 @@ import {
   Button,
   ButtonGroup,
   Divider,
+  Heading,
   HStack,
   Spacer,
   Tab,
@@ -30,7 +31,6 @@ import { EmptyStateText } from "../components/EmptyStateText"
 import { ErrorStateText } from "../components/ErrorStateText"
 import { GoogleMapsJSMap } from "../components/GoogleMapsJSMap"
 import { Page } from "../components/Page"
-import { PlaceInfoPanel } from "../components/PlaceInfoPanel"
 import { Downvote, Upvote } from "../components/Ratings"
 import { formatHumanDateTime } from "../date"
 import { useCheckins, useMenuItems, usePlace, useUser } from "../hooks"
@@ -179,7 +179,12 @@ export function PlacesDetailView() {
         />
       ) : null}
       <HStack w="100%" alignItems={"stretch"}>
-        <PlaceInfoPanel place={place} />
+        <div>
+          <Heading as="h1" size="lg">
+            {place.name}
+          </Heading>
+          <Text fontWeight={"bold"}>{place.location}</Text>
+        </div>
         <Spacer />
         <VStack alignItems={"start"}>
           <Link to={pathPlaceEdit({ placeId })}>
