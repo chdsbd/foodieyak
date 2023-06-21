@@ -122,8 +122,12 @@ export function CheckInDetailView() {
         <VStack key={m.menuItemId} w="full">
           <HStack w="full" alignItems="start">
             <VStack w="full" alignItems={"start"}>
-              <Text>{startCase(menuItemMap[m.menuItemId]?.name ?? "")}</Text>
-              {m.comment.trim().length > 0 && <Comment>{m.comment}</Comment>}
+              <Text fontWeight="semibold">
+                {startCase(menuItemMap[m.menuItemId]?.name ?? "")}
+              </Text>
+              {m.comment.trim().length > 0 && (
+                <Text marginTop="0">{m.comment}</Text>
+              )}
             </VStack>
             <ButtonGroup>
               {m.rating > 0 ? <Upvote /> : <Downvote />}
