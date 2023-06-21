@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   ButtonGroup,
   Divider,
@@ -6,7 +7,6 @@ import {
   HStack,
   Spacer,
   Text,
-  Textarea,
   VStack,
 } from "@chakra-ui/react"
 import { Link, useParams } from "react-router-dom"
@@ -19,9 +19,24 @@ import { Page } from "../components/Page"
 import { Downvote, Upvote } from "../components/Ratings"
 import { formatHumanDate } from "../date"
 import { useCheckIn, useMenuItems, usePlace, useUser } from "../hooks"
-import { pathCheckinEdit, pathMenuItemDetail, pathPlaceDetail } from "../paths"
+import { pathCheckinEdit, pathPlaceDetail } from "../paths"
 import { startCase } from "../textutils"
 import { UserIdToName } from "./FriendsListView.page"
+
+function Comment({ children }: { children: string }) {
+  return (
+    <Box>
+      <Text
+        borderLeftWidth={"medium"}
+        paddingX="2"
+        paddingBottom="1"
+        whiteSpace={"pre-wrap"}
+      >
+        {children}
+      </Text>
+    </Box>
+  )
+}
 
 export function CheckInDetailView() {
   const { placeId, checkInId }: { placeId: string; checkInId: string } =
@@ -95,50 +110,26 @@ export function CheckInDetailView() {
           </Text>
         )}
       </HStack>
-      {checkIn.comment && (
-        <>
-          <Text
-            borderWidth={"thin"}
-            borderRadius="md"
-            paddingX="2"
-            paddingTop="1"
-            paddingBottom="4"
-            marginTop="0"
-            width="full"
-            // rows={1}
-            // readOnly
-            whiteSpace={"pre-wrap"}
-          >
-            {checkIn.comment}
-          </Text>
-          <Spacer />
-        </>
-      )}
+      {checkIn.comment && <Text>{checkIn.comment}</Text>}
 
       <Divider />
+      <Spacer />
 
       {checkIn.ratings.length === 0 && (
         <EmptyStateText>No Ratings</EmptyStateText>
       )}
       {checkIn.ratings.map((m) => (
-        <VStack
-          key={m.menuItemId}
-          w="full"
-          as={Link}
-          to={pathMenuItemDetail({ placeId, menuItemId: m.menuItemId })}
-        >
-          <HStack w="full" alignItems="end">
+        <VStack key={m.menuItemId} w="full">
+          <HStack w="full" alignItems="start">
             <VStack w="full" alignItems={"start"}>
               <Text>{startCase(menuItemMap[m.menuItemId]?.name ?? "")}</Text>
-              {m.comment.trim().length > 0 && (
-                <Text marginRight="4">{m.comment}</Text>
-              )}
+              {m.comment.trim().length > 0 && <Comment>{m.comment}</Comment>}
             </VStack>
             <ButtonGroup>
               {m.rating > 0 ? <Upvote /> : <Downvote />}
             </ButtonGroup>
           </HStack>
-          <Divider />
+          <Spacer />
         </VStack>
       ))}
     </Page>
