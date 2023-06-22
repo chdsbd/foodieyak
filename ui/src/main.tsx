@@ -3,6 +3,7 @@ import * as Sentry from "@sentry/browser"
 import { BrowserTracing } from "@sentry/tracing"
 import React from "react"
 import ReactDOM from "react-dom/client"
+import { Helmet } from "react-helmet"
 import { FirebaseAppProvider } from "reactfire"
 
 import App from "./App"
@@ -35,6 +36,9 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <ChakraProvider theme={theme}>
       <FirebaseAppProvider firebaseConfig={firebaseConfig}>
+        <Helmet>
+          <title>FoodieYak</title>
+        </Helmet>
         <App />
       </FirebaseAppProvider>
     </ChakraProvider>
