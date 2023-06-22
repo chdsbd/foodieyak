@@ -1,12 +1,15 @@
 import { Container, VStack } from "@chakra-ui/react"
+import { Helmet } from "react-helmet"
 
 import { NavBar } from "./NavBar"
 
 export function Page({
+  title,
   action,
   children,
   noCenter = false,
 }: {
+  title?: string
   children: React.ReactNode
   action?: JSX.Element
   noCenter?: boolean
@@ -21,6 +24,11 @@ export function Page({
         flexDirection={"column"}
       >
         <Container padding={2}>
+          {title != null && (
+            <Helmet>
+              <title>{title} — FoodieYak</title>
+            </Helmet>
+          )}
           <NavBar action={action} />
         </Container>
         {children}
@@ -30,6 +38,11 @@ export function Page({
   return (
     <Container padding={2}>
       <VStack spacing={2} alignItems="start">
+        {title != null && (
+          <Helmet>
+            <title>{title} — FoodieYak</title>
+          </Helmet>
+        )}
         <NavBar action={action} />
         {children}
       </VStack>

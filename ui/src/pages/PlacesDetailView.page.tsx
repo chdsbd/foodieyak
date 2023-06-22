@@ -171,7 +171,7 @@ export function PlacesDetailView() {
   const countsByMenuItem = calculateCheckinCountsByMenuItem(checkins)
 
   return (
-    <Page>
+    <Page title={place.name}>
       {place.isSkippableAt != null ? (
         <SkippableBanner
           isSkippableAt={place.isSkippableAt}
