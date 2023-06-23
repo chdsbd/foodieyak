@@ -1,3 +1,4 @@
+import { startOfDay } from "date-fns"
 import { getAuth, updateProfile } from "firebase/auth"
 import {
   addDoc,
@@ -9,6 +10,7 @@ import {
   limit,
   orderBy,
   query,
+  runTransaction,
   Timestamp,
   updateDoc,
   where,
@@ -91,6 +93,7 @@ export const checkin = {
     comment,
     reviews,
     viewerIds,
+    quickCheckin = false,
   }: {
     placeId: string
     date: Date | null
@@ -98,6 +101,7 @@ export const checkin = {
     comment: string
     reviews: { menuItemId: string; rating: -1 | 1; comment: string }[]
     viewerIds: string[]
+    quickCheckin?: boolean
   }) {
     const checkin: Omit<PlaceCheckIn, "id"> = {
       createdAt: Timestamp.now(),
@@ -108,6 +112,7 @@ export const checkin = {
       comment,
       viewerIds,
       ratings: reviews,
+      quickCheckin,
       ratingsMenuItemIds: reviews.map((x) => x.menuItemId),
       placeId,
     }
@@ -116,6 +121,73 @@ export const checkin = {
       checkin,
     )
     return res.id
+  },
+  async createQuickCheckin({
+    placeId,
+    userId,
+    viewerIds,
+    review,
+  }: {
+    placeId: string
+    userId: string
+    review: { menuItemId: string; rating: -1 | 1 }
+    viewerIds: string[]
+  }) {
+    const q = query(
+      collection(db, "places", placeId, "checkins"),
+      where("createdAt", ">=", startOfDay(new Date())),
+      where("createdById", "==", userId),
+      where("quickCheckin", "==", true),
+      orderBy("createdAt", "desc"),
+      limit(1),
+    )
+
+    const results = (await getDocs(q)).docs
+    if (results.length === 0) {
+      const rating = review.rating
+      const menuItemId = review.menuItemId
+      await this.create({
+        placeId,
+        date: null,
+        userId,
+        comment: "",
+        quickCheckin: true,
+        reviews: [{ comment: "", rating, menuItemId }],
+        viewerIds,
+      })
+    } else {
+      const existingDoc = (await getDocs(q)).docs[0]
+      await runTransaction(db, async (transaction) => {
+        const d = await transaction.get(
+          doc(db, "places", placeId, "checkins", existingDoc.id),
+        )
+        if (!d.exists()) {
+          throw Error("should not happen")
+        }
+        const checkin = PlaceCheckInSchema.parse({ id: d.id, ...d.data() })
+        const existingMenuRating = checkin.ratings.find(
+          (x) => x.menuItemId === review.menuItemId,
+        )
+        const ratings = checkin.ratings.filter(
+          (x) => x.menuItemId !== review.menuItemId,
+        )
+
+        if (
+          existingMenuRating == null ||
+          existingMenuRating.rating !== review.rating
+        ) {
+          ratings.push({
+            comment: "",
+            menuItemId: review.menuItemId,
+            rating: review.rating,
+          })
+        }
+        transaction.update(d.ref, {
+          ratings,
+          ratingsMenuItemIds: ratings.map((x) => x.menuItemId),
+        })
+      })
+    }
   },
   async update({
     placeId,

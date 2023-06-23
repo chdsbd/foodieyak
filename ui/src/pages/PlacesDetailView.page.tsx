@@ -15,13 +15,16 @@ import {
   TabPanels,
   Tabs,
   Text,
+  useToast,
   VStack,
 } from "@chakra-ui/react"
+import { FirebaseError } from "firebase/app"
 import { Timestamp } from "firebase/firestore"
 import first from "lodash-es/first"
 import orderBy from "lodash-es/orderBy"
 import { Link, useHistory, useLocation, useParams } from "react-router-dom"
 import { useThrottledCallback } from "use-debounce"
+import * as api from "../api"
 
 import { CheckInRating, PlaceMenuItem } from "../api-schemas"
 import { calculateCheckinCountsByMenuItem } from "../api-transforms"
@@ -101,6 +104,7 @@ export function PlacesDetailView() {
   const menuitems = useMenuItems(placeId)
   const checkins = useCheckins(placeId)
   const user = useUser()
+  const toast = useToast()
 
   // Hack to work around Chakra calling the onChange callback twice
   const handleTabChange = useThrottledCallback(
@@ -170,6 +174,26 @@ export function PlacesDetailView() {
 
   const countsByMenuItem = calculateCheckinCountsByMenuItem(checkins)
 
+  const quickCheckin = (menuItemId: string, rating: 1 | -1) => {
+    api.checkin
+      .createQuickCheckin({
+        placeId,
+        userId: user.data.uid,
+        viewerIds: place.viewerIds,
+        review: { menuItemId, rating },
+      })
+      .catch((e: FirebaseError) => {
+        if (!(e instanceof FirebaseError)) {
+          throw e
+        }
+        toast({
+          title: "Problem creating checkin",
+          description: `${e.code}: ${e.message}`,
+          status: "error",
+        })
+      })
+  }
+
   return (
     <Page title={place.name}>
       {place.isSkippableAt != null ? (
@@ -233,10 +257,18 @@ export function PlacesDetailView() {
                   <Spacer />
                   <ButtonGroup>
                     <Upvote
+                      onClick={(e) => {
+                        e.preventDefault()
+                        quickCheckin(m.id, 1)
+                      }}
                       count={countsByMenuItem[m.id]?.positive}
                       showColor={(ratingForUser(m, user.data.uid) ?? 0) > 0}
                     />
                     <Downvote
+                      onClick={(e) => {
+                        e.preventDefault()
+                        quickCheckin(m.id, -1)
+                      }}
                       count={countsByMenuItem[m.id]?.negative}
                       showColor={(ratingForUser(m, user.data.uid) ?? 0) < 0}
                     />
