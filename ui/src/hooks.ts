@@ -17,7 +17,6 @@ import {
   query,
   where,
 } from "firebase/firestore"
-import { getValue, Value } from "firebase/remote-config"
 import { useEffect, useMemo, useState } from "react"
 import { useFirestoreCollectionData, useFirestoreDocData } from "reactfire"
 import { z } from "zod"
@@ -31,7 +30,7 @@ import {
   PlaceSchema,
   UserPersonalInfoSchema,
 } from "./api-schemas"
-import { db, remoteConfig, RemoteConfigKey } from "./db"
+import { db } from "./db"
 
 function useQuery<T extends z.ZodType>(
   query: Query<DocumentData> | null,
@@ -299,8 +298,4 @@ export function usePersonalUserInfo(userId: string) {
     localStorage.setItem(`personalUserInfoCache:${userId}`, JSON.stringify(res))
   }
   return res
-}
-
-export function useRemoteConfigValue(key: RemoteConfigKey): Value {
-  return getValue(remoteConfig, key)
 }

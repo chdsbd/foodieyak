@@ -206,7 +206,13 @@ export const checkin = {
   }) {
     const checkin: Omit<
       PlaceCheckIn,
-      "id" | "createdById" | "createdAt" | "deleted" | "viewerIds" | "placeId"
+      | "id"
+      | "createdById"
+      | "createdAt"
+      | "deleted"
+      | "viewerIds"
+      | "placeId"
+      | "quickCheckin"
     > = {
       checkedInAt: date != null ? Timestamp.fromDate(date) : null,
       lastModifiedAt: Timestamp.now(),
