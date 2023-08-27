@@ -142,8 +142,8 @@ export const checkin = {
       limit(1),
     )
 
-    const results = (await getDocs(q)).docs
-    if (results.length === 0) {
+    const existingQuickCheckIns = (await getDocs(q)).docs
+    if (existingQuickCheckIns.length === 0) {
       const rating = review.rating
       const menuItemId = review.menuItemId
       await this.create({
@@ -156,35 +156,32 @@ export const checkin = {
         viewerIds,
       })
     } else {
-      const existingDoc = (await getDocs(q)).docs[0]
+      const existingCheckin = existingQuickCheckIns[0]
       await runTransaction(db, async (transaction) => {
         const d = await transaction.get(
-          doc(db, "places", placeId, "checkins", existingDoc.id),
+          doc(db, "places", placeId, "checkins", existingCheckin.id),
         )
         if (!d.exists()) {
           throw Error("should not happen")
         }
         const checkin = PlaceCheckInSchema.parse({ id: d.id, ...d.data() })
-        const existingMenuRating = checkin.ratings.find(
-          (x) => x.menuItemId === review.menuItemId,
-        )
-        const ratings = checkin.ratings.filter(
+
+        // update ratings
+        // const existingMenuRating = checkin.ratings.find(
+        //   (x) => x.menuItemId === review.menuItemId,
+        // )
+        const otherRatings = checkin.ratings.filter(
           (x) => x.menuItemId !== review.menuItemId,
         )
 
-        if (
-          existingMenuRating == null ||
-          existingMenuRating.rating !== review.rating
-        ) {
-          ratings.push({
-            comment: "",
-            menuItemId: review.menuItemId,
-            rating: review.rating,
-          })
-        }
+        otherRatings.push({
+          comment: "",
+          menuItemId: review.menuItemId,
+          rating: review.rating,
+        })
         transaction.update(d.ref, {
-          ratings,
-          ratingsMenuItemIds: ratings.map((x) => x.menuItemId),
+          ratings: otherRatings,
+          ratingsMenuItemIds: otherRatings.map((x) => x.menuItemId),
         })
       })
     }
