@@ -148,7 +148,7 @@ export const checkin = {
       const menuItemId = review.menuItemId
       await this.create({
         placeId,
-        date: null,
+        date: new Date(),
         userId,
         comment: "",
         quickCheckin: true,
@@ -167,18 +167,22 @@ export const checkin = {
         const checkin = PlaceCheckInSchema.parse({ id: d.id, ...d.data() })
 
         // update ratings
-        // const existingMenuRating = checkin.ratings.find(
-        //   (x) => x.menuItemId === review.menuItemId,
-        // )
+        const existingMenuRating = checkin.ratings.find(
+          (x) => x.menuItemId === review.menuItemId,
+        )
         const otherRatings = checkin.ratings.filter(
           (x) => x.menuItemId !== review.menuItemId,
         )
 
-        otherRatings.push({
-          comment: "",
-          menuItemId: review.menuItemId,
-          rating: review.rating,
-        })
+        // if we have an existing rating for a menu item, clicking the button again should remove the rating.
+        const shouldAddRating = existingMenuRating?.rating !== review.rating
+        if (shouldAddRating) {
+          otherRatings.push({
+            comment: "",
+            menuItemId: review.menuItemId,
+            rating: review.rating,
+          })
+        }
         transaction.update(d.ref, {
           ratings: otherRatings,
           ratingsMenuItemIds: otherRatings.map((x) => x.menuItemId),
