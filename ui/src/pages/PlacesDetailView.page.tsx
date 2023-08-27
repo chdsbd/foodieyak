@@ -15,14 +15,18 @@ import {
   TabPanels,
   Tabs,
   Text,
+  useToast,
   VStack,
 } from "@chakra-ui/react"
+import { FirebaseError } from "firebase/app"
 import { Timestamp } from "firebase/firestore"
 import first from "lodash-es/first"
 import orderBy from "lodash-es/orderBy"
+import { useEffect, useState } from "react"
 import { Link, useHistory, useLocation, useParams } from "react-router-dom"
 import { useThrottledCallback } from "use-debounce"
 
+import * as api from "../api"
 import { CheckInRating, PlaceMenuItem } from "../api-schemas"
 import { calculateCheckinCountsByMenuItem } from "../api-transforms"
 import { CheckInCommentCard } from "../components/CheckInCommentCard"
@@ -94,6 +98,9 @@ export function PlacesDetailView() {
   const search = useLocation().search
   const searchParams = new URLSearchParams(search)
   const tabIndex = tabToIndex(searchParams.get(TAB_URL_PARAM))
+  const [localUserRatings, setLocalUserRatings] = useState<
+    Record<string, 1 | -1 | undefined>
+  >({})
 
   const history = useHistory()
 
@@ -101,6 +108,12 @@ export function PlacesDetailView() {
   const menuitems = useMenuItems(placeId)
   const checkins = useCheckins(placeId)
   const user = useUser()
+  const toast = useToast()
+
+  // HACK(chris): we clean up this state when our checkins update for any reason.
+  useEffect(() => {
+    setLocalUserRatings({})
+  }, [checkins])
 
   // Hack to work around Chakra calling the onChange callback twice
   const handleTabChange = useThrottledCallback(
@@ -170,6 +183,27 @@ export function PlacesDetailView() {
 
   const countsByMenuItem = calculateCheckinCountsByMenuItem(checkins)
 
+  const quickCheckin = (menuItemId: string, rating: 1 | -1) => {
+    setLocalUserRatings((s) => ({ ...s, [menuItemId]: rating }))
+    api.checkin
+      .createQuickCheckin({
+        placeId,
+        userId: user.data.uid,
+        viewerIds: place.viewerIds,
+        review: { menuItemId, rating },
+      })
+      .catch((e: FirebaseError) => {
+        if (!(e instanceof FirebaseError)) {
+          throw e
+        }
+        toast({
+          title: "Problem creating checkin",
+          description: `${e.code}: ${e.message}`,
+          status: "error",
+        })
+      })
+  }
+
   return (
     <Page title={place.name}>
       {place.isSkippableAt != null ? (
@@ -233,12 +267,28 @@ export function PlacesDetailView() {
                   <Spacer />
                   <ButtonGroup>
                     <Upvote
+                      onClick={(e) => {
+                        e.preventDefault()
+                        quickCheckin(m.id, 1)
+                      }}
                       count={countsByMenuItem[m.id]?.positive}
-                      showColor={(ratingForUser(m, user.data.uid) ?? 0) > 0}
+                      showColor={
+                        (localUserRatings[m.id] ??
+                          ratingForUser(m, user.data.uid) ??
+                          0) > 0
+                      }
                     />
                     <Downvote
+                      onClick={(e) => {
+                        e.preventDefault()
+                        quickCheckin(m.id, -1)
+                      }}
                       count={countsByMenuItem[m.id]?.negative}
-                      showColor={(ratingForUser(m, user.data.uid) ?? 0) < 0}
+                      showColor={
+                        (localUserRatings[m.id] ??
+                          ratingForUser(m, user.data.uid) ??
+                          0) < 0
+                      }
                     />
                   </ButtonGroup>
                 </HStack>

@@ -57,6 +57,7 @@ export const PlaceCheckInSchema = BaseSchema.extend({
   ratingsMenuItemIds: z.array(z.string()).default([]),
   viewerIds: z.array(z.string()),
   placeId: z.string(),
+  quickCheckin: z.boolean().default(false),
   ratings: z.array(
     z.object({
       menuItemId: z.string(),

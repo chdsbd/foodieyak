@@ -9,7 +9,7 @@ export function Upvote({
 }: {
   count?: number
   showColor?: boolean
-  onClick?: () => void
+  onClick?: (e: React.MouseEvent) => void
 }) {
   return (
     <Button
@@ -30,7 +30,7 @@ export function Downvote({
 }: {
   count?: number
   showColor?: boolean
-  onClick?: () => void
+  onClick?: (e: React.MouseEvent) => void
 }) {
   return (
     <Button
