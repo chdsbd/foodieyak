@@ -70,29 +70,11 @@ export function GoogleMapsJSMap({
   variant?: "gray" | "color"
   geoInfo: NonNullable<Place["geoInfo"]>
 }) {
-  const useJsMap = useRemoteConfigValue("use_js_map").asBoolean()
-
-  if (!useJsMap) {
-    return (
-      <GoogleMapsStaticImage
-        googleMapsPlaceId={geoInfo.googlePlaceId}
-        markerLocation={markerLocation}
-        variant={variant}
-      />
-    )
-  }
-
   return (
-    <Wrapper
-      apiKey={GOOGLE_MAPS_API_KEY}
-      libraries={["places", "marker"]}
-      version="beta"
-    >
-      <InternalLocationImage
-        geoInfo={geoInfo}
-        markerLocation={markerLocation}
-        variant={variant}
-      />
-    </Wrapper>
+    <GoogleMapsStaticImage
+      googleMapsPlaceId={geoInfo.googlePlaceId}
+      markerLocation={markerLocation}
+      variant={variant}
+    />
   )
 }
