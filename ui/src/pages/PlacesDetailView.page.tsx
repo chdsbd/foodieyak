@@ -8,6 +8,7 @@ import {
   Divider,
   Heading,
   HStack,
+  Input,
   Spacer,
   Tab,
   TabList,
@@ -295,6 +296,11 @@ export function PlacesDetailView() {
                 <Divider />
               </VStack>
             ))}
+            <Spacer />
+            <HStack w="100%">
+              <Input placeholder="Add new menu item..." type="text" />
+              <Button>Add item</Button>
+            </HStack>
           </TabPanel>
           <TabPanel
             paddingX="unset"
