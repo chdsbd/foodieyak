@@ -297,10 +297,7 @@ export function PlacesDetailView() {
               </VStack>
             ))}
             <Spacer />
-            <HStack w="100%">
-              <Input placeholder="Add new menu item..." type="text" />
-              <Button>Add item</Button>
-            </HStack>
+            <CreateMenuItem placeId={placeId} userId={user.data.uid} />
           </TabPanel>
           <TabPanel
             paddingX="unset"
@@ -325,5 +322,61 @@ export function PlacesDetailView() {
         </TabPanels>
       </Tabs>
     </Page>
+  )
+}
+
+function CreateMenuItem({
+  placeId,
+  userId,
+}: {
+  placeId: string
+  userId: string
+}) {
+  const [isCreating, setIsCreating] = useState(false)
+  const [menuItem, setMenuItem] = useState("")
+  const toast = useToast()
+  const createMenuItem = async () => {
+    try {
+      await api.menuItems.create({
+        placeId,
+        name: menuItem.trim(),
+        userId,
+      })
+      setMenuItem("")
+    } catch (e: unknown) {
+      if (e instanceof FirebaseError) {
+        toast({
+          title: "Problem creating menu item",
+          description: `${e.code}: ${e.message}`,
+          status: "error",
+        })
+      } else {
+        throw e
+      }
+    } finally {
+      setIsCreating(false)
+    }
+  }
+  return (
+    <HStack
+      w="100%"
+      as="form"
+      onSubmit={(e) => {
+        e.preventDefault()
+        void createMenuItem()
+      }}
+    >
+      <Input
+        placeholder="Add new menu item..."
+        type="text"
+        value={menuItem}
+        onChange={(e) => {
+          setMenuItem(e.target.value)
+        }}
+      />
+      <Button type="submit" loadingText={"Saving..."} isLoading={isCreating}>
+        Add
+      </Button>
+    </HStack>
   )
 }
