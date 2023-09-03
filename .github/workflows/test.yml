@@ -12,8 +12,11 @@ jobs:
         with:
           node-version-file: "./package.json"
           cache: "pnpm"
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: true
       - name: Typescript
         working-directory: "./ui"
         run: ./s/typecheck
@@ -26,8 +29,11 @@ jobs:
         with:
           node-version-file: "./package.json"
           cache: "pnpm"
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: true
       - run: echo "::add-matcher::.github/problem-matcher-vitest.json"
       - name: Test
         working-directory: "./ui"
@@ -42,8 +48,11 @@ jobs:
         with:
           node-version-file: "./package.json"
           cache: "pnpm"
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: true
       - name: Lint
         working-directory: "./ui"
         run: ./s/lint
@@ -56,8 +65,11 @@ jobs:
         with:
           node-version-file: "./package.json"
           cache: "pnpm"
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: true
       - name: Check Formatting
         working-directory: "./ui"
         run: ./s/fmt
@@ -70,8 +82,11 @@ jobs:
         with:
           node-version-file: "./package.json"
           cache: "pnpm"
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: true
       - name: Typescript
         working-directory: "./functions"
         run: ./s/typecheck
@@ -84,8 +99,11 @@ jobs:
         with:
           node-version-file: "./package.json"
           cache: "pnpm"
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: true
       - name: Lint
         working-directory: "./functions"
         run: ./s/lint
@@ -98,8 +116,11 @@ jobs:
         with:
           node-version-file: "./package.json"
           cache: "pnpm"
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: true
       - name: Check Formatting
         working-directory: "./functions"
         run: ./s/fmt

@@ -25,7 +25,11 @@ jobs:
         with:
           node-version-file: "./package.json"
           cache: "pnpm"
-      - run: pnpm install --frozen-lockfile
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: true
       - run: s/deploy-stage
   functions_production:
     runs-on: ubuntu-latest
@@ -48,7 +52,11 @@ jobs:
         with:
           node-version-file: "./package.json"
           cache: "pnpm"
-      - run: pnpm install --frozen-lockfile
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: true
       - run: s/deploy-prod
 
   ui_staging:
@@ -59,7 +67,11 @@ jobs:
         with:
           node-version-file: "./package.json"
           cache: "pnpm"
-      - run: pnpm install --frozen-lockfile
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: true
         working-directory: "./ui"
       - run: pnpm build
         working-directory: "./ui"
@@ -79,7 +91,11 @@ jobs:
         with:
           node-version-file: "./package.json"
           cache: "pnpm"
-      - run: pnpm install --frozen-lockfile
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: true
         working-directory: "./ui"
       - run: pnpm build
         working-directory: "./ui"
