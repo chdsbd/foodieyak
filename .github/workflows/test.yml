@@ -9,9 +9,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v3
-        with:
-          node-version-file: "./package.json"
-          cache: "pnpm"
       - uses: pnpm/action-setup@v2
         name: Install pnpm
         with:
@@ -42,9 +39,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v3
-        with:
-          node-version-file: "./package.json"
-          cache: "pnpm"
       - uses: pnpm/action-setup@v2
         name: Install pnpm
         with:
@@ -77,9 +71,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v3
-        with:
-          node-version-file: "./package.json"
-          cache: "pnpm"
       - uses: pnpm/action-setup@v2
         name: Install pnpm
         with:
@@ -110,9 +101,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v3
-        with:
-          node-version-file: "./package.json"
-          cache: "pnpm"
       - uses: pnpm/action-setup@v2
         name: Install pnpm
         with:
@@ -143,9 +131,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v3
-        with:
-          node-version-file: "./package.json"
-          cache: "pnpm"
       - uses: pnpm/action-setup@v2
         name: Install pnpm
         with:
@@ -176,9 +161,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v3
-        with:
-          node-version-file: "./package.json"
-          cache: "pnpm"
       - uses: pnpm/action-setup@v2
         name: Install pnpm
         with:
@@ -209,9 +191,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v3
-        with:
-          node-version-file: "./package.json"
-          cache: "pnpm"
       - uses: pnpm/action-setup@v2
         name: Install pnpm
         with:
