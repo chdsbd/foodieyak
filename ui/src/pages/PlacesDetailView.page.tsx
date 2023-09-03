@@ -253,6 +253,8 @@ export function PlacesDetailView() {
             justifyContent="space-between"
             w="full"
           >
+            <CreateMenuItem placeId={placeId} userId={user.data.uid} />
+            <Spacer />
             {menuitems.length === 0 && (
               <EmptyStateText>No Menu Items</EmptyStateText>
             )}
@@ -296,8 +298,6 @@ export function PlacesDetailView() {
                 <Divider />
               </VStack>
             ))}
-            <Spacer />
-            <CreateMenuItem placeId={placeId} userId={user.data.uid} />
           </TabPanel>
           <TabPanel
             paddingX="unset"
