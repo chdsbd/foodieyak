@@ -37,5 +37,7 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
+      - run: echo "::add-matcher::.github/problem-matcher-vitest.json"
       - working-directory: ${{ inputs.working-directory }}
         run: ${{ inputs.run }}
+      - run: echo "::remove-matcher::.github/problem-matcher-vitest.json"

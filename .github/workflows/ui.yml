@@ -24,12 +24,7 @@ jobs:
       run: "./s/fmt"
 
   test:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "::add-matcher::.github/problem-matcher-vitest.json"
-      - name: test
-        uses: ./.github/workflows/foodieyak-job.yml
-        with:
-          working-directory: "./ui"
-          run: ./s/test
-      - run: echo "::remove-matcher::.github/problem-matcher-vitest.json"
+    uses: ./.github/workflows/foodieyak-job.yml
+    with:
+      working-directory: "./ui"
+      run: ./s/test
