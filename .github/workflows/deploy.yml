@@ -3,6 +3,11 @@ name: Deploy
   push:
     branches:
       - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: false
+
 jobs:
   functions_staging:
     runs-on: ubuntu-latest

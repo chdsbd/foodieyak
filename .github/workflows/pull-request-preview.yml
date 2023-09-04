@@ -3,6 +3,11 @@
 
 name: Preview
 "on": pull_request
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   staging:
     if: "${{ github.event.pull_request.head.repo.full_name == github.repository }}"
