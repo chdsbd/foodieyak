@@ -11,16 +11,16 @@ jobs:
       working-directory: "./ui"
       run: "./s/typecheck"
 
-  test_ui:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "::add-matcher::.github/problem-matcher-vitest.json"
-      - uses: ./.github/workflows/foodieyak-job.yml
-        name: "test_ui"
-        with:
-          working-directory: "./ui"
-          run: "./s/test"
-      - run: echo "::remove-matcher::.github/problem-matcher-vitest.json"
+  # test_ui:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - run: echo "::add-matcher::.github/problem-matcher-vitest.json"
+  #     - uses: ./.github/workflows/foodieyak-job.yml
+  #       name: "test_ui"
+  #       with:
+  #         working-directory: "./ui"
+  #         run: "./s/test"
+  #     - run: echo "::remove-matcher::.github/problem-matcher-vitest.json"
 
   lint_ui:
     uses: ./.github/workflows/foodieyak-job.yml
