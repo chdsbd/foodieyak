@@ -13,6 +13,7 @@ jobs:
       url: ${{ steps.firebase-hosting-deploy.outputs.details_url }}
 
     steps:
+      - uses: actions/checkout@v3
       - uses: ./.github/workflows/foodieyak-job.yml
         with:
           working-directory: "./ui"
@@ -35,6 +36,7 @@ jobs:
       url: ${{ steps.firebase-hosting-deploy.outputs.details_url }}
 
     steps:
+      - uses: actions/checkout@v3
       - uses: ./.github/workflows/foodieyak-job.yml
         with:
           working-directory: "./ui"
