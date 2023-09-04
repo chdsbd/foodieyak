@@ -198,7 +198,7 @@ jobs:
         working-directory: "./functions"
         run: ./s/lint
 
-  fmt_functions_v2:
+  fmt_functionsv2:
     uses: ./.github/workflows/foodieyak-job.yml
     name: "Check Formatting"
     with:
