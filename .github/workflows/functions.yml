@@ -1,18 +1,24 @@
-name: Test V2
+name: Functions
 
 on:
   pull_request:
 
 jobs:
-  lint_functions:
+  typecheck:
     uses: ./.github/workflows/foodieyak-job.yml
-    name: "Lint Functions"
+    name: "Typecheck"
+    with:
+      working-directory: "./functions"
+      run: "./s/typecheck"
+  lint:
+    uses: ./.github/workflows/foodieyak-job.yml
+    name: "Lint"
     with:
       working-directory: "./functions"
       run: "./s/lint"
-  fmt_functions:
+  format:
     uses: ./.github/workflows/foodieyak-job.yml
-    name: "Check Formatting"
+    name: "Format"
     with:
       working-directory: "./functions"
       run: "./s/fmt"
