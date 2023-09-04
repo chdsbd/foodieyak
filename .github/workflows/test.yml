@@ -229,10 +229,3 @@ jobs:
       - name: Check Formatting
         working-directory: "./functions"
         run: ./s/fmt
-
-  fmt_functions_v2:
-    uses: ./.github/workflows/foodieyak-job.yml
-    name: "Check Formatting"
-    with:
-      working-directory: "./functions"
-      run: "./s/fmt"

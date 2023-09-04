@@ -1,0 +1,18 @@
+name: Test V2
+
+on:
+  pull_request:
+
+jobs:
+  lint_functions:
+    uses: ./.github/workflows/foodieyak-job.yml
+    name: "Lint Functions"
+    with:
+      working-directory: "./functions"
+      run: "./s/lint"
+  fmt_functions:
+    uses: ./.github/workflows/foodieyak-job.yml
+    name: "Check Formatting"
+    with:
+      working-directory: "./functions"
+      run: "./s/fmt"
