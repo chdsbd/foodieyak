@@ -15,6 +15,7 @@ import {
   VStack,
 } from "@chakra-ui/react"
 import { formatISO } from "date-fns"
+import { FirebaseError } from "firebase/app"
 import { orderBy } from "lodash-es"
 import React, { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
@@ -116,12 +117,22 @@ function updateDescription({
 async function getUserNameMapping(
   userIds: Array<string>,
   fromCache: boolean = false,
-): Promise<Record<string, string>> {
+): Promise<Record<string, string | undefined>> {
   const results = await Promise.all(
-    userIds.map((userId) => userById({ userId, fromCache })),
+    userIds.map((userId) =>
+      userById({ userId, fromCache }).catch((e: FirebaseError) => {
+        if (e.code === "unavailable") {
+          return null
+        }
+        throw e
+      }),
+    ),
   )
   let mapping: Record<string, string> = {}
   results.forEach((element) => {
+    if (element == null) {
+      return
+    }
     mapping[element.uid] = element.displayName || element.email
   })
   return mapping
@@ -130,23 +141,36 @@ async function getUserNameMapping(
 async function getPlaceMapping(
   placeIds: Array<string>,
   fromCache: boolean = false,
-): Promise<Record<string, Place>> {
+): Promise<Record<string, Place | undefined>> {
   const results = await Promise.all(
-    placeIds.map((placeId) => placeById({ placeId, fromCache })),
+    placeIds.map((placeId) =>
+      placeById({ placeId, fromCache }).catch((e: FirebaseError) => {
+        if (e.code === "unavailable") {
+          return null
+        }
+        throw e
+      }),
+    ),
   )
   let mapping: Record<string, Place> = {}
   results.forEach((element) => {
+    if (element == null) {
+      return null
+    }
     mapping[element.id] = element
   })
   return mapping
 }
 
-type ActivityJoined = Activity & { createdByName: string; place: Place }
+type ActivityJoined = Activity & {
+  createdByName: string | null
+  place: Place | null
+}
 type PlaceId = string
 type DayStr = string
 
 type PlaceCheckInJoined = PlaceCheckIn & {
-  createdByName: string
+  createdByName: string | null
   place: Place | null
 }
 type PlaceCheckinAggregated = Record<
@@ -156,8 +180,8 @@ type PlaceCheckinAggregated = Record<
 
 function convertCheckinsFormatData(
   orderedCheckins: PlaceCheckIn[],
-  userNameMapping: Record<string, string>,
-  placeMap: Record<string, Place>,
+  userNameMapping: Record<string, string | undefined>,
+  placeMap: Record<string, Place | undefined>,
 ): PlaceCheckinAggregated {
   let dayToCheckins: Record<DayStr, PlaceCheckInJoined[]> = {}
   let createdByIds = new Set<string>()
@@ -198,9 +222,9 @@ function convertCheckinsFormatData(
   Object.values(dayToPlaceCheckins).forEach((placeIdToActivities) => {
     Object.values(placeIdToActivities).forEach((place) => {
       place.activities.forEach((activity) => {
-        activity.createdByName = userNameMapping[activity.createdById]
-        activity.place = placeMap[activity.placeId]
-        place.place = placeMap[activity.placeId]
+        activity.createdByName = userNameMapping[activity.createdById] ?? null
+        activity.place = placeMap[activity.placeId] ?? null
+        place.place = placeMap[activity.placeId] ?? null
       })
     })
   })
@@ -245,8 +269,8 @@ async function joinActivitiesToNames(
   ])
 
   return orderedActivities.map((a): ActivityJoined => {
-    const place = placeMap[a.placeId]
-    const createdByName = userNameMapping[a.createdById]
+    const place = placeMap[a.placeId] ?? null
+    const createdByName = userNameMapping[a.createdById] ?? null
     return { ...a, place, createdByName }
   })
 }
@@ -278,6 +302,7 @@ function useActivitiesMapping({ userId }: { userId: string }) {
         if (cancel) {
           return
         }
+        console.log("set-state")
         setState(res)
       }
     })().catch(() => {
@@ -371,7 +396,7 @@ function Action({
     <>
       {description}{" "}
       <Text as={Link} {...linkStyled} to={pathPlaceDetail({ placeId })}>
-        {activity.place.name}
+        {activity.place?.name}
       </Text>
     </>
   )
@@ -494,58 +519,60 @@ function CheckinActivities({ userId }: { userId: string }) {
     <VStack spacing={6} align="start" width="100%">
       {checkins === "error" ? (
         <div>Error</div>
-      ) : checkins === "loading" ? (
-        <div>Loading...</div>
-      ) : (
-        Object.entries(checkins).map(([day, placesWithCheckins]) => (
-          <Box key={day} width={"100%"}>
-            <Box borderBottomWidth={"1px"} marginBottom={2}>
-              {formatHumanDate(new Date(day))}
-            </Box>
-            <VStack spacing={3} width="100%" alignItems={"start"}>
-              {orderBy(
-                Object.entries(placesWithCheckins),
-                ([, { place }]) => place?.name,
-              ).map(([placeId, { activities: checkins, place }]) => (
-                <Box
-                  key={placeId}
-                  w="100%"
-                  color={place?.isSkippableAt ? "gray.600" : undefined}
-                >
-                  <Box>
-                    <Text
-                      as={Link}
-                      fontWeight={500}
-                      textDecorationLine={
-                        place?.isSkippableAt ? "line-through" : undefined
-                      }
-                      to={pathPlaceDetail({ placeId })}
-                    >
-                      {place?.name}
-                    </Text>
+      ) : checkins === "loading" ? null : (
+        Object.entries(checkins)
+          .slice(0, 10)
+          .map(([day, placesWithCheckins]) => (
+            <Box key={day} width={"100%"}>
+              <Box borderBottomWidth={"1px"} marginBottom={2}>
+                {formatHumanDate(new Date(day))}
+              </Box>
+              <VStack spacing={3} width="100%" alignItems={"start"}>
+                {orderBy(
+                  Object.entries(placesWithCheckins),
+                  ([, { place }]) => place?.name,
+                ).map(([placeId, { activities: checkins, place }]) => (
+                  <Box
+                    key={placeId}
+                    w="100%"
+                    color={place?.isSkippableAt ? "gray.600" : undefined}
+                  >
+                    <Box>
+                      <Text
+                        as={Link}
+                        fontWeight={500}
+                        textDecorationLine={
+                          place?.isSkippableAt ? "line-through" : undefined
+                        }
+                        to={pathPlaceDetail({ placeId })}
+                      >
+                        {place?.name}
+                      </Text>
+                    </Box>
+                    {orderBy(checkins, (c) => c.createdByName).map(
+                      (c, index) => {
+                        return (
+                          <React.Fragment key={c.id}>
+                            <Text
+                              as={Link}
+                              fontWeight={"bold"}
+                              to={pathCheckinDetail({
+                                placeId: c.placeId,
+                                checkInId: c.id,
+                              })}
+                            >
+                              {c.createdByName}
+                            </Text>
+                            {index < checkins.length - 1 ? ", " : ""}
+                          </React.Fragment>
+                        )
+                      },
+                    )}
                   </Box>
-                  {orderBy(checkins, (c) => c.createdByName).map((c, index) => {
-                    return (
-                      <React.Fragment key={c.id}>
-                        <Text
-                          as={Link}
-                          fontWeight={"bold"}
-                          to={pathCheckinDetail({
-                            placeId: c.placeId,
-                            checkInId: c.id,
-                          })}
-                        >
-                          {c.createdByName}
-                        </Text>
-                        {index < checkins.length - 1 ? ", " : ""}
-                      </React.Fragment>
-                    )
-                  })}
-                </Box>
-              ))}
-            </VStack>
-          </Box>
-        ))
+                ))}
+              </VStack>
+            </Box>
+          ))
       )}
     </VStack>
   )
