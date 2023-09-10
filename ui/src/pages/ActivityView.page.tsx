@@ -15,6 +15,7 @@ import {
   VStack,
 } from "@chakra-ui/react"
 import { formatISO } from "date-fns"
+import { FirebaseError } from "firebase/app"
 import { orderBy } from "lodash-es"
 import React, { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
@@ -115,12 +116,23 @@ function updateDescription({
 
 async function getUserNameMapping(
   userIds: Array<string>,
-): Promise<Record<string, string>> {
+  fromCache: boolean = false,
+): Promise<Record<string, string | undefined>> {
   const results = await Promise.all(
-    userIds.map((userId) => userById({ userId })),
+    userIds.map((userId) =>
+      userById({ userId, fromCache }).catch((e: FirebaseError) => {
+        if (e.code === "unavailable") {
+          return null
+        }
+        throw e
+      }),
+    ),
   )
   let mapping: Record<string, string> = {}
   results.forEach((element) => {
+    if (element == null) {
+      return
+    }
     mapping[element.uid] = element.displayName || element.email
   })
   return mapping
@@ -128,23 +140,37 @@ async function getUserNameMapping(
 
 async function getPlaceMapping(
   placeIds: Array<string>,
-): Promise<Record<string, Place>> {
+  fromCache: boolean = false,
+): Promise<Record<string, Place | undefined>> {
   const results = await Promise.all(
-    placeIds.map((placeId) => placeById({ placeId })),
+    placeIds.map((placeId) =>
+      placeById({ placeId, fromCache }).catch((e: FirebaseError) => {
+        if (e.code === "unavailable") {
+          return null
+        }
+        throw e
+      }),
+    ),
   )
   let mapping: Record<string, Place> = {}
   results.forEach((element) => {
+    if (element == null) {
+      return null
+    }
     mapping[element.id] = element
   })
   return mapping
 }
 
-type ActivityJoined = Activity & { createdByName: string; place: Place }
+type ActivityJoined = Activity & {
+  createdByName: string | null
+  place: Place | null
+}
 type PlaceId = string
 type DayStr = string
 
 type PlaceCheckInJoined = PlaceCheckIn & {
-  createdByName: string
+  createdByName: string | null
   place: Place | null
 }
 type PlaceCheckinAggregated = Record<
@@ -152,9 +178,11 @@ type PlaceCheckinAggregated = Record<
   Record<PlaceId, { activities: PlaceCheckInJoined[]; place: Place | null }>
 >
 
-async function convertCheckins(
+function convertCheckinsFormatData(
   orderedCheckins: PlaceCheckIn[],
-): Promise<PlaceCheckinAggregated> {
+  userNameMapping: Record<string, string | undefined>,
+  placeMap: Record<string, Place | undefined>,
+): PlaceCheckinAggregated {
   let dayToCheckins: Record<DayStr, PlaceCheckInJoined[]> = {}
   let createdByIds = new Set<string>()
   let placeIds = new Set<string>()
@@ -191,22 +219,37 @@ async function convertCheckins(
     })
   })
 
-  const [userNameMapping, placeMap] = await Promise.all([
-    getUserNameMapping([...createdByIds]),
-    getPlaceMapping([...placeIds]),
-  ])
-
   Object.values(dayToPlaceCheckins).forEach((placeIdToActivities) => {
     Object.values(placeIdToActivities).forEach((place) => {
       place.activities.forEach((activity) => {
-        activity.createdByName = userNameMapping[activity.createdById]
-        activity.place = placeMap[activity.placeId]
-        place.place = placeMap[activity.placeId]
+        activity.createdByName = userNameMapping[activity.createdById] ?? null
+        activity.place = placeMap[activity.placeId] ?? null
+        place.place = placeMap[activity.placeId] ?? null
       })
     })
   })
 
   return dayToPlaceCheckins
+}
+
+async function* convertCheckins(orderedCheckins: PlaceCheckIn[]) {
+  const createdByIds = orderedCheckins.map((x) => x.createdById)
+  const placeIds = orderedCheckins.map((x) => x.placeId)
+  const [userNameMapping, placeMap] = await Promise.all([
+    getUserNameMapping([...createdByIds], true),
+    getPlaceMapping([...placeIds], true),
+  ])
+  yield convertCheckinsFormatData(orderedCheckins, userNameMapping, placeMap)
+
+  const [userNameMappingFromServer, placeMapFromServer] = await Promise.all([
+    getUserNameMapping([...createdByIds]),
+    getPlaceMapping([...placeIds]),
+  ])
+  yield convertCheckinsFormatData(
+    orderedCheckins,
+    userNameMappingFromServer,
+    placeMapFromServer,
+  )
 }
 
 async function joinActivitiesToNames(
@@ -226,8 +269,8 @@ async function joinActivitiesToNames(
   ])
 
   return orderedActivities.map((a): ActivityJoined => {
-    const place = placeMap[a.placeId]
-    const createdByName = userNameMapping[a.createdById]
+    const place = placeMap[a.placeId] ?? null
+    const createdByName = userNameMapping[a.createdById] ?? null
     return { ...a, place, createdByName }
   })
 }
@@ -254,16 +297,16 @@ function useActivitiesMapping({ userId }: { userId: string }) {
     if (checkins === "error" || checkins === "loading") {
       return
     }
-    convertCheckins(checkins)
-      .then((res) => {
+    ;(async () => {
+      for await (const res of convertCheckins(checkins)) {
         if (cancel) {
           return
         }
         setState(res)
-      })
-      .catch(() => {
-        setState("error")
-      })
+      }
+    })().catch(() => {
+      setState("error")
+    })
 
     return () => {
       cancel = true
@@ -352,7 +395,7 @@ function Action({
     <>
       {description}{" "}
       <Text as={Link} {...linkStyled} to={pathPlaceDetail({ placeId })}>
-        {activity.place.name}
+        {activity.place?.name}
       </Text>
     </>
   )
@@ -475,9 +518,7 @@ function CheckinActivities({ userId }: { userId: string }) {
     <VStack spacing={6} align="start" width="100%">
       {checkins === "error" ? (
         <div>Error</div>
-      ) : checkins === "loading" ? (
-        <div>Loading...</div>
-      ) : (
+      ) : checkins === "loading" ? null : (
         Object.entries(checkins).map(([day, placesWithCheckins]) => (
           <Box key={day} width={"100%"}>
             <Box borderBottomWidth={"1px"} marginBottom={2}>
