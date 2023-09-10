@@ -302,7 +302,6 @@ function useActivitiesMapping({ userId }: { userId: string }) {
         if (cancel) {
           return
         }
-        console.log("set-state")
         setState(res)
       }
     })().catch(() => {
