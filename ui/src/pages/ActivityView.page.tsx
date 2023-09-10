@@ -115,9 +115,10 @@ function updateDescription({
 
 async function getUserNameMapping(
   userIds: Array<string>,
+  fromCache: boolean = false,
 ): Promise<Record<string, string>> {
   const results = await Promise.all(
-    userIds.map((userId) => userById({ userId })),
+    userIds.map((userId) => userById({ userId, fromCache })),
   )
   let mapping: Record<string, string> = {}
   results.forEach((element) => {
@@ -128,9 +129,10 @@ async function getUserNameMapping(
 
 async function getPlaceMapping(
   placeIds: Array<string>,
+  fromCache: boolean = false,
 ): Promise<Record<string, Place>> {
   const results = await Promise.all(
-    placeIds.map((placeId) => placeById({ placeId })),
+    placeIds.map((placeId) => placeById({ placeId, fromCache })),
   )
   let mapping: Record<string, Place> = {}
   results.forEach((element) => {
@@ -152,9 +154,11 @@ type PlaceCheckinAggregated = Record<
   Record<PlaceId, { activities: PlaceCheckInJoined[]; place: Place | null }>
 >
 
-async function convertCheckins(
+function convertCheckinsFormatData(
   orderedCheckins: PlaceCheckIn[],
-): Promise<PlaceCheckinAggregated> {
+  userNameMapping: Record<string, string>,
+  placeMap: Record<string, Place>,
+): PlaceCheckinAggregated {
   let dayToCheckins: Record<DayStr, PlaceCheckInJoined[]> = {}
   let createdByIds = new Set<string>()
   let placeIds = new Set<string>()
@@ -191,11 +195,6 @@ async function convertCheckins(
     })
   })
 
-  const [userNameMapping, placeMap] = await Promise.all([
-    getUserNameMapping([...createdByIds]),
-    getPlaceMapping([...placeIds]),
-  ])
-
   Object.values(dayToPlaceCheckins).forEach((placeIdToActivities) => {
     Object.values(placeIdToActivities).forEach((place) => {
       place.activities.forEach((activity) => {
@@ -207,6 +206,26 @@ async function convertCheckins(
   })
 
   return dayToPlaceCheckins
+}
+
+async function* convertCheckins(orderedCheckins: PlaceCheckIn[]) {
+  const createdByIds = orderedCheckins.map((x) => x.createdById)
+  const placeIds = orderedCheckins.map((x) => x.placeId)
+  const [userNameMapping, placeMap] = await Promise.all([
+    getUserNameMapping([...createdByIds], true),
+    getPlaceMapping([...placeIds], true),
+  ])
+  yield convertCheckinsFormatData(orderedCheckins, userNameMapping, placeMap)
+
+  const [userNameMappingFromServer, placeMapFromServer] = await Promise.all([
+    getUserNameMapping([...createdByIds]),
+    getPlaceMapping([...placeIds]),
+  ])
+  yield convertCheckinsFormatData(
+    orderedCheckins,
+    userNameMappingFromServer,
+    placeMapFromServer,
+  )
 }
 
 async function joinActivitiesToNames(
@@ -254,16 +273,16 @@ function useActivitiesMapping({ userId }: { userId: string }) {
     if (checkins === "error" || checkins === "loading") {
       return
     }
-    convertCheckins(checkins)
-      .then((res) => {
+    ;(async () => {
+      for await (const res of convertCheckins(checkins)) {
         if (cancel) {
           return
         }
         setState(res)
-      })
-      .catch(() => {
-        setState("error")
-      })
+      }
+    })().catch(() => {
+      setState("error")
+    })
 
     return () => {
       cancel = true

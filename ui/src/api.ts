@@ -6,6 +6,7 @@ import {
   deleteDoc,
   doc,
   getDoc,
+  getDocFromCache,
   getDocs,
   limit,
   orderBy,
@@ -388,18 +389,28 @@ export async function friendInviteAccept({
     .commit()
 }
 
-export async function userById({ userId }: { userId: string }): Promise<User> {
+export async function userById({
+  userId,
+  fromCache = false,
+}: {
+  userId: string
+  fromCache?: boolean
+}): Promise<User> {
   // /users/{user}/friends/{target}
   // /users/{target}/friends/{user}
-  const res = await getDoc(doc(db, "users", userId))
+  const q = doc(db, "users", userId)
+  const res = fromCache ? await getDocFromCache(q) : await getDoc(q)
   return UserSchema.parse({ id: res.id, ...res.data() })
 }
 
 export async function placeById({
   placeId,
+  fromCache = false,
 }: {
   placeId: string
+  fromCache?: boolean
 }): Promise<Place> {
-  const res = await getDoc(doc(db, "places", placeId))
+  const q = doc(db, "places", placeId)
+  const res = fromCache ? await getDocFromCache(q) : await getDoc(q)
   return PlaceSchema.parse({ id: res.id, ...res.data() })
 }
