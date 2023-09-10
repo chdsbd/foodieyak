@@ -14,17 +14,31 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react"
+import { useQuery } from "@tanstack/react-query"
 import { formatISO } from "date-fns"
+import {
+  collectionGroup,
+  getDocsFromServer,
+  orderBy as orderBy_,
+  query,
+  where,
+} from "firebase/firestore"
 import { orderBy } from "lodash-es"
 import React, { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 
 import { placeById, userById } from "../api"
-import { Activity, Place, PlaceCheckIn } from "../api-schemas"
+import {
+  Activity,
+  Place,
+  PlaceCheckIn,
+  PlaceCheckInSchema,
+} from "../api-schemas"
 import { assertNever } from "../assertNever"
 import { Page } from "../components/Page"
 import { formatHumanDate, formatHumanDateTime } from "../date"
-import { useActivities, useCheckinActivities, useUser } from "../hooks"
+import { db } from "../db"
+import { useActivities, useUser } from "../hooks"
 import {
   pathCheckinDetail,
   pathMenuItemDetail,
@@ -152,9 +166,11 @@ type PlaceCheckinAggregated = Record<
   Record<PlaceId, { activities: PlaceCheckInJoined[]; place: Place | null }>
 >
 
-async function convertCheckins(
+function convertCheckins(
   orderedCheckins: PlaceCheckIn[],
-): Promise<PlaceCheckinAggregated> {
+  userNameMapping: Record<string, string>,
+  placeMap: Record<string, Place>,
+): PlaceCheckinAggregated {
   let dayToCheckins: Record<DayStr, PlaceCheckInJoined[]> = {}
   let createdByIds = new Set<string>()
   let placeIds = new Set<string>()
@@ -190,11 +206,6 @@ async function convertCheckins(
       dayToPlaceCheckins[day][checkin.placeId].activities.push(checkin)
     })
   })
-
-  const [userNameMapping, placeMap] = await Promise.all([
-    getUserNameMapping([...createdByIds]),
-    getPlaceMapping([...placeIds]),
-  ])
 
   Object.values(dayToPlaceCheckins).forEach((placeIdToActivities) => {
     Object.values(placeIdToActivities).forEach((place) => {
@@ -232,45 +243,28 @@ async function joinActivitiesToNames(
   })
 }
 
-function useActivitiesMapping({ userId }: { userId: string }) {
-  // NOTE: this doesn't handle caching.
-  //
-  // When we unmount and then mount we should show the most recent data we have,
-  // instead we end up in a loading state.
-  //
-  // onSnapshot will retrieve data from the cache on mount but we then have to
-  // join that to other data which isn't in the cache.
-  //
-  // Ideally Firebase would support some sort of join / expansion mechanism and
-  // handle all the caching internally, but I think we'll have to roll our own
-  // to support this.
-  const [state, setState] = useState<
-    PlaceCheckinAggregated | "loading" | "error"
-  >("loading")
-  const checkins = useCheckinActivities({ userId })
+async function getActivities(userId: string): Promise<PlaceCheckinAggregated> {
+  const res = await getDocsFromServer(
+    query(
+      collectionGroup(db, "checkins"),
+      where("viewerIds", "array-contains", userId),
+      orderBy_("checkedInAt", "desc"),
+    ),
+  )
 
-  useEffect(() => {
-    let cancel = false
-    if (checkins === "error" || checkins === "loading") {
-      return
-    }
-    convertCheckins(checkins)
-      .then((res) => {
-        if (cancel) {
-          return
-        }
-        setState(res)
-      })
-      .catch(() => {
-        setState("error")
-      })
+  const docs = res.docs.map((doc) =>
+    PlaceCheckInSchema.parse({ id: doc.id, ...doc.data() }),
+  )
 
-    return () => {
-      cancel = true
-    }
-  }, [checkins])
+  const placeIds = docs.map((d) => d.placeId)
+  const createdByIds = docs.map((d) => d.createdById)
 
-  return state
+  const [userNameMapping, placeMap] = await Promise.all([
+    getUserNameMapping([...createdByIds]),
+    getPlaceMapping([...placeIds]),
+  ])
+
+  return convertCheckins(docs, userNameMapping, placeMap)
 }
 
 function Profile({ children }: { children: React.ReactNode }) {
@@ -468,17 +462,20 @@ function AllActivities({ userId }: { userId: string }) {
 }
 
 function CheckinActivities({ userId }: { userId: string }) {
-  const checkins = useActivitiesMapping({
-    userId,
+  const checkins = useQuery({
+    queryKey: ["activities"],
+    queryFn: () => getActivities(userId),
+    cacheTime: 0,
   })
+
   return (
     <VStack spacing={6} align="start" width="100%">
-      {checkins === "error" ? (
+      {checkins.isError ? (
         <div>Error</div>
-      ) : checkins === "loading" ? (
+      ) : checkins.isLoading ? (
         <div>Loading...</div>
       ) : (
-        Object.entries(checkins).map(([day, placesWithCheckins]) => (
+        Object.entries(checkins.data).map(([day, placesWithCheckins]) => (
           <Box key={day} width={"100%"}>
             <Box borderBottomWidth={"1px"} marginBottom={2}>
               {formatHumanDate(new Date(day))}

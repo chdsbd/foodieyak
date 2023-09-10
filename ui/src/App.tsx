@@ -1,3 +1,10 @@
+import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister"
+import {
+  QueryClient,
+  QueryClientProvider,
+  useIsRestoring,
+} from "@tanstack/react-query"
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client"
 import { getFirestore } from "firebase/firestore"
 import {
   BrowserRouter as Router,
@@ -152,37 +159,84 @@ const routes: (
   },
 ]
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      cacheTime: 1000 * 60 * 60 * 24 * 7, // 7 days
+    },
+  },
+})
+const persister = createSyncStoragePersister({
+  storage: localStorage,
+  retry: ({ error }) => {
+    // eslint-disable-next-line no-console
+    console.error("problem persisting")
+    // eslint-disable-next-line no-console
+    console.error(error)
+    return undefined
+  },
+})
+
+function RestoreWaiter({ children }: { children: React.ReactNode }) {
+  const isRestoring = useIsRestoring()
+  if (isRestoring) {
+    // NOTE: we don't render the site until react-query finishes hydrating from cache
+    // some sites like linear show a loader, but they must guarentee it shows
+    // for $N milliseconds or something because when it's really quick, < $N
+    // milliseconds it looks like a glitchy flash
+    return null
+  }
+  return <>{children}</>
+}
+
 function App() {
   const firestoreInstance = getFirestore(useFirebaseApp())
   const authStatus = useIsAuthed()
+
   if (authStatus === "loading") {
     // don't have auth data so we dont' know what to show
     return null
   }
   return (
     <ErrorBoundary>
-      <FirestoreProvider sdk={firestoreInstance}>
-        <Router>
-          <Switch>
-            {routes.map((r) => {
-              if ("redirect" in r) {
-                return <Redirect key={r.path} from={r.path} to={r.redirect} />
-              }
-              if (r.authed === true && authStatus === "unauthed") {
-                return <Redirect key={r.path} to={pathLogin({})} />
-              }
-              return (
-                <Route
-                  key={r.path}
-                  path={r.path}
-                  children={r.element}
-                  exact={r.exact}
-                />
-              )
-            })}
-          </Switch>
-        </Router>
-      </FirestoreProvider>
+      <PersistQueryClientProvider
+        client={queryClient}
+        persistOptions={{
+          // NOTE: Ideally we'd only bust the cache when the cache schema changes
+          // in a backwards incompatible way but calculating that is annoying so
+          // just break it on every deploy
+          // buster: GIT_SHA,
+          persister,
+          maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+        }}
+      >
+        <FirestoreProvider sdk={firestoreInstance}>
+          <RestoreWaiter>
+            <Router>
+              <Switch>
+                {routes.map((r) => {
+                  if ("redirect" in r) {
+                    return (
+                      <Redirect key={r.path} from={r.path} to={r.redirect} />
+                    )
+                  }
+                  if (r.authed === true && authStatus === "unauthed") {
+                    return <Redirect key={r.path} to={pathLogin({})} />
+                  }
+                  return (
+                    <Route
+                      key={r.path}
+                      path={r.path}
+                      children={r.element}
+                      exact={r.exact}
+                    />
+                  )
+                })}
+              </Switch>
+            </Router>
+          </RestoreWaiter>
+        </FirestoreProvider>
+      </PersistQueryClientProvider>
     </ErrorBoundary>
   )
 }
