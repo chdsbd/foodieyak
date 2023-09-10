@@ -520,59 +520,55 @@ function CheckinActivities({ userId }: { userId: string }) {
       {checkins === "error" ? (
         <div>Error</div>
       ) : checkins === "loading" ? null : (
-        Object.entries(checkins)
-          .slice(0, 10)
-          .map(([day, placesWithCheckins]) => (
-            <Box key={day} width={"100%"}>
-              <Box borderBottomWidth={"1px"} marginBottom={2}>
-                {formatHumanDate(new Date(day))}
-              </Box>
-              <VStack spacing={3} width="100%" alignItems={"start"}>
-                {orderBy(
-                  Object.entries(placesWithCheckins),
-                  ([, { place }]) => place?.name,
-                ).map(([placeId, { activities: checkins, place }]) => (
-                  <Box
-                    key={placeId}
-                    w="100%"
-                    color={place?.isSkippableAt ? "gray.600" : undefined}
-                  >
-                    <Box>
-                      <Text
-                        as={Link}
-                        fontWeight={500}
-                        textDecorationLine={
-                          place?.isSkippableAt ? "line-through" : undefined
-                        }
-                        to={pathPlaceDetail({ placeId })}
-                      >
-                        {place?.name}
-                      </Text>
-                    </Box>
-                    {orderBy(checkins, (c) => c.createdByName).map(
-                      (c, index) => {
-                        return (
-                          <React.Fragment key={c.id}>
-                            <Text
-                              as={Link}
-                              fontWeight={"bold"}
-                              to={pathCheckinDetail({
-                                placeId: c.placeId,
-                                checkInId: c.id,
-                              })}
-                            >
-                              {c.createdByName}
-                            </Text>
-                            {index < checkins.length - 1 ? ", " : ""}
-                          </React.Fragment>
-                        )
-                      },
-                    )}
-                  </Box>
-                ))}
-              </VStack>
+        Object.entries(checkins).map(([day, placesWithCheckins]) => (
+          <Box key={day} width={"100%"}>
+            <Box borderBottomWidth={"1px"} marginBottom={2}>
+              {formatHumanDate(new Date(day))}
             </Box>
-          ))
+            <VStack spacing={3} width="100%" alignItems={"start"}>
+              {orderBy(
+                Object.entries(placesWithCheckins),
+                ([, { place }]) => place?.name,
+              ).map(([placeId, { activities: checkins, place }]) => (
+                <Box
+                  key={placeId}
+                  w="100%"
+                  color={place?.isSkippableAt ? "gray.600" : undefined}
+                >
+                  <Box>
+                    <Text
+                      as={Link}
+                      fontWeight={500}
+                      textDecorationLine={
+                        place?.isSkippableAt ? "line-through" : undefined
+                      }
+                      to={pathPlaceDetail({ placeId })}
+                    >
+                      {place?.name}
+                    </Text>
+                  </Box>
+                  {orderBy(checkins, (c) => c.createdByName).map((c, index) => {
+                    return (
+                      <React.Fragment key={c.id}>
+                        <Text
+                          as={Link}
+                          fontWeight={"bold"}
+                          to={pathCheckinDetail({
+                            placeId: c.placeId,
+                            checkInId: c.id,
+                          })}
+                        >
+                          {c.createdByName}
+                        </Text>
+                        {index < checkins.length - 1 ? ", " : ""}
+                      </React.Fragment>
+                    )
+                  })}
+                </Box>
+              ))}
+            </VStack>
+          </Box>
+        ))
       )}
     </VStack>
   )

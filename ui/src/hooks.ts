@@ -233,6 +233,7 @@ export function useCheckinActivities({ userId }: { userId: string }) {
       collectionGroup(db, "checkins"),
       where("viewerIds", "array-contains", userId),
       orderBy("checkedInAt", "desc"),
+      limit(25),
     )
   }, [userId])
   return useQuery(q, PlaceCheckInSchema)
