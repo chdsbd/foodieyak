@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "api"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+starlette = "^0.31.1"
+edgedb = "^1.7.0"
+uvicorn = "^0.23.2"
+passlib = {extras = ["argon2"], version = "^1.7.4"}
+based58 = "^0.1.1"
+attrs = "^23.1.0"
+
+
+[tool.poetry.dev-dependencies]
+black = "^23.9.1"
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

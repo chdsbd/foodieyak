@@ -4,3 +4,4 @@ build
 .env*
 firebase-debug.log
 *.json
+__pycache__
