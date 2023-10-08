@@ -1,6 +1,7 @@
-from starlette.testclient import TestClient
-from foodieyak.app import app
 from starlette import status
+from starlette.testclient import TestClient
+
+from foodieyak.app import app
 
 
 def test_signup() -> None:

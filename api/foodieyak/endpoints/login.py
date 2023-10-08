@@ -1,10 +1,10 @@
-from starlette.responses import JSONResponse
 from starlette.requests import Request
-from foodieyak.queries.get_user_by_email_async_edgeql import get_user_by_email
-from foodieyak.queries.create_session_async_edgeql import create_session
+from starlette.responses import JSONResponse
 
 from foodieyak.auth import verify_password
 from foodieyak.endpoints.base import ClientErrorResponse
+from foodieyak.queries.create_session_async_edgeql import create_session
+from foodieyak.queries.get_user_by_email_async_edgeql import get_user_by_email
 
 
 async def login(request: Request) -> JSONResponse:

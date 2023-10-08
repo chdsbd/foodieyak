@@ -3,9 +3,11 @@
 
 
 from __future__ import annotations
+
 import dataclasses
-import edgedb
 import uuid
+
+import edgedb
 
 
 class NoPydanticValidation:

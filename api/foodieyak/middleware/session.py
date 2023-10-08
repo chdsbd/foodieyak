@@ -1,13 +1,14 @@
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.requests import Request
-from starlette.responses import Response
-from foodieyak.queries.get_user_by_session_key_async_edgeql import (
-    get_user_by_session_key,
-)
-from typing_extensions import Protocol
 from starlette.authentication import (
     AuthCredentials,
     UnauthenticatedUser,
+)
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from starlette.responses import Response
+from typing_extensions import Protocol
+
+from foodieyak.queries.get_user_by_session_key_async_edgeql import (
+    get_user_by_session_key,
 )
 
 

@@ -23,11 +23,10 @@ class State(TypedDict):
 
 @contextlib.asynccontextmanager
 async def lifespan(app: Starlette) -> AsyncIterator[State]:
-    yield {
-        "client": edgedb.create_async_client(
-            database="edgedb",
-        )
-    }
+    async with edgedb.create_async_client(
+        database="edgedb",
+    ) as client:
+        yield {"client": client}
 
 
 app = Starlette(

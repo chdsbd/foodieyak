@@ -1,6 +1,6 @@
+from starlette.authentication import requires
 from starlette.requests import Request
 from starlette.responses import JSONResponse
-from starlette.authentication import requires
 
 from foodieyak.queries.list_team_invites_async_edgeql import list_team_invites
 
