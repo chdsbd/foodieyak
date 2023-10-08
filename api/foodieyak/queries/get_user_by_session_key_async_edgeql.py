@@ -20,6 +20,7 @@ class NoPydanticValidation:
 @dataclasses.dataclass
 class GetUserBySessionKeyResult(NoPydanticValidation):
     id: uuid.UUID
+    name: str | None
     email: str
 
 
@@ -31,6 +32,7 @@ async def get_user_by_session_key(
     return await executor.query_single(
         """\
         select User {
+          name,
           email
         }
         filter .<user[is Session].key = <uuid>$session_key

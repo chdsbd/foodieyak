@@ -7,7 +7,7 @@ from foodieyak.queries.create_team_invite_async_edgeql import create_team_invite
 
 @requires("authenticated", status_code=401)
 async def team_invite_create(request: Request) -> JSONResponse:
-    client = request.app.state.client
+    client = request.state.client
     body = await request.json()
     recipient_id = body["recipient_id"]
     team_id = body["team_id"]

@@ -18,7 +18,7 @@ class _RequestHandler(Protocol):
 
 class SessionMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: _RequestHandler) -> Response:
-        client = request.app.state.client
+        client = request.state.client
         session_id = request.cookies.get("session_id")
         request.scope["auth"] = AuthCredentials()
         request.scope["user"] = UnauthenticatedUser()

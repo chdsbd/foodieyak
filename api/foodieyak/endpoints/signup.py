@@ -1,14 +1,14 @@
-from starlette.responses import JSONResponse
 from starlette.requests import Request
-from foodieyak.queries.create_user_async_edgeql import create_user
-from foodieyak.queries.create_session_async_edgeql import create_session
+from starlette.responses import JSONResponse
 
 from foodieyak.auth import hash_password
 from foodieyak.endpoints.base import ClientErrorResponse
+from foodieyak.queries.create_session_async_edgeql import create_session
+from foodieyak.queries.create_user_async_edgeql import create_user
 
 
 async def signup(request: Request) -> JSONResponse:
-    client = request.app.state.client
+    client = request.state.client
     body = await request.json()
     email = body["email"]
     password = body["password"].strip()

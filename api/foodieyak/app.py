@@ -1,28 +1,40 @@
+import contextlib
+from typing import AsyncIterator, TypedDict
+
 import edgedb
 from starlette.applications import Starlette
 from starlette.middleware import Middleware
 from starlette.routing import Route
 
-from foodieyak.middleware.session import SessionMiddleware
+from foodieyak.endpoints.current_user import current_user
 from foodieyak.endpoints.homepage import homepage
 from foodieyak.endpoints.login import login
 from foodieyak.endpoints.signup import signup
 from foodieyak.endpoints.team_create import team_create
-from foodieyak.endpoints.team_invite_create import team_invite_create
 from foodieyak.endpoints.team_invite_accept import team_invite_accept
+from foodieyak.endpoints.team_invite_create import team_invite_create
 from foodieyak.endpoints.team_invite_list import team_invite_list
+from foodieyak.middleware.session import SessionMiddleware
 
 
-def on_startup():
-    app.state.client = edgedb.create_async_client(
-        database="edgedb",
-    )
+class State(TypedDict):
+    client: edgedb.AsyncIOClient
+
+
+@contextlib.asynccontextmanager
+async def lifespan(app: Starlette) -> AsyncIterator[State]:
+    yield {
+        "client": edgedb.create_async_client(
+            database="edgedb",
+        )
+    }
 
 
 app = Starlette(
     debug=True,
     routes=[
         Route("/", homepage),
+        Route("/me", current_user, methods=["GET"]),
         Route("/team", team_create, methods=["POST"]),
         Route("/team-invite", team_invite_create, methods=["POST"]),
         Route("/team-invite", team_invite_list, methods=["GET"]),
@@ -31,5 +43,5 @@ app = Starlette(
         Route("/signup", signup, methods=["POST"]),
     ],
     middleware=[Middleware(SessionMiddleware)],
-    on_startup=[on_startup],
+    lifespan=lifespan,
 )

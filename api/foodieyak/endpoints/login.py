@@ -8,7 +8,7 @@ from foodieyak.endpoints.base import ClientErrorResponse
 
 
 async def login(request: Request) -> JSONResponse:
-    client = request.app.state.client
+    client = request.state.client
     body = await request.json()
     email = body["email"]
     password = body["password"].strip()

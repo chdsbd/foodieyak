@@ -7,7 +7,7 @@ from foodieyak.queries.list_team_invites_async_edgeql import list_team_invites
 
 @requires("authenticated", status_code=401)
 async def team_invite_list(request: Request) -> JSONResponse:
-    client = request.app.state.client
+    client = request.state.client
     team_invites = await list_team_invites(client, user_id=request.user.id)
     return JSONResponse(
         [
