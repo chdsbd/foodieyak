@@ -50,6 +50,17 @@ module default {
     # users can be members of multiple teams. Teams should have at least one user.
     required multi members: User;
   }
+  type TeamInvite extending Base {
+    required sender: User;
+    required recipient: User;
+    required team: Team;
+    # access policy sender_recipient_can_read
+    #   allow select
+    #   using (global current_user ?= .sender.id or global current_user ?= .recipient.id);
+    # access policy team_member_can_invite
+    #   allow insert, update, delete
+    #   using ((global current_user in .team.members.id) ?? false);
+  }
 }
 
 module foodieyak {
