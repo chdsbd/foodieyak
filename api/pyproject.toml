@@ -51,6 +51,7 @@ select = [
     "RUF",
 ]
 src = ["foodieyak"]
+exclude = ["foodieyak/queries/*_async_edgeql.py"]
 ignore = [
     "E501", # line length is handled by black
     "ARG001", # pytest fixtures mess with this
