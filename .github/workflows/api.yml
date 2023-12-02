@@ -1,0 +1,89 @@
+name: API
+"on":
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  # api_staging:
+  #   permissions:
+  #     contents: "read"
+  #     id-token: "write"
+  #   runs-on: ubuntu-latest
+
+  #   environment:
+  #     name: staging-api
+  #     url: https://staging.foodieyak.com/api
+
+  #   defaults:
+  #     run:
+  #       working-directory: "./api"
+
+  #   env:
+  #     FIREBASE_GOOGLE_SERVICE_ACCOUNT_CERTIFICATE: ${{ secrets.FIREBASE_GOOGLE_SERVICE_ACCOUNT_CERTIFICATE }}
+
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: actions/setup-node@v3
+  #       with:
+  #         node-version-file: "./package.json"
+  #     - uses: pnpm/action-setup@v2
+  #       name: Install pnpm
+  #       with:
+  #         version: 8
+  #         run_install: false
+
+  #     - name: Get pnpm store directory
+  #       shell: bash
+  #       run: |
+  #         echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+  #     - uses: actions/cache@v3
+  #       name: Setup pnpm cache
+  #       with:
+  #         path: ${{ env.STORE_PATH }}
+  #         key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-pnpm-store-
+
+  #     - name: Install dependencies
+  #       run: pnpm install
+  #     - run: s/deploy-stage
+  production_deploy:
+    permissions:
+      contents: "read"
+      id-token: "write"
+    runs-on: ubuntu-latest
+
+    environment:
+      name: production-api
+      url: https://foodieyak.com/api
+
+    defaults:
+      run:
+        working-directory: "./api"
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: "google-github-actions/auth@v2"
+        with:
+          project_id: "foodieyak-ef36d"
+          workload_identity_provider: "projects/227275725965/locations/global/workloadIdentityPools/github/providers/github"
+      - uses: "google-github-actions/setup-gcloud@v1"
+        with:
+          version: ">= 363.0.0"
+
+      - run: "gcloud info"
+      # - uses: actions/setup-python@v4
+      #   with:
+      #     python-version-file: "./api/.python-version"
+      # - name: Install dependencies
+      #   run: |
+      #     pip install poetry==1.5.1
+      #     poetry config virtualenvs.in-project true
+      #     poetry install
+
+      # - name: Install dependencies
+      #   run: pnpm install
+      # - run: s/deploy-prod
