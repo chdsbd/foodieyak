@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -e
+
+exec ./.venv/bin/python3 -m uvicorn foodieyak.main:app --reload "$@"
