@@ -2,7 +2,7 @@ FROM python:3.11-slim-bullseye
 
 # Install Poetry
 # update circleci jobs if you change this version
-RUN set -ex && python3 -m pip install pip==23.2.1 && \
+RUN set -ex && \
   python3 -m pip install poetry==1.5.1 && \
   poetry config virtualenvs.in-project true
 
