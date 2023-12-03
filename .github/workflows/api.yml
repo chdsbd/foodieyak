@@ -56,6 +56,9 @@ jobs:
       id-token: "write"
     runs-on: ubuntu-latest
 
+    env:
+      PROJECT_ID: "foodieyak-staging"
+
     environment:
       name: production-api
       url: https://foodieyak.com/api
@@ -86,9 +89,9 @@ jobs:
         run: |
           git_sha=${{ github.event.pull_request.head.sha || github.sha }}
           docker build \
-          --tag us-central1-docker.pkg.dev/stage-foodieyak/foodieyak-api/api:$git_sha .
-          docker push us-central1-docker.pkg.dev/stage-foodieyak/foodieyak-api/api:$git_sha
-          echo "Pushed \`us-central1-docker.pkg.dev/stage-foodieyak/foodieyak-api/api:$git_sha:$git_sha\`" >> $GITHUB_STEP_SUMMARY
+          --tag us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/foodieyak-api/api:$git_sha .
+          docker push us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/foodieyak-api/api:$git_sha
+          echo "Pushed \`us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/foodieyak-api/api:$git_sha:$git_sha\`" >> $GITHUB_STEP_SUMMARY
       # - uses: actions/setup-python@v4
       #   with:
       #     python-version-file: "./api/.python-version"
