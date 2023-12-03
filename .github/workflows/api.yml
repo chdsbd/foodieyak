@@ -80,19 +80,20 @@ jobs:
       - uses: docker/setup-buildx-action@v2
       - run: gcloud auth configure-docker us-central1-docker.pkg.dev
       - run: gcloud artifacts repositories describe foodieyak-api --location us-central1
+      - run: docker pull us-central1-docker.pkg.dev/foodieyak-staging/foodieyak-api/api:2b3f8ac10f6a68681da8d00058460516eee73d60
       # - run: gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://us-central1-docker.pkg.dev
       # - uses: docker/login-action@v3
       #   with:
       #     registry: us-central1-docker.pkg.dev
       #     username: oauth2accesstoken
       #     password: ${{ steps.auth.outputs.access_token }}
-      - name: Build and push
-        run: |
-          git_sha=${{ github.event.pull_request.head.sha || github.sha }}
-          docker build \
-          --tag us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/foodieyak-api/api:$git_sha .
-          docker push us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/foodieyak-api/api:$git_sha
-          echo "Pushed \`us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/foodieyak-api/api:$git_sha:$git_sha\`" >> $GITHUB_STEP_SUMMARY
+      # - name: Build and push
+      #   run: |
+      #     git_sha=${{ github.event.pull_request.head.sha || github.sha }}
+      #     docker build \
+      #     --tag us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/foodieyak-api/api:$git_sha .
+      #     docker push us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/foodieyak-api/api:$git_sha
+      #     echo "Pushed \`us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/foodieyak-api/api:$git_sha:$git_sha\`" >> $GITHUB_STEP_SUMMARY
       # - uses: actions/setup-python@v4
       #   with:
       #     python-version-file: "./api/.python-version"
