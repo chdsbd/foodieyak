@@ -15,6 +15,7 @@ jobs:
       ARTIFACT_REGISTRY_REPOSITORY: "foodieyak-api"
       CLOUD_RUN_SERVICE_NAME: "foodieyak-api"
       CLOUD_RUN_SERVICE_REGION: "us-central1"
+      GITHUB_PR_NUMBER: ${{github.event.pull_request.number}}
 
     environment:
       name: staging-api
@@ -43,5 +44,8 @@ jobs:
       - name: Deploy
         id: deploy
         run: |
-          url=$(gcloud run deploy ${{ env.CLOUD_RUN_SERVICE_NAME }} --image=${{ steps.build.outputs.image_tag }} --region=${{ env.CLOUD_RUN_SERVICE_REGION }} --format='value(status.address.url)')
-          echo "url=${url}" >> "$GITHUB_OUTPUT"
+          s/deploy \
+          --service-name=${{ env.CLOUD_RUN_SERVICE_NAME }} \
+          --image=${{ steps.build.outputs.image_tag }} \
+          --region=${{ env.CLOUD_RUN_SERVICE_REGION }} \
+          --pr-number=${{ github.event.pull_request.number }}
