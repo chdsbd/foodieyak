@@ -10,7 +10,7 @@ main() {
   local git_sha="${1}"; shift
 
   local tag="${artifact_registry_domain}/${project_id}/${artifact_registry_repository}/${docker_image_name}:${git_sha}"
-  docker build --tag "${tag}"
+  docker build --tag "${tag}" .
   docker push "${tag}"
 
   echo "Pushed \`${tag}\`" >> "$GITHUB_STEP_SUMMARY"
