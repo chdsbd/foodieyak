@@ -78,6 +78,7 @@ jobs:
         with:
           version: ">= 363.0.0"
       - uses: docker/setup-buildx-action@v2
+      - run: gcloud auth list
       - run: gcloud auth configure-docker us-central1-docker.pkg.dev
       - run: gcloud artifacts repositories describe foodieyak-api --location us-central1
       - run: docker pull us-central1-docker.pkg.dev/foodieyak-staging/foodieyak-api/api:2b3f8ac10f6a68681da8d00058460516eee73d60
