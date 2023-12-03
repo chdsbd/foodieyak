@@ -73,8 +73,15 @@ jobs:
       - uses: "google-github-actions/setup-gcloud@v1"
         with:
           version: ">= 363.0.0"
-
-      - run: "gcloud info"
+      - uses: docker/setup-buildx-action@v2
+      - run: gcloud auth configure-docker us-central1-docker.pkg.dev
+      - name: Build and push
+        run: |
+          git_sha=${{ github.event.pull_request.head.sha || github.sha }}
+          docker build \
+          --tag foodieyak-api:$git_sha .
+          docker push foodieyak-api:$git_sha
+          echo "Pushed \`foodieyak-api:$git_sha\`" >> $GITHUB_STEP_SUMMARY
       # - uses: actions/setup-python@v4
       #   with:
       #     python-version-file: "./api/.python-version"
