@@ -16,7 +16,6 @@ def store_output(output):
     if output_file:
         with open(output_file, "w") as f:
             f.write(output)
-    print(output)
 
 
 def main():
@@ -34,7 +33,7 @@ def main():
 
     if tag:
         cmd.append(f"--tag={tag}")
-    res = subprocess.run(cmd, check=True, capture_output=True)
+    res = subprocess.run(cmd, check=True, stdout=subprocess.PIPE)
     data = json.loads(res.stdout)
 
     if tag:

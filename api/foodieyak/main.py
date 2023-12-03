@@ -16,9 +16,10 @@ async def homepage(request):
 app = Starlette(
     routes=[
         Route("/", homepage),
-        Route("/activity", activity_view, methods=["GET"]),
-        Route("/places", places_view, methods=["GET"]),
-        Route("/places/{place_id}", place_view, methods=["GET"]),
+        Route("/api", homepage),
+        Route("/api/activity", activity_view, methods=["GET"]),
+        Route("/api/places", places_view, methods=["GET"]),
+        Route("/api/places/{place_id}", place_view, methods=["GET"]),
     ],
     middleware=[Middleware(SessionMiddleware)],
 )
