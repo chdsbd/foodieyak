@@ -13,6 +13,7 @@ main() {
   docker build --tag "${tag}" .
   docker push "${tag}"
 
+  echo "image_tag=${tag}" >> "$GITHUB_OUTPUT"
   echo "Pushed \`${tag}\`" >> "$GITHUB_STEP_SUMMARY"
 }
 main "$@"

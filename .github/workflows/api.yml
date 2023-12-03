@@ -13,6 +13,7 @@ jobs:
       PROJECT_ID: "foodieyak-staging"
       ARTIFACT_REGISTRY_DOMAIN: "us-central1-docker.pkg.dev"
       ARTIFACT_REGISTRY_REPOSITORY: "foodieyak-api"
+      CLOUD_RUN_SERVICE_NAME: "foodieyak-api"
 
     environment:
       name: staging-api
@@ -35,4 +36,7 @@ jobs:
       - run: gcloud auth list
       - run: gcloud auth configure-docker ${{ env.ARTIFACT_REGISTRY_DOMAIN }}
       - name: Build and push
+        id: build
         run: s/build-and-push ${{ env.PROJECT_ID }} ${{ env.ARTIFACT_REGISTRY_DOMAIN }} ${{ env.ARTIFACT_REGISTRY_REPOSITORY }} ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Deploy
+        run: gcloud run deploy ${{ env.CLOUD_RUN_SERVICE_NAME }} --image=${{ steps.build.outputs.image_tag }}
