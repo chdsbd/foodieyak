@@ -43,11 +43,9 @@ jobs:
         run: s/build-and-push ${{ env.PROJECT_ID }} ${{ env.ARTIFACT_REGISTRY_DOMAIN }} ${{ env.ARTIFACT_REGISTRY_REPOSITORY }} ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Deploy
         id: deploy
-        run: url=$(
+        run: |
           s/deploy \
           --service-name=${{ env.CLOUD_RUN_SERVICE_NAME }} \
           --image=${{ steps.build.outputs.image_tag }} \
           --region=${{ env.CLOUD_RUN_SERVICE_REGION }} \
           --pr-number=${{ github.event.pull_request.number }}
-          )
-          echo "url=${url}" >> "$GITHUB_OUTPUT"
