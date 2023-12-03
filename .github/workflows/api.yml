@@ -43,5 +43,5 @@ jobs:
       - name: Deploy
         id: deploy
         run: |
-          url=$(gcloud run deploy ${{ env.CLOUD_RUN_SERVICE_NAME }} --image=${{ steps.build.outputs.image_tag }} --region=${{ env.CLOUD_RUN_SERVICE_REGION }})
+          url=$(gcloud run deploy ${{ env.CLOUD_RUN_SERVICE_NAME }} --image=${{ steps.build.outputs.image_tag }} --region=${{ env.CLOUD_RUN_SERVICE_REGION }} --format='value(status.address.url)')
           echo "url=${url}" >> "$GITHUB_OUTPUT"
