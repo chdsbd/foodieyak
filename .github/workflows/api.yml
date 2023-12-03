@@ -58,6 +58,7 @@ jobs:
 
     env:
       PROJECT_ID: "foodieyak-staging"
+      ARTIFACT_REGISTRY_DOMAIN: "us-central1-docker.pkg.dev"
 
     environment:
       name: staging-api
@@ -72,21 +73,13 @@ jobs:
       - uses: "google-github-actions/auth@v2"
         id: auth
         with:
-          project_id: "foodieyak-staging"
+          project_id: ${{ env.PROJECT_ID }}
           credentials_json: "${{ secrets.GCLOUD_SERVICE_ACCOUNT_JSON }}"
       - uses: "google-github-actions/setup-gcloud@v1"
         with:
           version: ">= 363.0.0"
       - uses: docker/setup-buildx-action@v2
       - run: gcloud auth list
-
-      - run: gcloud auth configure-docker us-central1-docker.pkg.dev
-      - run: gcloud artifacts repositories describe foodieyak-api --location us-central1
-      - run: docker pull us-central1-docker.pkg.dev/foodieyak-staging/foodieyak-api/api:2b3f8ac10f6a68681da8d00058460516eee73d60
+      - run: gcloud auth configure-docker ${{ env.ARTIFACT_REGISTRY_DOMAIN }}
       - name: Build and push
-        run: |
-          git_sha=${{ github.event.pull_request.head.sha || github.sha }}
-          docker build \
-          --tag us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/foodieyak-api/api:$git_sha .
-          docker push us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/foodieyak-api/api:$git_sha
-          echo "Pushed \`us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/foodieyak-api/api:$git_sha:$git_sha\`" >> $GITHUB_STEP_SUMMARY
+        run: s/build-and-push
