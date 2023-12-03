@@ -33,7 +33,7 @@ async def get_places(user_id: str) -> AsyncIterator[DocumentSnapshot]:
 
 
 async def get_user_from_session(request: Request) -> str | None:
-    session_id = request.cookies.get("session_id")
+    session_id = request.cookies.get("__session")
     if not session_id:
         return None
 
