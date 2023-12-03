@@ -1,0 +1,47 @@
+name: API
+"on":
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  stage_build_container:
+    runs-on: ubuntu-latest
+
+    env:
+      PROJECT_ID: "foodieyak-staging"
+      ARTIFACT_REGISTRY_DOMAIN: "us-central1-docker.pkg.dev"
+      ARTIFACT_REGISTRY_REPOSITORY: "foodieyak-api"
+      CLOUD_RUN_SERVICE_NAME: "foodieyak-api"
+      CLOUD_RUN_SERVICE_REGION: "us-central1"
+
+    environment:
+      name: staging-api
+      url: ${{ steps.deploy.outputs.url }}
+
+    defaults:
+      run:
+        working-directory: "./api"
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: "google-github-actions/auth@v2"
+        id: auth
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          credentials_json: "${{ secrets.GCLOUD_SERVICE_ACCOUNT_JSON }}"
+      - uses: "google-github-actions/setup-gcloud@v1"
+        with:
+          version: ">= 363.0.0"
+      - uses: docker/setup-buildx-action@v2
+      - run: gcloud auth list
+      - run: gcloud auth configure-docker ${{ env.ARTIFACT_REGISTRY_DOMAIN }}
+      - name: Build and push
+        id: build
+        run: s/build-and-push ${{ env.PROJECT_ID }} ${{ env.ARTIFACT_REGISTRY_DOMAIN }} ${{ env.ARTIFACT_REGISTRY_REPOSITORY }} ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Deploy
+        id: deploy
+        run: |
+          url=$(gcloud run deploy ${{ env.CLOUD_RUN_SERVICE_NAME }} --image=${{ steps.build.outputs.image_tag }} --region=${{ env.CLOUD_RUN_SERVICE_REGION }} --format='value(status.address.url)')
+          echo "url=${url}" >> "$GITHUB_OUTPUT"
