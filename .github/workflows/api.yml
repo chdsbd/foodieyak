@@ -50,7 +50,7 @@ jobs:
   #     - name: Install dependencies
   #       run: pnpm install
   #     - run: s/deploy-stage
-  production_deploy:
+  stage_deploy:
     permissions:
       contents: "read"
       id-token: "write"
@@ -60,7 +60,7 @@ jobs:
       PROJECT_ID: "foodieyak-staging"
 
     environment:
-      name: production-api
+      name: staging-api
       url: https://foodieyak.com/api
 
     defaults:
@@ -73,13 +73,13 @@ jobs:
         id: auth
         with:
           project_id: "foodieyak-staging"
-          workload_identity_provider: "projects/227275725965/locations/global/workloadIdentityPools/github/providers/github"
-          service_account: "github-actions@foodieyak-staging.iam.gserviceaccount.com"
+          credentials_json: "${{ secrets.GCLOUD_SERVICE_ACCOUNT_JSON }}"
       - uses: "google-github-actions/setup-gcloud@v1"
         with:
           version: ">= 363.0.0"
       - uses: docker/setup-buildx-action@v2
       - run: gcloud auth list
+
       - run: gcloud auth configure-docker us-central1-docker.pkg.dev
       - run: gcloud artifacts repositories describe foodieyak-api --location us-central1
       - run: docker pull us-central1-docker.pkg.dev/foodieyak-staging/foodieyak-api/api:2b3f8ac10f6a68681da8d00058460516eee73d60
