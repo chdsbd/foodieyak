@@ -72,7 +72,7 @@ jobs:
       - uses: "google-github-actions/auth@v2"
         id: auth
         with:
-          project_id: "foodieyak-ef36d"
+          project_id: "foodieyak-staging"
           workload_identity_provider: "projects/227275725965/locations/global/workloadIdentityPools/github/providers/github"
       - uses: "google-github-actions/setup-gcloud@v1"
         with:
