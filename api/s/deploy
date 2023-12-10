@@ -4,28 +4,42 @@ import json
 import os
 import subprocess
 
+DOCKER_IMAGE_NAME = "api"
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--service-name", required=True)
-parser.add_argument("--image", required=True)
 parser.add_argument("--region", required=True)
+parser.add_argument("--project-id", required=True)
+parser.add_argument("--artifact-registry-domain", required=True)
+parser.add_argument("--artifact-registry-repository", required=True)
+parser.add_argument("--git-sha", required=True)
 parser.add_argument("--pr-number")
 
 
-def store_output(output):
+def store_output(**args: dict[str, str]) -> None:
     output_file = os.environ.get("GITHUB_OUTPUT")
     if output_file:
-        with open(output_file, "w") as f:
-            f.write(output)
+        with open(output_file, "a") as f:
+            for key, val in args.items():
+                f.write(f"{key}={val}")
 
 
-def main():
+def main() -> None:
     args = parser.parse_args()
+
+    tag = f"{args.artifact_registry_domain}/{args.project_id}/{args.artifact_registry_repository}/{DOCKER_IMAGE_NAME}:{args.git_sha}"
+
+    subprocess.run(["docker", "build", f"--tag={tag}"], check=True)
+    subprocess.run(["docker", "push", tag], check=True)
+
+    store_output(tag=tag)
+
     cmd = [
         "gcloud",
         "run",
         "deploy",
         args.service_name,
-        f"--image={args.image}",
+        f"--image={tag}",
         f"--region={args.region}",
         "--format=json",
     ]
@@ -41,7 +55,7 @@ def main():
             if traffic.get("tag") == tag:
                 store_output(f"url={traffic['url']}")
                 return
-    store_output(f"url={data['status']['url']}")
+    store_output(url=data["status"]["url"])
 
 
 if __name__ == "__main__":
