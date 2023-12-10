@@ -42,12 +42,12 @@ def main() -> None:
 
     pr_preview_tag = f"pr-{args.pr_number}" if args.pr_number else None
 
-    cmd = ["docker", "build", f"--tag={tag}", f"--tag={slugify(args.git_ref)}", "."]
+    docker_tags = [f"--tag={tag}", f"--tag={slugify(args.git_ref)}"]
     if pr_preview_tag:
-        cmd.append(f"--tag={pr_preview_tag}")
+        docker_tags.append(f"--tag={pr_preview_tag}")
 
-    subprocess.run(cmd, check=True)
-    subprocess.run(["docker", "push", tag], check=True)
+    subprocess.run(["docker", "build", *docker_tags, "."], check=True)
+    subprocess.run(["docker", "push", *docker_tags], check=True)
 
     store_output(tag=tag)
 
