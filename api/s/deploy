@@ -38,25 +38,28 @@ def slugify(x: str) -> str:
 def main() -> None:
     args = parser.parse_args()
 
-    tag = f"{args.artifact_registry_domain}/{args.project_id}/{args.artifact_registry_repository}/{DOCKER_IMAGE_NAME}:{args.git_sha}"
+    image_path = f"{args.artifact_registry_domain}/{args.project_id}/{args.artifact_registry_repository}/{DOCKER_IMAGE_NAME}"
 
     pr_preview_tag = f"pr-{args.pr_number}" if args.pr_number else None
 
-    docker_tags = [f"--tag={tag}", f"--tag={slugify(args.git_ref)}"]
+    docker_tags = [args.git_sha, slugify(args.git_ref)]
     if pr_preview_tag:
-        docker_tags.append(f"--tag={pr_preview_tag}")
+        docker_tags.append(pr_preview_tag)
 
-    subprocess.run(["docker", "build", *docker_tags, "."], check=True)
-    subprocess.run(["docker", "push", *docker_tags], check=True)
-
-    store_output(tag=tag)
+    subprocess.run(
+        ["docker", "build", *[f"--tag={image_path}:{tag}" for tag in docker_tags], "."],
+        check=True,
+    )
+    subprocess.run(
+        ["docker", "push", *[f"{image_path}:{tag}" for tag in docker_tags]], check=True
+    )
 
     cmd = [
         "gcloud",
         "run",
         "deploy",
         args.service_name,
-        f"--image={tag}",
+        f"--image={image_path}:{args.git_sha}",
         f"--region={args.region}",
         "--format=json",
     ]
@@ -66,9 +69,9 @@ def main() -> None:
     res = subprocess.run(cmd, check=True, stdout=subprocess.PIPE)
     data = json.loads(res.stdout)
 
-    if tag:
+    if pr_preview_tag:
         for traffic in data["status"]["traffic"]:
-            if traffic.get("tag") == tag:
+            if traffic.get("tag") == pr_preview_tag:
                 store_output(f"url={traffic['url']}")
                 return
     store_output(url=data["status"]["url"])
