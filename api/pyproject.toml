@@ -10,6 +10,8 @@ firebase-admin = "^6.2.0"
 starlette = "^0.33.0"
 uvicorn = "^0.24.0.post1"
 gunicorn = "^21.2.0"
+pyjwt = "^2.8.0"
+pydantic = "^2.5.2"
 
 [tool.poetry.dev-dependencies]
 
