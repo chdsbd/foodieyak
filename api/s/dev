@@ -1,4 +1,15 @@
 #!/usr/bin/env bash
 set -e
 
+if [ -z "$GOOGLE_APPLICATION_CREDENTIALS" ]; then
+  if test -f foodieyak-staging-firebase.json; then
+  export GOOGLE_APPLICATION_CREDENTIALS=$PWD/foodieyak-staging-firebase.json
+  else
+    echo 'Expected foodieyak-staging-firebase.json to exist in directory or GOOGLE_APPLICATION_CREDENTIALS to be set.
+Follow the README.md instructions to configure Google application credentials.
+'
+    exit 1
+  fi
+fi
+
 exec ./.venv/bin/python3 -m uvicorn foodieyak.main:app --reload "$@"

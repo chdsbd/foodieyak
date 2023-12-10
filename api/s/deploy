@@ -2,47 +2,78 @@
 import argparse
 import json
 import os
+import re
 import subprocess
+
+DOCKER_IMAGE_NAME = "api"
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--service-name", required=True)
-parser.add_argument("--image", required=True)
 parser.add_argument("--region", required=True)
+parser.add_argument("--project-id", required=True)
+parser.add_argument("--artifact-registry-domain", required=True)
+parser.add_argument("--artifact-registry-repository", required=True)
+parser.add_argument("--git-sha", required=True)
+parser.add_argument("--git-ref", required=True)
 parser.add_argument("--pr-number")
 
 
-def store_output(output):
+def store_output(**args: dict[str, str]) -> None:
     output_file = os.environ.get("GITHUB_OUTPUT")
     if output_file:
-        with open(output_file, "w") as f:
-            f.write(output)
-    print(output)
+        with open(output_file, "a") as f:
+            for key, val in args.items():
+                f.write(f"{key}={val}")
 
 
-def main():
+def slugify(x: str) -> str:
+    # The tag must be valid ASCII and can contain lowercase and uppercase
+    # letters, digits, underscores, periods, and hyphens. It cannot start with a
+    # period or hyphen and must be no longer than 128 characters
+    #
+    # https://docs.docker.com/engine/reference/commandline/tag/#description
+    return re.sub(r"[^a-zA-Z.0-9-]", "-", x)
+
+
+def main() -> None:
     args = parser.parse_args()
+
+    image_path = f"{args.artifact_registry_domain}/{args.project_id}/{args.artifact_registry_repository}/{DOCKER_IMAGE_NAME}"
+
+    pr_preview_tag = f"pr-{args.pr_number}" if args.pr_number else None
+
+    docker_tags = [args.git_sha, slugify(args.git_ref)]
+    if pr_preview_tag:
+        docker_tags.append(pr_preview_tag)
+
+    subprocess.run(
+        ["docker", "build", *[f"--tag={image_path}:{tag}" for tag in docker_tags], "."],
+        check=True,
+    )
+    for tag in docker_tags:
+        subprocess.run(["docker", "push", f"{image_path}:{tag}"], check=True)
+
     cmd = [
         "gcloud",
         "run",
         "deploy",
         args.service_name,
-        f"--image={args.image}",
+        f"--image={image_path}:{args.git_sha}",
         f"--region={args.region}",
         "--format=json",
     ]
-    tag = f"pr-{args.pr_number}" if args.pr_number else None
 
-    if tag:
-        cmd.append(f"--tag={tag}")
-    res = subprocess.run(cmd, check=True, capture_output=True)
+    if pr_preview_tag:
+        cmd.append(f"--tag={pr_preview_tag}")
+    res = subprocess.run(cmd, check=True, stdout=subprocess.PIPE)
     data = json.loads(res.stdout)
 
-    if tag:
+    if pr_preview_tag:
         for traffic in data["status"]["traffic"]:
-            if traffic.get("tag") == tag:
-                store_output(f"url={traffic['url']}")
+            if traffic.get("tag") == pr_preview_tag:
+                store_output(url=traffic["url"])
                 return
-    store_output(f"url={data['status']['url']}")
+    store_output(url=data["status"]["url"])
 
 
 if __name__ == "__main__":

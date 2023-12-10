@@ -414,3 +414,19 @@ export async function placeById({
   const res = fromCache ? await getDocFromCache(q) : await getDoc(q)
   return PlaceSchema.parse({ id: res.id, ...res.data() })
 }
+
+export async function refreshSession(idToken: string) {
+  await fetch("/api/refresh_session", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ idToken }),
+  })
+}
+
+export async function logout() {
+  await fetch("/api/logout", {
+    method: "POST",
+  })
+}

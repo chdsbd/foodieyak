@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import secrets
 from typing import TYPE_CHECKING
 
 from starlette.exceptions import HTTPException
@@ -33,7 +34,7 @@ async def get_places(user_id: str) -> AsyncIterator[DocumentSnapshot]:
 
 
 async def get_user_from_session(request: Request) -> str | None:
-    session_id = request.cookies.get("session_id")
+    session_id = request.cookies.get("__session")
     if not session_id:
         return None
 
@@ -42,6 +43,14 @@ async def get_user_from_session(request: Request) -> str | None:
         return None
     session_data = session.to_dict()
     return session_data.get("user_id")
+
+
+async def create_session(user_id: str) -> str:
+    session_id = secrets.token_hex(32)
+    await (
+        db.collection("auth_sessions").document(session_id).create({"user_id": user_id})
+    )
+    return session_id
 
 
 async def get_checkins_for_activity(user_id: str) -> AsyncIterator[DocumentSnapshot]:

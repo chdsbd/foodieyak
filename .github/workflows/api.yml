@@ -16,6 +16,9 @@ jobs:
       CLOUD_RUN_SERVICE_NAME: "foodieyak-api"
       CLOUD_RUN_SERVICE_REGION: "us-central1"
       GITHUB_PR_NUMBER: ${{github.event.pull_request.number}}
+      GIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      GIT_REF: ${{ github.event.pull_request.head.ref || github.ref }}
 
     environment:
       name: staging-api
@@ -38,14 +41,63 @@ jobs:
       - uses: docker/setup-buildx-action@v2
       - run: gcloud auth list
       - run: gcloud auth configure-docker ${{ env.ARTIFACT_REGISTRY_DOMAIN }}
-      - name: Build and push
-        id: build
-        run: s/build-and-push ${{ env.PROJECT_ID }} ${{ env.ARTIFACT_REGISTRY_DOMAIN }} ${{ env.ARTIFACT_REGISTRY_REPOSITORY }} ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Deploy
         id: deploy
         run: |
           s/deploy \
           --service-name=${{ env.CLOUD_RUN_SERVICE_NAME }} \
-          --image=${{ steps.build.outputs.image_tag }} \
           --region=${{ env.CLOUD_RUN_SERVICE_REGION }} \
-          --pr-number=${{ github.event.pull_request.number }}
+          --project-id=${{ env.PROJECT_ID }} \
+          --artifact-registry-domain=${{ env.ARTIFACT_REGISTRY_DOMAIN }} \
+          --artifact-registry-repository=${{ env.ARTIFACT_REGISTRY_REPOSITORY }} \
+          --git-sha=${{ env.GIT_SHA }} \
+          --git-ref=${{ env.GIT_REF }} \
+          --pr-number=${{ env.PR_NUMBER }}
+
+  prod_build_container:
+    runs-on: ubuntu-latest
+
+    env:
+      PROJECT_ID: "foodieyak-ef36d"
+      ARTIFACT_REGISTRY_DOMAIN: "us-central1-docker.pkg.dev"
+      ARTIFACT_REGISTRY_REPOSITORY: "foodieyak-api"
+      CLOUD_RUN_SERVICE_NAME: "foodieyak-api"
+      CLOUD_RUN_SERVICE_REGION: "us-central1"
+      GITHUB_PR_NUMBER: ${{github.event.pull_request.number}}
+      GIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      GIT_REF: ${{ github.event.pull_request.head.ref || github.ref }}
+
+    environment:
+      name: production-api
+      url: ${{ steps.deploy.outputs.url }}
+
+    defaults:
+      run:
+        working-directory: "./api"
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: "google-github-actions/auth@v2"
+        id: auth
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          credentials_json: "${{ secrets.GCLOUD_SERVICE_ACCOUNT_JSON }}"
+      - uses: "google-github-actions/setup-gcloud@v1"
+        with:
+          version: ">= 363.0.0"
+      - uses: docker/setup-buildx-action@v2
+      - run: gcloud auth list
+      - run: gcloud auth configure-docker ${{ env.ARTIFACT_REGISTRY_DOMAIN }}
+      - name: Deploy
+        id: deploy
+        run: |
+          s/deploy \
+          --service-name=${{ env.CLOUD_RUN_SERVICE_NAME }} \
+          --region=${{ env.CLOUD_RUN_SERVICE_REGION }} \
+          --project-id=${{ env.PROJECT_ID }} \
+          --artifact-registry-domain=${{ env.ARTIFACT_REGISTRY_DOMAIN }} \
+          --artifact-registry-repository=${{ env.ARTIFACT_REGISTRY_REPOSITORY }} \
+          --git-sha=${{ env.GIT_SHA }} \
+          --git-ref=${{ env.GIT_REF }} \
+          --pr-number=${{ env.PR_NUMBER }}

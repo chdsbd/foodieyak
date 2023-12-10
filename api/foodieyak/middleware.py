@@ -18,12 +18,12 @@ class _RequestHandler(Protocol):
 
 class SessionMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: _RequestHandler) -> Response:
-        session_id = request.cookies.get("session_id")
+        # firebase hosting only allows __session cookies.
+        # https://firebase.google.com/docs/hosting/manage-cache#using_cookies
         request.scope["auth"] = AuthCredentials()
         request.scope["user"] = UnauthenticatedUser()
-        if session_id:
-            user_id = await get_user_from_session(request)
-            if user_id:
-                request.scope["auth"] = AuthCredentials(["authenticated"])
-                request.scope["user"] = user_id
+        user_id = await get_user_from_session(request)
+        if user_id:
+            request.scope["auth"] = AuthCredentials(["authenticated"])
+            request.scope["user"] = user_id
         return await call_next(request)

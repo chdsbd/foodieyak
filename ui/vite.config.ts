@@ -10,4 +10,9 @@ export default defineConfig({
     // ignore
     chunkSizeWarningLimit: 1_000_000,
   },
+  server: {
+    proxy: {
+      "/api": "http://127.0.0.1:8000",
+    },
+  },
 })

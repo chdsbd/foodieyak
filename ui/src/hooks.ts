@@ -21,6 +21,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useFirestoreCollectionData, useFirestoreDocData } from "reactfire"
 import { z } from "zod"
 
+import { logout, refreshSession } from "./api"
 import {
   ActivitySchema,
   FriendSchema,
@@ -106,6 +107,14 @@ export function useIsAuthed(): "authed" | "unauthed" | "loading" {
       } else {
         localStorage.removeItem("isAuthenticated")
         setState("unauthed")
+      }
+
+      if (user) {
+        void user.getIdToken().then(async (idToken) => {
+          await refreshSession(idToken)
+        })
+      } else {
+        void logout()
       }
     })
   }, [])

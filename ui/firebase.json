@@ -8,6 +8,14 @@
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {
+        "source": "/api/**",
+        "run": {
+          "serviceId": "foodieyak-api",
+          "region": "us-central1",
+          "pinTag": false
+        }
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }
