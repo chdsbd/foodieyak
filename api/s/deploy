@@ -50,9 +50,8 @@ def main() -> None:
         ["docker", "build", *[f"--tag={image_path}:{tag}" for tag in docker_tags], "."],
         check=True,
     )
-    subprocess.run(
-        ["docker", "push", *[f"{image_path}:{tag}" for tag in docker_tags]], check=True
-    )
+    for tag in docker_tags:
+        subprocess.run(["docker", "push", f"{image_path}:{tag}"], check=True)
 
     cmd = [
         "gcloud",
