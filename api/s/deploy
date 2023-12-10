@@ -42,7 +42,7 @@ def main() -> None:
 
     pr_preview_tag = f"pr-{args.pr_number}" if args.pr_number else None
 
-    cmd = ["docker", "build", f"--tag={tag}", f"--tag={slugify(args.git_ref)}"]
+    cmd = ["docker", "build", f"--tag={tag}", f"--tag={slugify(args.git_ref)}", "."]
     if pr_preview_tag:
         cmd.append(f"--tag={pr_preview_tag}")
 
