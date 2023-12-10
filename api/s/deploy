@@ -46,7 +46,7 @@ def main() -> None:
     if pr_preview_tag:
         cmd.append(f"--tag={pr_preview_tag}")
 
-    subprocess.run(["docker", "build", f"--tag={tag}"], check=True)
+    subprocess.run(cmd, check=True)
     subprocess.run(["docker", "push", tag], check=True)
 
     store_output(tag=tag)
