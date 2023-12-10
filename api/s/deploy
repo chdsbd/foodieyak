@@ -71,7 +71,7 @@ def main() -> None:
     if pr_preview_tag:
         for traffic in data["status"]["traffic"]:
             if traffic.get("tag") == pr_preview_tag:
-                store_output(f"url={traffic['url']}")
+                store_output(url=traffic["url"])
                 return
     store_output(url=data["status"]["url"])
 
