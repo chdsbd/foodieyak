@@ -16,6 +16,7 @@ export const UserSchema = z.object({
   displayName: z.nullable(z.string()),
   email: z.string(),
   emailLookupField: z.optional(z.string()),
+  theme: z.union([z.literal("light"), z.literal("dark")]).default("light"),
 })
 
 export type User = z.infer<typeof UserSchema>

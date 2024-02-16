@@ -389,6 +389,17 @@ export async function friendInviteAccept({
     .commit()
 }
 
+export async function updateUserById({
+  userId,
+  theme,
+}: {
+  userId: string
+  theme: User["theme"]
+}) {
+  const q = doc(db, "users", userId)
+  await writeBatch(db).update(q, { theme }).commit()
+}
+
 export async function userById({
   userId,
   fromCache = false,

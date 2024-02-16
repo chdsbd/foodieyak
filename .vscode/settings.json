@@ -10,7 +10,7 @@
     "editor.tabSize": 2
   },
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
+    "source.fixAll.eslint": "explicit"
   },
   "[javascript]": {
     "editor.tabSize": 2
@@ -20,7 +20,7 @@
   },
   "[python]": {
     "editor.codeActionsOnSave": {
-      "source.organizeImports": true
+      "source.organizeImports": "explicit"
     }
   },
   "eslint.lintTask.enable": true,

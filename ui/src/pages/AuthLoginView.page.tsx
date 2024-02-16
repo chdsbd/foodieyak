@@ -8,6 +8,7 @@ import {
   Tab,
   TabList,
   Tabs,
+  useColorMode,
   useToast,
 } from "@chakra-ui/react"
 import { FirebaseError } from "firebase/app"
@@ -15,6 +16,7 @@ import { getAuth, signInWithEmailAndPassword } from "firebase/auth"
 import { useState } from "react"
 import { Link, useHistory } from "react-router-dom"
 
+import { userById } from "../api"
 import { AuthForm } from "../components/AuthForm"
 import { pathPasswordForgot, pathPlaceList, pathSignup } from "../paths"
 
@@ -24,31 +26,36 @@ export function AuthLoginView() {
   const [isLoading, setIsLoading] = useState(false)
   const toast = useToast()
   const history = useHistory()
-  const handleLogin = () => {
+  const { setColorMode } = useColorMode()
+  const handleLogin = async () => {
     const auth = getAuth()
     setIsLoading(true)
-    signInWithEmailAndPassword(auth, email, password)
-      .then(() => {
-        history.push({
-          pathname: pathPlaceList({}),
-        })
+    try {
+      const data = await signInWithEmailAndPassword(auth, email, password)
+      const userId = data.user.uid
+      const userData = await userById({ userId })
+      setColorMode(userData.theme)
+      history.push({
+        pathname: pathPlaceList({}),
       })
-      .catch((error: FirebaseError) => {
-        const errorCode = error.code
-        const errorMessage = error.message
-        toast({
-          title: "Problem logging in",
-          description: `${errorCode}: ${errorMessage}`,
-          status: "error",
-          isClosable: true,
-        })
-        setIsLoading(false)
+    } catch (e: unknown) {
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      const error = e as FirebaseError
+      const errorCode = error.code
+      const errorMessage = error.message
+      toast({
+        title: "Problem logging in",
+        description: `${errorCode}: ${errorMessage}`,
+        status: "error",
+        isClosable: true,
       })
+      setIsLoading(false)
+    }
   }
   return (
     <AuthForm
       onSubmit={() => {
-        handleLogin()
+        void handleLogin()
       }}
     >
       <Tabs index={0} size="lg" width="100%">
