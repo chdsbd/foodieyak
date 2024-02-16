@@ -39,10 +39,10 @@ export function AuthLoginView() {
         pathname: pathPlaceList({}),
       })
     } catch (e: unknown) {
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       const error = e as FirebaseError
       const errorCode = error.code
       const errorMessage = error.message
-      console.warn("problem logging in", errorCode, errorMessage)
       toast({
         title: "Problem logging in",
         description: `${errorCode}: ${errorMessage}`,
@@ -55,7 +55,7 @@ export function AuthLoginView() {
   return (
     <AuthForm
       onSubmit={() => {
-        handleLogin()
+        void handleLogin()
       }}
     >
       <Tabs index={0} size="lg" width="100%">
