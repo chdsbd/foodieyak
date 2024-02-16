@@ -122,15 +122,16 @@ export function MenuItemDetailView() {
       {checkInsForMenuItem.length === 0 && (
         <EmptyStateText>No Check-Ins for menu item.</EmptyStateText>
       )}
-      {sortBy(checkInsForMenuItem, (x) => x.checkedInAt?.toMillis()).map(
-        (menuItem) => (
+      {sortBy(checkInsForMenuItem, (x) => x.checkedInAt?.toDate().toISOString())
+        .reverse()
+        .map((menuItem) => (
           <VStack key={menuItem.id} width="100%" alignItems={"start"}>
             <HStack w="full" alignItems={"start"}>
               <Box w="full" alignItems={"start"}>
                 <Text fontWeight={"bold"}>
                   <UserIdToName userId={menuItem.createdById} />
                 </Text>
-
+                {/* TODO: we want to link to the checkin here, but we don't have access to the checkin id */}
                 {menuItem.rating.comment.length > 0 && (
                   <Text paddingRight={"4"} marginTop={0}>
                     {menuItem.rating.comment}
@@ -154,8 +155,7 @@ export function MenuItemDetailView() {
 
             {/* <Divider /> */}
           </VStack>
-        ),
-      )}
+        ))}
     </Page>
   )
 }

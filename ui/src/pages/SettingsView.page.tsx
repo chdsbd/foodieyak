@@ -17,6 +17,7 @@ import { AuthError, getAuth, signOut } from "firebase/auth"
 import { useEffect, useState } from "react"
 
 import * as api from "../api"
+import { updateUserById } from "../api"
 import { Page } from "../components/Page"
 import { useUser } from "../hooks"
 import { pathLogin } from "../paths"
@@ -103,6 +104,18 @@ export function SettingsView() {
         <RadioGroup
           onChange={(e) => {
             setColorMode(e)
+            void updateUserById({
+              userId: userResult.data?.uid ?? "",
+              // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+              theme: e as "light" | "dark",
+            }).catch((error: AuthError) => {
+              toast({
+                title: "Problem saving theme",
+                description: `${error.code}: ${error.message}`,
+                status: "error",
+                isClosable: true,
+              })
+            })
           }}
           value={colorMode}
         >
