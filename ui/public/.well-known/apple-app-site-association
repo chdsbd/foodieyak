@@ -1,5 +1,22 @@
 {
+   "applinks": {
+      "details": [
+         {
+            "appIDs": [
+               "CX6JQEJBQT.xyz.dignam.foodieyak"
+            ],
+            "components": [
+               {
+                  "/": "/restaurants/*",
+                  "comment": "Open restaurants in App"
+               }
+            ]
+         }
+      ]
+   },
    "webcredentials": {
-      "apps": [ "CX6JQEJBQT.xyz.dignam.foodieyak" ]
+      "apps": [
+         "CX6JQEJBQT.xyz.dignam.foodieyak"
+      ]
    }
 }
